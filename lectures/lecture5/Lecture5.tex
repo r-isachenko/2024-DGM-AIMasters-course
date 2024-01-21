@@ -1,0 +1,438 @@
+\input{../utils/preamble}
+\createdgmtitle{5}
+%--------------------------------------------------------------------------------
+\begin{document}
+%--------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+%\thispagestyle{empty}
+\titlepage
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\vspace{-0.3cm}
+	\[
+		 \mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[\log p(\bx | \bz, \btheta) - \log \frac{q(\bz | \bx, \bphi)}{p(\bz)} \right] \rightarrow \max_{\bphi, \btheta}.
+	\]	
+	\vspace{-0.3cm}
+	\begin{block}{M-step: $\nabla_{\btheta} \mathcal{L}(\bphi, \btheta)$, Monte Carlo estimation}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\nabla_{\btheta} \mathcal{L} (\bphi, \btheta)
+			= \int q(\bz|\bx, \bphi) \nabla_{\btheta}\log p(\bx|\bz, \btheta) d \bz \approx  \\
+			\approx \nabla_{\btheta}\log p(\bx|\bz^*, \btheta), \quad \bz^* \sim q(\bz|\bx, \bphi).
+		\end{multline*}
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{E-step: $\nabla_{\bphi} \mathcal{L}(\bphi, \btheta)$, reparametrization trick}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\nabla_{\bphi} \mathcal{L} (\bphi, \btheta) = \int r(\bepsilon) \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon), \btheta) d\bepsilon  - \nabla_{\bphi} \text{KL}
+			\\ \approx \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon^*), \btheta)  - \nabla_{\bphi} \text{KL}
+		\end{multline*}
+		\vspace{-0.5cm}
+	\end{block}
+	\vspace{-0.5cm}
+	
+	\begin{block}{Variational assumption}
+		\vspace{-0.3cm}
+		\[
+			r(\bepsilon) = \mathcal{N}(0, \bI); \quad  q(\bz| \bx, \bphi) = \mathcal{N} (\bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx)).
+		\]
+		\[
+			\bz = g_{\bphi}(\bx, \bepsilon) = \bsigma_{\bphi}(\bx) \cdot \bepsilon + \bmu_{\bphi}(\bx).
+		\]
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Final EM-algorithm}
+		\begin{itemize}
+			\item pick random sample $\bx_i, i \sim U[1, n]$.
+			\item compute the objective:
+			\vspace{-0.3cm}
+			\[
+			\bepsilon^* \sim r(\bepsilon); \quad \bz^* = g_{\bphi}(\bx, \bepsilon^*);
+			\]
+			\[
+			\cL(\bphi, \btheta) \approx  \log p(\bx | \bz^*, \btheta) - KL(q(\bz^* | \bx, \bphi) || p(\bz^*)).
+			\]
+			\item compute a stochastic gradients w.r.t. $\bphi$ and $\btheta$
+			\begin{align*}
+				\nabla_{\bphi} \mathcal{L} (\bphi, \btheta) &\approx \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon^*), \btheta)  - \nabla_{\bphi} \text{KL}(q(\bz | \bx, \bphi) || p(\bz)); \\
+				\nabla_{\btheta} \mathcal{L} (\bphi, \btheta) &\approx \nabla_{\btheta} \log p(\bx|\bz^*, \btheta).
+			\end{align*}
+			\item update $\btheta, \bphi$ according to the selected optimization method (SGD, Adam, RMSProp):
+			\begin{align*}
+				\bphi &:= \bphi + \eta \nabla_{\bphi} \mathcal{L}(\bphi, \btheta), \\
+				\btheta &:= \btheta + \eta \nabla_{\btheta} \mathcal{L}(\bphi, \btheta).
+			\end{align*}
+		\end{itemize}
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{minipage}[t]{0.55\columnwidth}
+		\begin{block}{Variational autoencoder (VAE)}
+		    \begin{itemize}
+			    \item VAE learns stochastic mapping between $\bx$-space, from $\pi(\bx)$, and a latent $\bz$-space, with simple distribution. 
+			    \item The generative model learns  distribution $p(\bx, \bz | \btheta) = p(\bz) p(\bx |\bz, \btheta)$, with a prior distribution $p(\bz)$, and a stochastic decoder $p(\bx|\bz, \btheta)$. 
+			    \item The stochastic encoder $q(\bz|\bx, \bphi)$ (inference model), approximates the true but intractable posterior $p(\bz|\bx, \btheta)$.
+		    \end{itemize}
+	    \end{block}
+	\end{minipage}%
+	\begin{minipage}[t]{0.45\columnwidth}
+		\vspace{0.7cm}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=\linewidth]{figs/vae_scheme}
+		\end{figure}
+	\end{minipage}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1906.02691}{Kingma D. P., Welling M. An introduction to variational autoencoders, 2019}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	Let our data $\by$ comes from discrete distribution $\Pi(\by)$.
+	\begin{itemize}
+		\item Use \textbf{discrete} model (e.x. $P(\by | \btheta) = \text{Cat}(\bpi(\btheta))$) and minimize any suitable divergence measure $D(\Pi, P)$.
+		\item Use \textbf{continuous} model, but \textbf{dequantize} data (make the data continuous): transform $\Pi(\by)$ to $\pi(\bx)$.
+	\end{itemize}
+	\begin{block}{Uniform dequantization bound}
+		Let dequantize discrete distribution $\Pi(\by)$ to continuous distribution $\pi(\bx)$ in the following way: $\bx = \by + \bu$, where  $\bu \sim U[0, 1]$.
+	\end{block}
+	\begin{block}{Theorem}
+	Fitting continuous model $p(\bx | \btheta)$ on uniformly dequantized data is equivalent to maximization of a lower bound on log-likelihood for a discrete model:
+	\[
+		P(\by | \btheta) = \int_{U[0, 1]} p(\by + \bu | \btheta) d \bu
+	\]
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Normalizing flows as VAE model}
+%=======
+\begin{frame}{VAE vs Normalizing flows}
+	\begin{table}[]
+		\begin{tabular}{l|c|c}
+			& \textbf{VAE} & \textbf{NF} \\ \hline
+			\textbf{Objective} & ELBO $\cL$ & Forward KL/MLE \\ \hline
+			\textbf{Encoder} & \shortstack{stochastic \\ $\bz \sim q (\bz | \bx, \bphi)$} &  \shortstack{\\ deterministic \\ $\bz = f_{\btheta}(\bx)$ \\ $q(\bz | \bx, \btheta) = \delta(\bz - f_{\btheta}(\bx))$}  \\ \hline
+			\textbf{Decoder} & \shortstack{stochastic \\ $\bx \sim p (\bx | \bz, \btheta)$} & \shortstack{\\ deterministic \\ $\bx = g_{\btheta}(\bz)$ \\ $ p(\bx | \bz, \btheta) = \delta(\bx - g_{\btheta}(\bz))$} \\ \hline
+			\textbf{Parameters}  & $\bphi, \btheta$ & $\btheta \equiv \bphi$\\ 
+		\end{tabular}
+	\end{table}
+	\begin{block}{Theorem}
+		MLE for normalizing flow is equivalent to maximization of ELBO for VAE model with deterministic encoder and decoder:
+		\vspace{-0.3cm}
+		\[
+			p(\bx | \bz, \btheta) = \delta (\bx - f^{-1}(\bz, \btheta)) = \delta (\bx - g_{\btheta}(\bz));
+		\]
+		\[
+			q(\bz | \bx, \btheta) = p(\bz | \bx, \btheta) = \delta (\bz - f_{\btheta}(\bx)).
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
+\end{frame}
+%=======
+\begin{frame}{Normalizing flow as VAE}
+	\begin{block}{Proof}
+		\begin{enumerate}
+			\item Dirac delta function property 
+			\[
+				\bbE_{\delta(\bx - \by)} f(\bx) = \int \delta(\bx - \by) f(\bx) d \bx = f(\by).
+			\]
+			\item CoV theorem and Bayes theorem:
+			\[
+				p(\bx | \btheta) = p(\bz) |\det (\bJ_f)|;
+			\]
+			\[
+				p(\bz | \bx, \btheta) = \frac{p(\bx | \bz, \btheta) p(\bz)}{p(\bx | \btheta)}; \quad \Rightarrow \quad p(\bx | \bz, \btheta) = p(\bz | \bx, \btheta) |\det (\bJ_f)|.
+			\]
+			\item Log-likelihood decomposition
+			\[
+				\log p(\bx | \btheta) = \cL(\btheta) + {\color{olive}KL(q(\bz | \bx, \btheta) || p(\bz | \bx, \btheta))} = \cL(\btheta).
+			\]
+		\end{enumerate}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
+\end{frame}
+%=======
+\begin{frame}{Normalizing flow as VAE}
+	\begin{block}{Proof}
+		ELBO objective:
+		\vspace{-0.5cm}
+		\begin{multline*}
+			\cL  = \bbE_{q(\bz | \bx, \btheta)} \left[\log p(\bx | \bz, \btheta) - \log \frac{q(\bz | \bx, \btheta)}{p(\bz)} \right]  \\
+			= \bbE_{q(\bz | \bx, \btheta)} \left[{\color{violet}\log \frac{p(\bx | \bz, \btheta)}{q(\bz | \bx, \btheta)}} + {\color{teal}\log p(\bz)} \right].
+		\end{multline*}
+		\vspace{-0.6cm}
+		\begin{enumerate}
+			\item  Dirac delta function property:
+			\vspace{-0.3cm}
+			\[
+				{\color{teal}\bbE_{q(\bz | \bx, \btheta)} \log p(\bz)} = \int \delta (\bz - f_{\btheta}(\bx)) \log p(\bz) d \bz = \log p(f_{\btheta}(\bx)).
+			\]
+			\vspace{-0.6cm}
+			\item CoV theorem and Bayes theorem:
+			\vspace{-0.2cm}
+			{ \small
+			\[ 
+				{\color{violet}\bbE_{q(\bz | \bx, \btheta)} \log \frac{p(\bx | \bz, \btheta)}{q(\bz | \bx, \btheta)}} = \bbE_{q(\bz | \bx, \btheta)} \log \frac{p(\bz | \bx, \btheta) |\det (\bJ_f)|}{q(\bz | \bx, \btheta)} = \log |\det \bJ_f|.
+			\]
+			}
+			\vspace{-0.6cm}
+			\item Log-likelihood decomposition
+			\vspace{-0.3cm}
+			\[
+				\log p(\bx | \btheta) = \cL(\btheta) = \log p(f_{\btheta}(\bx)) +  \log |\det \bJ_f|.
+			\]
+		\end{enumerate}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
+\end{frame}
+%=======
+\section{ELBO surgery}
+%=======
+\begin{frame}{ELBO surgery}
+	\vspace{-0.3cm}
+	\[
+	    \frac{1}{n} \sum_{i=1}^n \mathcal{L}_i(q, \btheta) = \frac{1}{n} \sum_{i=1}^n \Bigl[ \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta) - KL(q(\bz | \bx_i) || p(\bz)) \Bigr].
+	\]
+	\vspace{-0.3cm}
+	\begin{block}{Theorem}
+		\[
+		    \frac{1}{n} \sum_{i=1}^n KL(q(\bz | \bx_i) || p(\bz)) = {\color{violet} KL(q_{\text{agg}}(\bz) || p(\bz))} + {\color{teal}\bbI_{q} [\bx, \bz]};
+		\]
+		\begin{itemize}
+			\item $q_{\text{agg}}(\bz) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx_i)$ -- \textbf{aggregated} posterior distribution.
+			\item $\bbI_{q} [\bx, \bz]$ -- mutual information between $\bx$ and $\bz$ under empirical data distribution and distribution $q(\bz | \bx)$.
+			\item  {\color{violet} First term} pushes $q_{\text{agg}}(\bz)$ towards the prior $p(\bz)$.
+			\item {\color{teal}Second term} reduces the amount of	information about $\bx$ stored in $\bz$. 
+		\end{itemize}
+	\end{block}
+	\myfootnotewithlink{http://approximateinference.org/accepted/HoffmanJohnson2016.pdf}{Hoffman M. D., Johnson M. J. ELBO surgery: yet another way to carve up the variational evidence lower bound, 2016}
+\end{frame}
+%=======
+\begin{frame}{ELBO surgery}
+	\begin{block}{Theorem}
+		\vspace{-0.3cm}
+		\[
+		    \frac{1}{n} \sum_{i=1}^n KL(q(\bz | \bx_i) || p(\bz)) = KL(q_{\text{agg}}(\bz) || p(\bz)) + \bbI_q [\bx, \bz].
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{block}{Proof}
+		\vspace{-0.5cm}
+		{\footnotesize
+		\begin{multline*}
+		    \frac{1}{n} \sum_{i=1}^n KL(q(\bz | \bx_i) || p(\bz)) = \frac{1}{n} \sum_{i=1}^n \int q(\bz | \bx_i) \log \frac{q(\bz | \bx_i)}{p(\bz)} d \bz = \\
+		    = \frac{1}{n} \sum_{i=1}^n \int q(\bz | \bx_i) \log \frac{{\color{violet}q_{\text{agg}}(\bz)} {\color{teal}q(\bz | \bx_i)}}{{\color{violet}p(\bz)} {\color{teal}q_{\text{agg}}(\bz)}} d \bz 
+		    = \int \frac{1}{n} \sum_{i=1}^n  q(\bz | \bx_i) \log {\color{violet}\frac{q_{\text{agg}}(\bz)}{p(\bz)}} d \bz + \\ 
+		    + \frac{1}{n}\sum_{i=1}^n \int q(\bz | \bx_i) \log {\color{teal}\frac{q(\bz | \bx_i)}{q_{\text{agg}}(\bz)}} d \bz = 
+		     KL (q_{\text{agg}}(\bz) || p(\bz)) + \frac{1}{n}\sum_{i=1}^n KL(q(\bz | \bx_i) || q_{\text{agg}}(\bz))
+		\end{multline*}
+		}
+		Without proof:
+		\vspace{-0.4cm}
+		\[
+			\bbI_{q} [\bx, \bz] = \frac{1}{n}\sum_{i=1}^n KL(q(\bz | \bx_i) || q_{\text{agg}}(\bz)) \in [0, \log n].
+		\]
+	\end{block}
+
+	\myfootnotewithlink{http://approximateinference.org/accepted/HoffmanJohnson2016.pdf}{Hoffman M. D., Johnson M. J. ELBO surgery: yet another way to carve up the variational evidence lower bound, 2016}
+\end{frame}
+%=======
+\begin{frame}{ELBO surgery}
+	\begin{block}{ELBO revisiting}
+		\vspace{-0.7cm}
+		\begin{multline*}
+		    \frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \frac{1}{n} \sum_{i=1}^n \left[ \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta) - KL(q(\bz | \bx_i) || p(\bz)) \right] = \\
+		    = \underbrace{\frac{1}{n} \sum_{i=1}^n \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)}_{\text{Reconstruction loss}} - \underbrace{\vphantom{ \sum_{i=1}^n} \bbI_q [\bx, \bz]}_{\text{MI}} - \underbrace{\vphantom{ \sum_{i=1}^n} KL(q_{\text{agg}}(\bz) || {\color{teal}p(\bz)})}_{\text{Marginal KL}}
+		\end{multline*}
+		\vspace{-0.3cm}
+	\end{block}
+	Prior distribution $p(\bz)$ is only in the last term.
+	\begin{block}{Optimal VAE prior}
+		\vspace{-0.7cm}
+		\[
+	  		KL(q_{\text{agg}}(\bz) || p(\bz)) = 0 \quad \Leftrightarrow \quad p (\bz) = q_{\text{agg}}(\bz) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx_i).
+		\]
+		\vspace{-0.4cm} \\
+		The optimal prior $p(\bz)$ is the aggregated posterior $q_{\text{agg}}(\bz)$!
+	\end{block}
+	
+	\myfootnotewithlink{http://approximateinference.org/accepted/HoffmanJohnson2016.pdf}{Hoffman M. D., Johnson M. J. ELBO surgery: yet another way to carve up the variational evidence lower bound, 2016}
+\end{frame}
+%=======
+\begin{frame}{Variational posterior}
+	\begin{block}{ELBO decomposition}
+		\vspace{-0.3cm}
+		\[
+			\log p(\bx | \btheta) = \mathcal{L}(q, \btheta) + KL(q(\bz | \bx, \bphi) || p(\bz | \bx, \btheta)).
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{itemize}
+		\item $q(\bz | \bx, \bphi) = \mathcal{N}(\bz| \bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx))$ is a unimodal distribution. 
+		\item The optimal prior $p(\bz)$ is the aggregated posterior $q_{\text{agg}}(\bz)$.
+	\end{itemize}
+	
+	\vspace{-0.3cm}
+	\begin{figure}
+		\includegraphics[width=0.65\linewidth]{figs/agg_posterior}
+	\end{figure}
+	\vspace{-0.3cm}
+	It is widely believed that \textbf{mismatch between} $p(\bz)$  \textbf{and} $q_{\text{agg}}(\bz)$  \textbf{is the main reason of blurry images of VAE}.
+	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
+\end{frame}
+%=======
+\section{Learnable VAE prior}
+%=======
+\begin{frame}{Optimal VAE prior}
+	\begin{itemize}
+		\item Standard Gaussian $p(\bz) = \mathcal{N}(0, I)$ $\Rightarrow$ over-regularization;
+		\item $p(\bz) = q_{\text{agg}}(\bz) = \frac{1}{n}\sum_{i=1}^n q(\bz | \bx_i)$ $\Rightarrow$ overfitting and highly expensive.
+	\end{itemize}
+	\vspace{-0.5cm}
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{block}{Non learnable prior $p(\bz)$}
+			\begin{figure}[h]
+				\centering
+				\includegraphics[width=0.6\linewidth]{figs/non_learnable_prior}
+			\end{figure}
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{block}{Learnable prior $p(\bz | \blambda)$}
+			\begin{figure}[h]
+				\centering
+				\includegraphics[width=0.6\linewidth]{figs/learnable_prior}
+			\end{figure}
+		\end{block}
+	\end{minipage}
+	\vspace{-0.4cm}
+	\begin{block}{ELBO revisiting}
+		\vspace{-0.3cm}
+		\[
+			\frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz) || {\color{teal}p(\bz | \blambda)})
+		\]
+		It is Forward KL with respect to $p(\bz | \blambda)$.
+	\end{block}
+	\myfootnotewithlink{https://jmtomczak.github.io/blog/7/7\_priors.html}{image credit: https://jmtomczak.github.io/blog/7/7\_priors.html}
+\end{frame}
+%=======
+\begin{frame}{NF-based VAE prior}
+	\begin{block}{NF model in latent space}
+		\vspace{-0.5cm}
+		\[
+			\log p(\bz | \blambda) = \log p(\bz^*) + \log  \left | \det \left(\frac{d \bz^*}{d\bz}\right)\right| = \log p(f(\bz, \blambda)) + \log \left | \det (\bJ_f)\right| 
+		\]
+		\vspace{-0.3cm}
+		\[
+			\bz = g_{\blambda}(\bz^*) = f^{-1}_{\blambda}(\bz^*)
+		\]
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{itemize}
+		\item RealNVP with coupling layers.
+		\item Autoregressive NF (fast $f_{\blambda}(\bz)$, slow $g_{\blambda}(\bz^*)$).
+	\end{itemize}
+	\begin{block}{ELBO with NF-based VAE prior}
+		\vspace{-0.5cm}
+		{\small
+		\begin{multline*}
+			\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + {\color{violet}\log p(\bz | \blambda)} - \log q(\bz | \bx, \bphi) \right] \\
+				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(f_{\blambda}(\bz)) + \log \left| \det (\bJ_f) \right|} \Bigr) }_{\text{NF-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
+		\end{multline*}
+		}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
+\end{frame}
+%=======
+\section{Discrete VAE latent representations}
+%=======
+\begin{frame}{Discrete VAE latents}
+	\begin{block}{Motivation}
+		\begin{itemize}
+			\item Previous VAE models had \textbf{continuous} latent variables $\bz$.
+			\item \textbf{Discrete} representations $\bz$ are potentially a more natural fit for many of the modalities.
+			\item Powerful autoregressive models (like PixelCNN) have been developed for modelling distributions over discrete variables.
+			\item All cool transformer-like models work with discrete tokens.
+		\end{itemize}
+	\end{block}
+	\begin{block}{ELBO}
+		\vspace{-0.3cm}
+		\[
+		\mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz , \btheta) - KL(q(\bz| \bx, \bphi) || p(\bz)) \rightarrow \max_{\bphi, \btheta}.
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{itemize}
+		\item Reparametrization trick to get unbiased gradients.
+		\item Normal assumptions for $q(\bz | \bx, \bphi)$ and $p(\bz)$ to compute KL analytically.
+	\end{itemize}
+\end{frame}
+%=======
+\begin{frame}{Discrete VAE latents}
+	\begin{block}{Assumptions}
+		\begin{itemize}
+			\item Define dictionary (word book) space $\{\be_k\}_{k=1}^K$, where $\be_k \in \bbR^C$, $K$ is the size of the dictionary.
+			\item Let $c \sim \text{Categorical}(\bpi)$, where 
+			\vspace{-0.6cm}
+			\[
+			\bpi = (\pi_1, \dots, \pi_K), \quad \pi_k = P(c = k), \quad \sum_{k=1}^K \pi_k = 1.
+			\]
+			\vspace{-0.6cm}
+			\item Let VAE model has discrete latent representation $c$ with prior $p(c) = \text{Uniform}\{1, \dots, K\}$.
+		\end{itemize}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{How it should work?}
+		\begin{itemize}
+			\item Our variational posterior $q(c | \bx, \bphi) = \text{Categorical}(\bpi_{\bphi}(\bx))$ (encoder) outputs discrete probabilities vector.
+			\item We sample $c^*$ from $q(c | \bx, \bphi)$ (reparametrization trick analogue).
+			\item Our generative distribution $p(\bx | \be_{c^*}, \btheta)$ (decoder).
+		\end{itemize}
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Discrete VAE latents}
+	\begin{block}{ELBO}
+		\vspace{-0.5cm}
+		\[
+		\mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(c | \bx, \bphi)} \log p(\bx | c, \btheta) - KL(q(c| \bx, \bphi) || p(c)) \rightarrow \max_{\bphi, \btheta}.
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{KL term}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			KL(q(c| \bx, \bphi) || p(c)) = \sum_{k=1}^K q(k | \bx, \bphi) \log \frac{q(k | \bx, \bphi)}{p(k)} = 
+			\\ = \color{violet}{\sum_{k=1}^K q(k | \bx, \bphi) \log q(k | \bx, \bphi)}  \color{teal}{- \sum_{k=1}^K q(k | \bx, \bphi) \log p(k)}  = \\ = \color{violet}{- H(q(c | \bx, \bphi))} + \color{teal}{\log K}. 
+		\end{multline*}
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{itemize}
+		\item Is it possible to make reparametrization trick? (we sample from discrete distribution now!).
+		\item Entropy term should be estimated.
+	\end{itemize}
+\end{frame}
+%=======
+\begin{frame}{Summary}
+	\begin{itemize}
+		\item NF models could be treated as VAE model with deterministic encoder and decoder.
+		\vfill
+		\item The ELBO surgery reveals insights about a prior distribution in VAE. The optimal prior is the aggregated posterior.
+		\vfill
+		\item It is widely believed that mismatch between $p(\bz)$ and $q_{\text{agg}}(\bz)$ is the main reason of blurry images of VAE.
+		\vfill
+		\item We could use NF-based prior in VAE (even autoregressive).
+		\vfill		
+		\item Discrete VAE latents is a natural idea, but we have to avoid non-differentiable sampling operation.
+	\end{itemize}
+\end{frame}
+%=======
+\end{document} 

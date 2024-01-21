@@ -1,0 +1,455 @@
+\input{../utils/preamble}
+\createdgmtitle{4}
+%--------------------------------------------------------------------------------
+\begin{document}
+%--------------------------------------------------------------------------------
+\begin{frame}[noframenumbering,plain]
+	%\thispagestyle{empty}
+	\titlepage
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	Let split $\bx$ and $\bz$ in two parts: 
+	\[
+	\bx = [\bx_1, \bx_2] = [\bx_{1:d}, \bx_{d+1:m}]; \quad \bz = [\bz_1, \bz_2] = [\bz_{1:d}, \bz_{d+1:m}].
+	\]
+	\vspace{-0.5cm}
+	\begin{block}{Coupling layer}
+		\vspace{-0.5cm}
+		\[
+		\begin{cases} {\color{violet}\bx_1} = {\color{teal}\bz_1}; \\ {\color{violet}\bx_2} = {\color{teal}\bz_2} \odot \bsigma_{\btheta}({\color{teal}\bz_1}) + \bmu_{\btheta}({\color{teal}\bz_1}).\end{cases}  
+		\begin{cases} {\color{teal}\bz_1} ={\color{violet} \bx_1}; \\ {\color{teal}\bz_2} = \left({\color{violet}\bx_2} - \bmu_{\btheta}({\color{violet}\bx_1}) \right) \odot \frac{1}{\bsigma_{\btheta}({\color{violet}\bx_1})}.\end{cases}
+		\]
+		Estimating the density takes 1 pass, sampling takes 1 pass!
+	\end{block}
+	\begin{block}{Jacobian}
+		\vspace{-0.3cm}
+		\[
+		\det \left( \frac{\partial \bz}{\partial \bx} \right) = \det 
+		\begin{pmatrix}
+			\bI_d & 0_{d \times m - d} \\
+			\frac{\partial \bz_2}{\partial \bx_1} & \frac{\partial \bz_2}{\partial \bx_2}
+		\end{pmatrix} = \prod_{j=1}^{m - d} \frac{1}{\sigma_j(\bx_1)}.
+		\]
+	\end{block}
+	Coupling layer is a special case of autoregressive NF.
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1605.08803}{Dinh L., Sohl-Dickstein J., Bengio S. Density estimation using Real NVP, 2016} 
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Bayes theorem}
+		\[
+			p(\bt | \bx) = \frac{p(\bx | \bt) p(\bt)}{p(\bx)} = \frac{p(\bx | \bt) p(\bt)}{\int p(\bx | \bt) p(\bt) d \bt} 
+		\]
+		\begin{itemize}
+			\item $\bx$ -- observed variables, $\bt$ -- unobserved variables (latent variables/parameters);
+			\item $p(\bx | \bt)$ -- likelihood;
+			\item $p(\bx) = \int p(\bx | \bt) p(\bt) d \bt$ -- evidence;
+			\item $p(\bt)$ -- prior distribution, $p(\bt | \bx)$ -- posterior distribution.
+		\end{itemize}
+	\end{block}
+	\begin{block}{Posterior distribution}
+		\[
+		p(\btheta | \bX) = \frac{p(\bX | \btheta) p(\btheta)}{p(\bX)} = \frac{p(\bX | \btheta) p(\btheta)}{\int p(\bX | \btheta) p(\btheta) d \btheta} 
+		\]
+		\vspace{-0.2cm}
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Latent variable models (LVM)}
+		\vspace{-0.3cm}
+		\[
+		p(\bx | \btheta) = \int p(\bx, \bz | \btheta) d\bz = \int p(\bx | \bz, \btheta) p(\bz) d\bz.
+		\]
+	\end{block}
+	\begin{block}{MLE problem for LVM}
+		\vspace{-0.7cm}
+		\begin{multline*}
+			\btheta^* = \argmax_{\btheta} \log p(\bX| \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta) = \\ = \argmax_{\btheta}  \sum_{i=1}^n \log \int p(\bx_i| \bz_i, \btheta) p(\bz_i) d\bz_i.
+		\end{multline*}
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Naive Monte-Carlo estimation}
+		\vspace{-0.7cm}
+		\[
+		p(\bx | \btheta) = \int p(\bx | \bz, \btheta) p(\bz) d\bz = \bbE_{p(\bz)} p(\bx | \bz, \btheta) \approx \frac{1}{K} \sum_{k=1}^{K} p(\bx | \bz_k, \btheta),
+		\]
+		\vspace{-0.5cm} \\
+		where $\bz_k \sim p(\bz)$. 
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{ELBO derivation 1 (inequality)}
+		\vspace{-0.3cm}
+		\begin{multline*}
+			\log p(\bx| \btheta) 
+			= \log \int p(\bx, \bz | \btheta) d\bz \geq \bbE_{q} \log \frac{p(\bx, \bz| \btheta)}{q(\bz)} =  \cL(q, \btheta)
+		\end{multline*}
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{ELBO derivation 2 (equality)}
+		\vspace{-0.3cm}
+		\begin{multline*}
+			\mathcal{L} (q, \btheta) = \int q(\bz) \log \frac{p(\bx, \bz | \btheta)}{q(\bz)}d\bz = 
+			\int q(\bz) \log \frac{p(\bz|\bx, \btheta)p(\bx| \btheta)}{q(\bz)}d\bz = \\
+			= \log p(\bx| \btheta) - KL(q(\bz) || p(\bz|\bx, \btheta))
+		\end{multline*}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{Variational decomposition}
+		\[
+		\log p(\bx| \btheta) = \mathcal{L} (q, \btheta) + KL(q(\bz) || p(\bz|\bx, \btheta)) \geq \mathcal{L} (q, \btheta).
+		\]
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Variational lower Bound (ELBO)}
+		\vspace{-0.3cm}
+		\[
+			\log p(\bx| \btheta) = \mathcal{L} (q, \btheta) + KL(q(\bz) || p(\bz|\bx, \btheta)) \geq \mathcal{L} (q, \btheta).
+		\]
+	\end{block}
+	
+	\vspace{-0.5cm}
+	\[
+	 	{\color{olive}\mathcal{L} (q, \btheta)} = \int q(\bz) \log \frac{p(\bx, \bz | \btheta)}{q(\bz)}d\bz = \mathbb{E}_{q} \log p(\bx | \bz, \btheta) - KL (q(\bz) || p(\bz))
+	\]
+	\vspace{-0.3cm}
+	\begin{block}{Log-likelihood decomposition}
+		\vspace{-0.5cm}
+		\[
+	 \log p(\bx| \btheta) = {\color{olive}\mathbb{E}_{q} \log p(\bx | \bz, \btheta) - KL (q(\bz) || p(\bz))} + KL(q(\bz) || p(\bz|\bx, \btheta)).
+		\]
+	\end{block}
+	\begin{itemize}
+	\item Instead of maximizing incomplete likelihood, maximize ELBO
+   	\[
+\max_{\btheta} p(\bx | \btheta) \quad \rightarrow \quad \max_{q, \btheta} \mathcal{L} (q, \btheta)
+   	\]
+   	\item Maximization of ELBO by variational distribution $q$ is equivalent to minimization of KL
+  	\[
+\argmax_q \mathcal{L} (q, \btheta) \equiv \argmin_q KL(q(\bz) || p(\bz|\bx, \btheta)).
+  	\]
+  	\end{itemize}
+  	    
+\end{frame}
+%======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{EM-algorithm}
+	\begin{itemize}
+		\item E-step
+		\[
+			q^*(\bz) = \argmax_q \mathcal{L} (q, \btheta^*)
+			= \argmin_q KL(q(\bz) || p(\bz | \bx, \btheta^*));
+		\]
+		\item M-step
+		\[
+			\btheta^* = \argmax_{\btheta} \mathcal{L} (q^*, \btheta);
+		\]
+	\end{itemize}
+	\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{Amortized variational inference}
+	Restrict a family of all possible distributions $q(\bz)$ to a parametric class $q(\bz|\bx, \bphi)$ conditioned on samples $\bx$ with parameters $\bphi$.
+	\end{block}
+	
+	\textbf{Variational Bayes}
+	\begin{itemize}
+		\item E-step
+		\[
+		\bphi_k = \bphi_{k-1} + \left.\eta \nabla_{\bphi} \mathcal{L}(\bphi, \btheta_{k-1})\right|_{\bphi=\bphi_{k-1}}
+		\]
+		\item M-step
+		\[
+		\btheta_k = \btheta_{k-1} + \left.\eta \nabla_{\btheta} \mathcal{L}(\bphi_k, \btheta)\right|_{\btheta=\btheta_{k-1}}
+		\]
+	\end{itemize}
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{ELBO gradients, reparametrization trick}
+%=======
+\begin{frame}{ELBO gradients, (M-step, $\nabla_{\btheta} \mathcal{L}(\bphi, \btheta)$)}
+	\[
+	\mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[\log p(\bx | \bz, \btheta) - \log \frac{q(\bz | \bx, \bphi)}{p(\bz)} \right] \rightarrow \max_{\bphi, \btheta}.
+	\]	
+	\vspace{-0.5cm}
+	\begin{block}{M-step: $\nabla_{\btheta} \mathcal{L}(\bphi, \btheta)$}
+		\vspace{-0.7cm}
+		\begin{multline*}
+			\nabla_{\btheta} \mathcal{L} (\bphi, \btheta)
+			= \int q(\bz|\bx, \bphi) \nabla_{\btheta}\log p(\bx|\bz, \btheta) d \bz \approx  \\
+			\approx \nabla_{\btheta}\log p(\bx|\bz^*, \btheta), \quad \bz^* \sim q(\bz|\bx, \bphi).
+		\end{multline*}
+		\vspace{-0.9cm}
+	\end{block}
+	\begin{block}{Naive Monte-Carlo estimation}
+		\vspace{-0.7cm}
+		\[
+		p(\bx | \btheta) = \int p(\bx | \bz, \btheta) p(\bz) d\bz = \bbE_{p(\bz)} p(\bx | \bz, \btheta) \approx \frac{1}{K} \sum_{k=1}^{K} p(\bx | \bz_k, \btheta),
+		\]
+		\vspace{-0.5cm} \\
+		where $\bz_k \sim p(\bz)$. 
+	\end{block}
+	The variational posterior $q(\bz|\bx, \bphi)$ assigns typically more probability mass in a smaller region than the prior $p(\bz)$. 
+	\myfootnotewithlink{https://jmtomczak.github.io/blog/4/4\_VAE.html}{image credit: https://jmtomczak.github.io/blog/4/4\_VAE.html}
+\end{frame}
+%=======
+\begin{frame}{ELBO gradients, (E-step, $\nabla_{\bphi} \mathcal{L}(\bphi, \btheta)$)}
+	\begin{block}{E-step: $\nabla_{\bphi} \mathcal{L}(\bphi, \btheta)$}
+		Difference from M-step: density function $q(\bz| \bx, \bphi)$ depends on the parameters $\bphi$, it is impossible to use the Monte-Carlo estimation:
+		\begin{align*}
+			\nabla_{\bphi} \mathcal{L} (\bphi, \btheta) &= \nabla_{\bphi} \int q(\bz | \bx, \bphi) \left[\log p(\bx | \bz, \btheta) - \log \frac{q(\bz| \bx, \bphi)}{p(\bz)} \right] d \bz \\
+			& \neq  \int q(\bz | \bx, \bphi) \nabla_{\bphi} \left[\log p(\bx | \bz, \btheta) - \log \frac{q(\bz| \bx, \bphi)}{p(\bz)} \right] d \bz 
+		\end{align*}
+	\end{block}
+	\vspace{-0.5cm}
+	\begin{block}{Reparametrization trick (LOTUS trick)} 
+		\begin{itemize}
+			\item $r(x) = \mathcal{N}(x|0, 1)$, $y = \sigma \cdot x + \mu$, $p_Y(y|\theta) = \mathcal{N}(y| \mu, \sigma^2)$, $\theta = [\mu, \sigma]$.
+			
+			\item $\bepsilon^* \sim r(\bepsilon), \quad \bz = g_{\bphi}(\bx, \bepsilon), \quad \bz \sim q(\bz | \bx, \bphi)$
+			\vspace{-0.3cm}
+			\begin{multline*}
+				\nabla_{\bphi}\int q(\bz|\bx, \bphi) f(\bz) d\bz = \nabla_{\bphi}\int r(\bepsilon)  f(\bz) d\bepsilon \\ = \int r(\bepsilon) \nabla_{\bphi} f(g_{\bphi}(\bx, \bepsilon)) d\bepsilon \approx \nabla_{\bphi} f(g_{\bphi}(\bx, \bepsilon^*))
+			\end{multline*}
+		\end{itemize}
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{ELBO gradient (E-step, $\nabla_{\bphi} \mathcal{L}(\bphi, \btheta)$)}
+	\vspace{-0.5cm}
+	\begin{multline*}
+		\nabla_{\bphi} \mathcal{L} (\bphi, \btheta) = \nabla_{\bphi}\int q(\bz|\bx, \bphi) \log p(\bx| \bz, \btheta)  d\bz - \nabla_{\bphi} \text{KL}(q(\bz | \bx, \bphi) || p(\bz))
+		\\ = \int r(\bepsilon) \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon), \btheta) d\bepsilon  - \nabla_{\bphi} \text{KL}(q(\bz | \bx, \bphi) || p(\bz))
+		\\ \approx \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon^*), \btheta)  - \nabla_{\bphi} \text{KL}(q(\bz | \bx, \bphi) || p(\bz))
+	\end{multline*}
+	\vspace{-0.5cm}
+	\begin{block}{Variational assumption}
+		\vspace{-0.3cm}
+		\[
+			r(\bepsilon) = \mathcal{N}(0, \bI); \quad  q(\bz| \bx, \bphi) = \mathcal{N} (\bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx)).
+		\]
+		\[
+			\bz = g_{\bphi}(\bx, \bepsilon) = \bsigma_{\bphi}(\bx) \cdot \bepsilon + \bmu_{\bphi}(\bx).
+		\]
+		Here $\bmu_{\bphi}(\cdot), \bsigma_{\bphi}(\cdot)$ are parameterized functions (outputs of neural network).
+	\end{block}
+	\begin{itemize}
+		\item $p(\bz)$ -- prior distribution on latent variables $\bz$. We could specify any distribution that we want. Let say $p(\bz) = \cN (0, \bI)$.
+		\item $p(\bx | \bz, \btheta)$ - generative distibution. Since it is a parameterized function let it be neural network with parameters $\btheta$.
+	\end{itemize}
+\end{frame}
+%=======
+\section{Variational autoencoder (VAE)}
+%=======
+\begin{frame}{Generative models zoo}
+	\begin{tikzpicture}[
+		basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
+		root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
+		level 1/.style={sibling distance=55mm},
+		level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
+		level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
+		level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
+		level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
+		edge from parent/.style={->,draw},
+		>=latex]
+		
+		% root of the the initial tree, level 1
+		\node[root] {\Large Generative models}
+		% The first level, as children of the initial tree
+		child {node[level 2] (c1) {Likelihood-based}
+			child {node[level 3] (c11) {Tractable density}}
+			child {node[level 3] (c12) {Approximate density}}
+		}
+		child {node[level 2] (c2) {Implicit density}};
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 5}]
+			\node [below of = c12, xshift=10pt] (c121) {VAEs};
+		\end{scope}
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 4}]
+			\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {Autoregressive models};
+			\node [below of = c111, yshift=-5pt] (c112) {Normalizing Flows};
+			
+			\node [below of = c121] (c122) {Diffusion models};
+			\node [below of = c2, xshift=10pt] (c21) {GANs};
+			
+		\end{scope}
+		
+		
+		% lines from each level 1 node to every one of its "children"
+		\foreach \value in {1,2}
+		\draw[->] (c11.194) |- (c11\value.west);
+		
+		\foreach \value in {1,2}
+		\draw[->] (c12.194) |- (c12\value.west);
+		
+		\draw[->] (c2.194) |- (c21.west);
+		
+	\end{tikzpicture}
+\end{frame}
+%=======
+\begin{frame}{Variational autoencoder (VAE)}
+	\begin{block}{Final EM-algorithm}
+		\begin{itemize}
+			\item pick random sample $\bx_i, i \sim U[1, n]$.
+			\item compute the objective:
+			\vspace{-0.3cm}
+			\[
+				\bepsilon^* \sim r(\bepsilon); \quad \bz^* = g(\bx, \bepsilon^*, \bphi);
+			\]
+			\[
+				\cL(\bphi, \btheta) \approx  \log p(\bx | \bz^*, \btheta) - KL(q(\bz^* | \bx, \bphi) || p(\bz^*)).
+			\]
+			\item compute a stochastic gradients w.r.t. $\bphi$ and $\btheta$
+			\begin{align*}
+				\nabla_{\bphi} \mathcal{L} (\bphi, \btheta) &\approx \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon^*), \btheta)  - \nabla_{\bphi} \text{KL}(q(\bz | \bx, \bphi) || p(\bz)); \\
+				\nabla_{\btheta} \mathcal{L} (\bphi, \btheta) &\approx \nabla_{\btheta} \log p(\bx|\bz^*, \btheta).
+			\end{align*}
+			\item update $\btheta, \bphi$ according to the selected optimization method (SGD, Adam, RMSProp):
+			\begin{align*}
+				\bphi &:= \bphi + \eta \nabla_{\bphi} \mathcal{L}(\bphi, \btheta), \\
+				\btheta &:= \btheta + \eta \nabla_{\btheta} \mathcal{L}(\bphi, \btheta).
+			\end{align*}
+		\end{itemize}
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Variational autoencoder (VAE)}
+	\begin{minipage}[t]{0.55\columnwidth}
+		\begin{itemize}
+			\item VAE learns stochastic mapping between $\bx$-space, from complicated distribution $\pi(\bx)$, and a latent $\bz$-space, with simple distribution. 
+			\item The generative model learns a joint distribution $p(\bx, \bz | \btheta) = p(\bz) p(\bx |\bz, \btheta)$, with a prior distribution $p(\bz)$, and a stochastic decoder $p(\bx|\bz, \btheta)$. 
+			\item The stochastic encoder $q(\bz|\bx, \bphi)$ (inference model), approximates the true but intractable posterior $p(\bz|\bx, \btheta)$ of the generative model.
+		\end{itemize}
+	\end{minipage}%
+	\begin{minipage}[t]{0.45\columnwidth}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=\linewidth]{figs/vae_scheme}
+		\end{figure}
+	\end{minipage}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1906.02691}{Kingma D. P., Welling M. An introduction to variational autoencoders, 2019}
+\end{frame}
+%=======
+\begin{frame}{Variational Autoencoder}
+	\[
+	\mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[\log p(\bx | \bz, \btheta) - \log \frac{q(\bz | \bx, \bphi)}{p(\bz)} \right] \rightarrow \max_{\bphi, \btheta}.
+	\]	
+	\vspace{-0.3cm}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=.65\linewidth]{figs/VAE.png}
+	\end{figure}
+	\myfootnotewithlink{http://ijdykeman.github.io/ml/2016/12/21/cvae.html}{image credit: http://ijdykeman.github.io/ml/2016/12/21/cvae.html}
+\end{frame}
+%=======
+\begin{frame}{Variational autoencoder (VAE)}
+	\begin{itemize}
+		\item Encoder $q(\bz | \bx, \bphi) = \text{NN}_e(\bx, \bphi)$ outputs $\bmu_{\bphi}(\bx)$ and $\bsigma_{\bphi}(\bx)$.
+		\item Decoder $p(\bx | \bz, \btheta) = \text{NN}_d(\bz, \btheta)$ outputs parameters of the sample distribution.
+	\end{itemize}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=\linewidth]{figs/vae-gaussian.png}
+	\end{figure}
+	
+	\myfootnotewithlink{https://lilianweng.github.io/lil-log/2018/08/12/from-autoencoder-to-beta-vae.html}{image credit: https://lilianweng.github.io/lil-log/2018/08/12/from-autoencoder-to-beta-vae.html}
+\end{frame}
+%=======
+\section{Data dequantization}
+%=======
+\begin{frame}{Discrete data vs continuous model}
+	Let our data $\by$ comes from discrete distribution $\Pi(\by)$ and we have continuous model $p(\bx | \btheta) = \text{NN}(\bx, \btheta)$.
+	\begin{itemize}
+		\item Images {\color{gray}(and not only images)} are discrete data, pixels lie in the integer domain (\{0, 255\}). 
+		\item By fitting a continuous density model $p(\bx | \btheta)$ to discrete data $\Pi(\by)$, one can produce a degenerate solution with all probability mass on discrete values. 
+	\end{itemize}
+	\begin{block}{Discrete model}
+		\begin{itemize}
+			\item Use \textbf{discrete} model (e.x. $P(\by | \btheta) = \text{Cat}(\bpi(\btheta))$). 
+			\item Minimize any suitable divergence measure $D(\Pi, P)$.
+			\item NF works only with continuous data $\bx$ (there are discrete NF, see papers below).
+			\item If pixel value is not presented in the train data, it won't be predicted.		
+		\end{itemize}
+	\end{block}
+	\myfootnote{\href{https://arxiv.org/abs/1905.07376}{Hoogeboom E. et al. Integer discrete flows and lossless compression, 2019} \\
+		\href{https://arxiv.org/abs/1905.10347}{Tran D. et al. Discrete flows: Invertible generative models of discrete data, 2019}}
+\end{frame}
+%=======
+\begin{frame}{Discrete data vs continuous model}
+	\begin{block}{Continuous model}
+		\begin{itemize}
+			\item Use \textbf{continuous} model (e.x. $p(\bx | \btheta) = \cN(\bmu_{\btheta}(\bx), \bsigma_{\btheta}^2(\bx))$), but
+			\begin{itemize}
+				\item \textbf{discretize} model (make the model outputs discrete): transform $p(\bx | \btheta)$ to $P(\by | \btheta)$;
+				\item \textbf{dequantize} data (make the data continuous): transform $\Pi(\by)$ to $\pi(\bx)$.
+			\end{itemize}
+			\item Continuous distribution knows numerical relationships.
+		\end{itemize}
+	\end{block}
+	\begin{block}{CIFAR-10 pixel values distribution}
+		\begin{figure}
+			\includegraphics[width=0.6\linewidth,height=0.2\linewidth]{figs/CIFAR_pixel_distr}
+		\end{figure}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.05517}{Salimans T. et al. PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications, 2017}
+\end{frame}
+%=======
+\begin{frame}{Uniform dequantization}
+	Let dequantize discrete distribution $\Pi(\by)$ to continuous distribution $\pi(\bx)$ in the following way: $\bx = \by + \bu$, where  $\bu \sim U[0, 1]$.
+	\begin{minipage}{0.7\linewidth}	
+		\begin{block}{Theorem}
+			Fitting continuous model $p(\bx | \btheta)$ on uniformly dequantized data is equivalent to maximization of a lower bound on log-likelihood for a discrete model:
+			\vspace{-0.2cm}
+			\[
+			P(\by | \btheta) = \int_{U[0, 1]} p(\by + \bu | \btheta) d \bu
+			\]
+			\vspace{-0.5cm} 
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}{0.3\linewidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth,height=0.8\linewidth]{figs/uniform_dequantization.png}
+		\end{figure}
+	\end{minipage}
+
+	\begin{block}{Proof}
+		\vspace{-0.8cm}
+		{\small
+		\begin{multline*}
+			\bbE_{\pi} \log p(\bx | \btheta) = \int \pi(\bx) \log p(\bx | \btheta) d \bx = \sum \Pi(\by) \int_{U[0,1]} \log p(\by + \bu | \btheta) d \bu \leq \\
+			\leq \sum \Pi(\by) \log \int_{U[0,1]}  p(\by + \bu | \btheta) d \bu = \\ = \sum \Pi(\by) \log P(\by | \btheta) = \bbE_{\Pi} \log P(\by | \btheta).
+		\end{multline*}
+		}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1511.01844}{Theis L., Oord A., Bethge M. A note on the evaluation of generative models. 2015}
+\end{frame}
+%=======
+\begin{frame}{Summary}
+	\begin{itemize}
+		\item Amortized variational inference allows to efficiently compute the stochastic gradients for ELBO using Monte-Carlo estimation.
+		\vfill
+		\item The reparametrization trick gets unbiased gradients w.r.t to the variational posterior distribution $q(\bz | \bx, \bphi)$.
+		\vfill
+		\item The VAE model is an LVM with two neural network: stochastic encoder $q(\bz | \bx, \bphi)$ and stochastic decoder $p(\bx | \bz, \btheta)$.
+		\vfill
+		\item Lots of data are discrete. We able to discretize the model or to dequantize our data to use continuous model. 
+		\vfill
+		\item Uniform dequantization helps to make discrete data continuous. It gives us lower bound on the log-likelihood.
+	\end{itemize}
+\end{frame}
+%=======
+\end{document} 
