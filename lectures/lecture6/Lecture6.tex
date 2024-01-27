@@ -9,6 +9,106 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\vspace{-0.3cm}
+	\[
+		 \mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[\log p(\bx | \bz, \btheta) - \log \frac{q(\bz | \bx, \bphi)}{p(\bz)} \right] \rightarrow \max_{\bphi, \btheta}.
+	\]	
+	\vspace{-0.3cm}
+	\begin{block}{M-step: $\nabla_{\btheta} \mathcal{L}(\bphi, \btheta)$, Monte Carlo estimation}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\nabla_{\btheta} \mathcal{L} (\bphi, \btheta)
+			= \int q(\bz|\bx, \bphi) \nabla_{\btheta}\log p(\bx|\bz, \btheta) d \bz \approx  \\
+			\approx \nabla_{\btheta}\log p(\bx|\bz^*, \btheta), \quad \bz^* \sim q(\bz|\bx, \bphi).
+		\end{multline*}
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{E-step: $\nabla_{\bphi} \mathcal{L}(\bphi, \btheta)$, reparametrization trick}
+		\vspace{-0.8cm}
+		\begin{multline*}
+			\nabla_{\bphi} \mathcal{L} (\bphi, \btheta) = \int r(\bepsilon) \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon), \btheta) d\bepsilon  - \nabla_{\bphi} \text{KL}
+			\\ \approx \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon^*), \btheta)  - \nabla_{\bphi} \text{KL}
+		\end{multline*}
+		\vspace{-0.5cm}
+	\end{block}
+	\vspace{-0.5cm}
+	
+	\begin{block}{Variational assumption}
+		\vspace{-0.3cm}
+		\[
+			r(\bepsilon) = \mathcal{N}(0, \bI); \quad  q(\bz| \bx, \bphi) = \mathcal{N} (\bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx)).
+		\]
+		\[
+			\bz = g_{\bphi}(\bx, \bepsilon) = \bsigma_{\bphi}(\bx) \cdot \bepsilon + \bmu_{\bphi}(\bx).
+		\]
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Final EM-algorithm}
+		\begin{itemize}
+			\item pick random sample $\bx_i, i \sim U[1, n]$.
+			\item compute the objective:
+			\vspace{-0.3cm}
+			\[
+			\bepsilon^* \sim r(\bepsilon); \quad \bz^* = g_{\bphi}(\bx, \bepsilon^*);
+			\]
+			\[
+			\cL(\bphi, \btheta) \approx  \log p(\bx | \bz^*, \btheta) - KL(q(\bz^* | \bx, \bphi) || p(\bz^*)).
+			\]
+			\item compute a stochastic gradients w.r.t. $\bphi$ and $\btheta$
+			\begin{align*}
+				\nabla_{\bphi} \mathcal{L} (\bphi, \btheta) &\approx \nabla_{\bphi} \log p(\bx | g_{\bphi}(\bx, \bepsilon^*), \btheta)  - \nabla_{\bphi} \text{KL}(q(\bz | \bx, \bphi) || p(\bz)); \\
+				\nabla_{\btheta} \mathcal{L} (\bphi, \btheta) &\approx \nabla_{\btheta} \log p(\bx|\bz^*, \btheta).
+			\end{align*}
+			\item update $\btheta, \bphi$ according to the selected optimization method (SGD, Adam, RMSProp):
+			\begin{align*}
+				\bphi &:= \bphi + \eta \nabla_{\bphi} \mathcal{L}(\bphi, \btheta), \\
+				\btheta &:= \btheta + \eta \nabla_{\btheta} \mathcal{L}(\bphi, \btheta).
+			\end{align*}
+		\end{itemize}
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{minipage}[t]{0.55\columnwidth}
+		\begin{block}{Variational autoencoder (VAE)}
+		    \begin{itemize}
+			    \item VAE learns stochastic mapping between $\bx$-space, from $\pi(\bx)$, and a latent $\bz$-space, with simple distribution. 
+			    \item The generative model learns  distribution $p(\bx, \bz | \btheta) = p(\bz) p(\bx |\bz, \btheta)$, with a prior distribution $p(\bz)$, and a stochastic decoder $p(\bx|\bz, \btheta)$. 
+			    \item The stochastic encoder $q(\bz|\bx, \bphi)$ (inference model), approximates the true but intractable posterior $p(\bz|\bx, \btheta)$.
+		    \end{itemize}
+	    \end{block}
+	\end{minipage}%
+	\begin{minipage}[t]{0.45\columnwidth}
+		\vspace{0.7cm}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=\linewidth]{figs/vae_scheme}
+		\end{figure}
+	\end{minipage}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1906.02691}{Kingma D. P., Welling M. An introduction to variational autoencoders, 2019}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	Let our data $\by$ comes from discrete distribution $\Pi(\by)$.
+	\begin{itemize}
+		\item Use \textbf{discrete} model (e.x. $P(\by | \btheta) = \text{Cat}(\bpi(\btheta))$) and minimize any suitable divergence measure $D(\Pi, P)$.
+		\item Use \textbf{continuous} model, but \textbf{dequantize} data (make the data continuous): transform $\Pi(\by)$ to $\pi(\bx)$.
+	\end{itemize}
+	\begin{block}{Uniform dequantization bound}
+		Let dequantize discrete distribution $\Pi(\by)$ to continuous distribution $\pi(\bx)$ in the following way: $\bx = \by + \bu$, where  $\bu \sim U[0, 1]$.
+	\end{block}
+	\begin{block}{Theorem}
+	Fitting continuous model $p(\bx | \btheta)$ on uniformly dequantized data is equivalent to maximization of a lower bound on log-likelihood for a discrete model:
+	\[
+		P(\by | \btheta) = \int_{U[0, 1]} p(\by + \bu | \btheta) d \bu
+	\]
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
 	\begin{table}[]
 		\begin{tabular}{l|c|c}
 			& \textbf{VAE} & \textbf{NF} \\ \hline
@@ -29,10 +129,6 @@
 		\]
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
-\end{frame}
-%=======
-\begin{frame}{Outline}
-	\tableofcontents
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
@@ -63,62 +159,141 @@
 	\myfootnotewithlink{http://approximateinference.org/accepted/HoffmanJohnson2016.pdf}{Hoffman M. D., Johnson M. J. ELBO surgery: yet another way to carve up the variational evidence lower bound, 2016}
 \end{frame}
 %=======
-\begin{frame}{Recap of previous lecture}
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Learnable VAE prior}
+%=======
+\begin{frame}{Optimal VAE prior}
 	\begin{itemize}
 		\item Standard Gaussian $p(\bz) = \mathcal{N}(0, I)$ $\Rightarrow$ over-regularization;
 		\item $p(\bz) = q_{\text{agg}}(\bz) = \frac{1}{n}\sum_{i=1}^n q(\bz | \bx_i)$ $\Rightarrow$ overfitting and highly expensive.
 	\end{itemize}
+	\vspace{-0.5cm}
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{block}{Non learnable prior $p(\bz)$}
+			\begin{figure}[h]
+				\centering
+				\includegraphics[width=0.6\linewidth]{figs/non_learnable_prior}
+			\end{figure}
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}[t]{0.5\columnwidth}
+		\begin{block}{Learnable prior $p(\bz | \blambda)$}
+			\begin{figure}[h]
+				\centering
+				\includegraphics[width=0.6\linewidth]{figs/learnable_prior}
+			\end{figure}
+		\end{block}
+	\end{minipage}
+	\vspace{-0.4cm}
 	\begin{block}{ELBO revisiting}
-		\vspace{-0.4cm}
+		\vspace{-0.3cm}
 		\[
-		\frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz) || {\color{violet}p(\bz | \blambda)})
+			\frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz) || {\color{teal}p(\bz | \blambda)})
 		\]
 		It is Forward KL with respect to $p(\bz | \blambda)$.
 	\end{block}
-	\begin{block}{ELBO with flow-based VAE prior}
-		\vspace{-0.6cm}
-		{\small
-			\begin{multline*}
-				\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + {\color{violet}\log p(\bz | \blambda)} - \log q(\bz | \bx, \bphi) \right] \\
-				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(f_{\blambda}(\bz)) + \log \left| \det (\bJ_f) \right|} \Bigr) }_{\text{flow-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
-			\end{multline*}
-		}
+	\myfootnotewithlink{https://jmtomczak.github.io/blog/7/7\_priors.html}{image credit: https://jmtomczak.github.io/blog/7/7\_priors.html}
+\end{frame}
+%=======
+\begin{frame}{NF-based VAE prior}
+	\begin{block}{NF model in latent space}
 		\vspace{-0.5cm}
 		\[
-			\bz = f^{-1}_{\blambda}(\bz^*) = g_{\blambda}(\bz^*), \quad \bz^* \sim p(\bz^*) = \cN(0, 1)
+			\log p(\bz | \blambda) = \log p(\bz^*) + \log  \left | \det \left(\frac{d \bz^*}{d\bz}\right)\right| = \log p(f(\bz, \blambda)) + \log \left | \det (\bJ_f)\right| 
+		\]
+		\vspace{-0.3cm}
+		\[
+			\bz = g_{\blambda}(\bz^*) = f^{-1}_{\blambda}(\bz^*)
 		\]
 	\end{block}
-	\vspace{-0.5cm}
+	\vspace{-0.3cm}
+	\begin{itemize}
+		\item RealNVP with coupling layers.
+		\item Autoregressive NF (fast $f_{\blambda}(\bz)$, slow $g_{\blambda}(\bz^*)$).
+	\end{itemize}
+	\begin{block}{ELBO with NF-based VAE prior}
+		\vspace{-0.5cm}
+		{\small
+		\begin{multline*}
+			\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + {\color{violet}\log p(\bz | \blambda)} - \log q(\bz | \bx, \bphi) \right] \\
+				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(f_{\blambda}(\bz)) + \log \left| \det (\bJ_f) \right|} \Bigr) }_{\text{NF-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
+		\end{multline*}
+		}
+	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
 \end{frame}
 %=======
-\begin{frame}{Recap of previous lecture}
-	\begin{block}{Discrete VAE latents}
+\section{Discrete VAE latent representations}
+%=======
+\begin{frame}{Discrete VAE latents}
+	\begin{block}{Motivation}
+		\begin{itemize}
+			\item Previous VAE models had \textbf{continuous} latent variables $\bz$.
+			\item \textbf{Discrete} representations $\bz$ are potentially a more natural fit for many of the modalities.
+			\item Powerful autoregressive models (like PixelCNN) have been developed for modelling distributions over discrete variables.
+			\item All cool transformer-like models work with discrete tokens.
+		\end{itemize}
+	\end{block}
+	\begin{block}{ELBO}
+		\vspace{-0.3cm}
+		\[
+		\mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(\bz | \bx, \bphi)} \log p(\bx | \bz , \btheta) - KL(q(\bz| \bx, \bphi) || p(\bz)) \rightarrow \max_{\bphi, \btheta}.
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{itemize}
+		\item Reparametrization trick to get unbiased gradients.
+		\item Normal assumptions for $q(\bz | \bx, \bphi)$ and $p(\bz)$ to compute KL analytically.
+	\end{itemize}
+\end{frame}
+%=======
+\begin{frame}{Discrete VAE latents}
+	\begin{block}{Assumptions}
 		\begin{itemize}
 			\item Define dictionary (word book) space $\{\be_k\}_{k=1}^K$, where $\be_k \in \bbR^C$, $K$ is the size of the dictionary.
+			\item Let $c \sim \text{Categorical}(\bpi)$, where 
+			\vspace{-0.6cm}
+			\[
+			\bpi = (\pi_1, \dots, \pi_K), \quad \pi_k = P(c = k), \quad \sum_{k=1}^K \pi_k = 1.
+			\]
+			\vspace{-0.6cm}
+			\item Let VAE model has discrete latent representation $c$ with prior $p(c) = \text{Uniform}\{1, \dots, K\}$.
+		\end{itemize}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{How it should work?}
+		\begin{itemize}
 			\item Our variational posterior $q(c | \bx, \bphi) = \text{Categorical}(\bpi_{\bphi}(\bx))$ (encoder) outputs discrete probabilities vector.
 			\item We sample $c^*$ from $q(c | \bx, \bphi)$ (reparametrization trick analogue).
 			\item Our generative distribution $p(\bx | \be_{c^*}, \btheta)$ (decoder).
 		\end{itemize}
 	\end{block}
-	\vspace{-0.3cm}
+\end{frame}
+%=======
+\begin{frame}{Discrete VAE latents}
 	\begin{block}{ELBO}
-		\vspace{-0.7cm}
+		\vspace{-0.5cm}
 		\[
 		\mathcal{L} (\bphi, \btheta)  = \mathbb{E}_{q(c | \bx, \bphi)} \log p(\bx | c, \btheta) - KL(q(c| \bx, \bphi) || p(c)) \rightarrow \max_{\bphi, \btheta}.
 		\]
-		\vspace{-0.7cm}
+		\vspace{-0.5cm}
 	\end{block}
 	\begin{block}{KL term}
-		\vspace{-0.4cm}
-		\[
-		KL(q(c| \bx, \bphi) || p(c)) = - H(q(c | \bx, \bphi)) + \log K. 
-		\]
+		\vspace{-0.8cm}
+		\begin{multline*}
+			KL(q(c| \bx, \bphi) || p(c)) = \sum_{k=1}^K q(k | \bx, \bphi) \log \frac{q(k | \bx, \bphi)}{p(k)} = 
+			\\ = \color{violet}{\sum_{k=1}^K q(k | \bx, \bphi) \log q(k | \bx, \bphi)}  \color{teal}{- \sum_{k=1}^K q(k | \bx, \bphi) \log p(k)}  = \\ = \color{violet}{- H(q(c | \bx, \bphi))} + \color{teal}{\log K}. 
+		\end{multline*}
+		\vspace{-0.6cm}
 	\end{block}
-	Is it possible to make reparametrization trick? (we sample from discrete distribution now!).
+	\begin{itemize}
+		\item Is it possible to make reparametrization trick? (we sample from discrete distribution now!).
+		\item Entropy term should be estimated.
+	\end{itemize}
 \end{frame}
-%=======
-\section{Discrete VAE latent representations}
 %=======
 \subsection{Vector quantization}
 %=======
@@ -318,80 +493,12 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2102.1209}{Ramesh A. et al. Zero-shot text-to-image generation, 2021}
 \end{frame}
 %=======
-\section{Likelihood-free learning}
-%=======
-\begin{frame}{Likelihood based models}
-	\begin{minipage}[t]{0.48\columnwidth}
-		\begin{block}{Poor likelihood \\ Great samples}
-			\vspace{-0.3cm}
-			\[
-				p_1(\bx) = \frac{1}{n} \sum_{i=1}^n \cN(\bx | \bx_i, \epsilon \bI)
-			\]
-			For small $\epsilon$ this model will generate samples with great quality, but likelihood of test sample will be very poor.
-		\end{block}
-	\end{minipage}%
-	\begin{minipage}[t]{0.52\columnwidth}
-		\begin{block}{Great likelihood \\ Poor samples}
-			\vspace{-0.3cm}
-			\[
-				p_2(\bx) = 0.01p(\bx) + 0.99p_{\text{noise}}(\bx)
-			\]
-			\begin{multline*}
-				\log \left[ 0.01p(\bx) + 0.99p_{\text{noise}}(\bx) \right] \geq  \\ \geq \log \left[ 0.01p(\bx) \right]  = \log p(\bx) - \log 100
-			\end{multline*}
-		Noisy irrelevant samples, but for high dimensions $\log p(\bx)$ becomes proportional to $m$.
-		\end{block}
-	\end{minipage}
-	\begin{itemize}
-		\item Likelihood is not a perfect quality measure for generative model.
-		\item Likelihood could be intractable.
-	\end{itemize}
-	\myfootnotewithlink{https://arxiv.org/abs/1511.01844}{Theis L., Oord A., Bethge M. A note on the evaluation of generative models, 2015}
-\end{frame}
-%=======
-\begin{frame}{Likelihood-free learning}
-	\begin{block}{Where did we start}
-	 We would like to approximate true data distribution $\pi(\bx)$.
-	Instead of searching true $\pi(\bx)$ over all probability distributions, learn function approximation $p(\bx | \btheta) \approx \pi(\bx)$.
-	\end{block}
-	Imagine we have two sets of samples 
-	\begin{itemize}
-		\item $\cS_1 = \{\bx_i\}_{i=1}^{n_1} \sim \pi(\bx)$ -- real samples;
-		\item $\cS_2 = \{\bx_i\}_{i=1}^{n_2} \sim p(\bx | \btheta)$ -- generated (or fake) samples.
-	\end{itemize}
-	Let define discriminative model (classifier):
-	\[
-		p(y = 1 | \bx) = P\bigl(\{\bx \sim \pi(\bx)\}\bigr); \quad p(y = 0 | \bx) = P\bigl(\{\bx \sim p(\bx | \btheta)\}\bigr)
-	\]
-	\vspace{-0.5cm}
-	\begin{block}{Assumption}
-		Generative distribution $p(\bx | \btheta)$ equals to the true distribution $\pi(\bx)$ if we can not distinguish them using discriminative model $p(y | \bx)$. \\
-		It means that $p(y = 1 | \bx) = 0.5$ for each sample $\bx$.
-	\end{block}
-
-\end{frame}
-%=======
-\begin{frame}{Generative adversarial networks (GAN)}
-	The more powerful discriminative model we will have, the more likely we will get the "best" generative distribution $p(\bx | \btheta)$. \\
-	The most common way to learn a classifier is to minimize cross entropy loss.
-	\begin{itemize}
-		\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic. Here $\bz$ comes from the base (known) distribution $p(\bz)$ and $\bx \sim p(\bx | \btheta)$. Generator tries to \textbf{maximize} cross entropy.
-		\item \textbf{Discriminator:} a classifier $p(y = 1 | \bx) = D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples. Discriminator tries to \textbf{minimize} cross entropy (tries to enhance discriminative model).
-	\end{itemize}
-	\begin{block}{Objective}
-		\vspace{-0.5cm}
-		\[
-			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bx | \btheta)} \log (1 - D(\bx)) \right] 
-		\]
-		\[
-			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
-		\]
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
-\end{frame}
-%=======
 \begin{frame}{Summary}
 	\begin{itemize}
+		\item We could use NF-based prior in VAE (even autoregressive).
+		\vfill		
+		\item Discrete VAE latents is a natural idea, but we have to avoid non-differentiable sampling operation.
+		\vfill
 		\item Vector Quantization is the way to create VAE with discrete latent space and deterministic variational posterior. 
 		\vfill
 		\item Straight-through gradient ignores quantize operation in backprop.			
@@ -399,10 +506,6 @@
 		\item Gumbel-softmax trick relaxes discrete problem to continuous one using Gumbel-max reparametrization trick.
 		\vfill
 		\item It becomes more and more popular to use discrete latent spaces in the fields of image/video/music generation.
-		\vfill
-		\item Likelihood is not a perfect criteria to measure quality of generative model.		
-		\vfill
-		\item Adversarial learning suggests to solve minimax problem to match the distributions.
 	\end{itemize}
 \end{frame}
 

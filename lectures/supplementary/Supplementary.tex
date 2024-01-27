@@ -2797,6 +2797,19 @@ where $i$ is treated as random variable:
 %=======
 \subsection{WGAN}
 %=======
+\begin{frame}{Wasserstein distance (discrete)}
+	A.k.a. \textbf{Earth Mover's distance}.
+	The minimum cost of moving and transforming a pile of dirt in the shape of one probability distribution to the shape of the other distribution.
+	\begin{figure}
+		\centering
+		\includegraphics[width=.9\linewidth]{figs/EM_distance_discrete}
+	\end{figure}
+	\[
+		W(P, Q) = 2 \text{(step 1)} + 2 \text{(step 2)} + 1 \text{(step 3)}  = 5
+	\]
+	\myfootnotewithlink{https://arxiv.org/abs/1904.08994}{Weng L. From GAN to WGAN, 2019} 
+\end{frame}
+%=======
 \begin{frame}{Wasserstein GAN}
 	\begin{figure}
 		\centering
@@ -3150,6 +3163,118 @@ where $i$ is treated as random variable:
 	\end{figure}
 
 	\myfootnotewithlink{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A Style-Based Generator Architecture for Generative Adversarial Networks, 2018}
+\end{frame}
+%=======
+\begin{frame}{StyleGAN}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.6\linewidth]{figs/stylegan_mix}
+		\end{figure}
+
+	\myfootnotewithlink{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A Style-Based Generator Architecture for Generative Adversarial Networks, 2018}
+\end{frame}
+%=======
+\subsection{Evaluation of likelihood-free models}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+	\begin{block}{What do we want from samples?}
+		\begin{itemize}
+			\item \textbf{Sharpness.}
+			The conditional distribution $p(y | \bx)$ should have low entropy (each image $\bx$ should have distinctly recognizable object).
+			\item \textbf{Diversity.}
+			The marginal distribution $p(y) = \int p(y | \bx) p(\bx) d \bx$ should have high entropy (there should be as many classes generated as possible).
+		\end{itemize}
+	\end{block}
+	\begin{figure}
+		\centering
+		\includegraphics[width=1.0\linewidth]{figs/is_toy}
+	\end{figure}
+	\myfootnotewithlink{https://medium.com/octavian-ai/a-simple-explanation-of-the-inception-score-372dff6a8c7a}{image credit: https://medium.com/octavian-ai/a-simple-explanation-of-the-inception-score-372dff6a8c7a}
+\end{frame}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+		\begin{block}{What do we want from samples?}
+		\begin{itemize}
+			\item Sharpness $\Rightarrow$ low $H(y | \bx) = - \sum_{y} \int_{\bx} p(y, \bx) \log p(y | \bx) d\bx$.
+			\item Diversity $\Rightarrow$ high $H(y)  = - \sum_{y} p(y) \log p(y)$.
+		\end{itemize}
+	\end{block}
+	\begin{block}{Inception Score}
+		\vspace{-0.3cm}
+		\footnotesize
+		\begin{align*}
+			IS &= \exp(H(y) - H(y | \bx)) \\ 
+			&= \exp \left( - \sum_{y} p(y) \log p(y) + \sum_{y} \int_{\bx} p(y, \bx) \log p(y | \bx) d\bx\right) \\
+			&= \exp \left( \sum_{y} \int_{\bx} p(y, \bx) \log \frac{p(y | \bx)}{p(y)} d\bx\right) \\ 
+			&= \exp \left( \bbE_{\bx} \sum_{y} p(y | \bx) \log \frac{p(y | \bx)}{p(y)} \right) = \exp \left( \bbE_{\bx} KL(p(y | \bx) || p(y)) \right)
+		\end{align*}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1606.03498}{Salimans T. et al. Improved Techniques for Training GANs, 2016}
+\end{frame}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+	\begin{block}{Theorem (informal)}
+		If $\pi(\bx)$ and $p(\bx | \btheta)$ has moment generation functions then
+		\vspace{-0.1cm}
+		\[
+			\pi(\bx) = p(\bx | \btheta) \, \Leftrightarrow \, \bbE_{\pi} \bx^k = \bbE_{p} \bx^k, \quad \forall k \geq 1.
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	This is intractable to calculate all moments.
+	\begin{block}{Frechet Inception Distance}
+		\vspace{-0.3cm}
+		\[
+			FID (\pi, p) = \| \mathbf{m}_{\pi} - \mathbf{m}_{p}\|_2^2 + \text{Tr} \left( \bSigma_{\pi} + \bSigma_p - 2 \sqrt{\bSigma_{\pi} \bSigma_p} \right)
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{itemize}
+		\item Representations are the outputs of the intermediate layer from the pretrained classification model.
+		\item $\mathbf{m}_{\pi}$, $\bSigma_{\pi} $ are the mean vector and the covariance matrix of feature representations for samples from $\pi(\bx)$
+		\item $\mathbf{m}_{p}$, $\bSigma_p$ are the mean vector and the covariance matrix of feature representations for samples from $p(\bx | \btheta)$.
+	\end{itemize} 
+
+	\myfootnotewithlink{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017}
+\end{frame}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.9\linewidth]{figs/fid_results}
+	\end{figure}
+	\myfootnotewithlink{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017}
+\end{frame}
+%=======
+\begin{frame}{Limitations}
+	\vspace{-0.5cm}
+	\begin{block}{Inception Score}
+		\vspace{-0.5cm}
+		\[
+			IS =  \exp \left( \bbE_{\bx} KL(p(y | \bx) || p(y)) \right)
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{itemize}
+		\item If generator produces images with a different set of labels from the classifier training set, IS will be low.
+		\item If generator produces one image per class, the IS will be perfect (there is no measure of intra-class diversity).
+	\end{itemize}
+	\begin{block}{Frechet Inception Distance}
+		\vspace{-0.4cm}
+		\[
+			FID = \| \mathbf{m}_{\pi} - \mathbf{m}_{p}\|_2^2 + \text{Tr} \left( \bSigma_{\pi} + \bSigma_p - 2 \sqrt{\bSigma_{\pi} \bSigma_p} \right)
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{itemize}
+		\item Needs a large sample size for evaluation.
+		\item Calculation of FID is slow.
+		\item Uses the normality assumption!
+	\end{itemize}
+	Both scores depend on the pretrained classifier $p(y | \bx)$.
+
+	\myfootnote{\href{https://arxiv.org/abs/1801.01973}{Barratt S., Sharma R. A Note on the Inception Score, 2018} \\
+	\href{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017}}
 \end{frame}
 %=======
 \begin{frame}{StyleGAN}

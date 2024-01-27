@@ -108,16 +108,11 @@
 \href{https://huggingface.co/blog/hf-bitsandbytes-integration}{image credit: https://huggingface.co/blog/hf-bitsandbytes-integration}}
 \end{frame}
 %=======
-\begin{frame}{DALL-E -- cross-modal image-text model}
+\begin{frame}{Language modelling at scale}
 	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/dalle1}
+		\includegraphics[width=0.85\linewidth]{figs/LLM-Evolutionary-Tree}
 	\end{figure}
-	\vspace{-0.5cm}
-	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/dalle2}
-	\end{figure}
-	\myfootnote{\href{https://openai.com/blog/dall-e/}{image credit: https://openai.com/blog/dall-e/} \\
-		\href{https://arxiv.org/abs/2102.1209}{Ramesh A. et al. Zero-shot text-to-image generation, 2021}}
+\myfootnotewithlink{https://blog.biocomm.ai/2023/05/14/open-source-proliferation-llm-evolutionary-tree/}{image credit: https://blog.biocomm.ai/2023/05/14/open-source-proliferation-llm-evolutionary-tree/}
 \end{frame}
 %=======
 \begin{frame}{DDPM - diffusion model}
@@ -127,7 +122,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2105.05233}{Dhariwal P., Nichol A. Diffusion Models Beat GANs on Image Synthesis, 2021}
 \end{frame}
 %=======
-\begin{frame}{Stable Diffusion - awesome text to image results}
+\begin{frame}{Stable Diffusion - awesome text-to-image results}
 	\begin{figure}
 		\includegraphics[width=\linewidth]{figs/stable_diffusion}
 	\end{figure}
@@ -159,6 +154,7 @@
 		\[
 			\bbE_{p_y} g(\by) = \int p_y(\by) g(\by) d \by = \int p_x(\bx) g(f(\bx)) d \bx = \bbE_{p_x} g(f(\bx)).
 		\]
+		\vspace{-0.4cm}
 	\end{block}
 	\begin{block}{Monte-Carlo estimation}
 		Expected value could be estimated using only the samples:
@@ -172,6 +168,7 @@
 		\[
 			\bbE [f(\bx)] \geq f(\bbE[\bx]).
 		\]
+		\vspace{-0.4cm}
 	\end{block}
 \end{frame}
 %=======
@@ -212,12 +209,27 @@
 	\begin{block}{Goal}
 		We would like to learn a distribution $\pi(\bx)$ for 
 		\begin{itemize}
-		    \item evaluating $\pi(\bx)$ for new samples (how likely to get object $\bx$?);
-		    \item sampling from $\pi(\bx)$ (to get new objects $\bx \sim \pi(\bx)$).
+		    \item evaluating $\pi(\bx)$ for new samples (how likely to get object~$\bx$?)~-- \textbf{density evaluation};
+		    \item sampling from $\pi(\bx)$ (to get new objects $\bx \sim \pi(\bx)$)~-- \textbf{generation}.
 		\end{itemize}
 	\end{block}
 	\begin{block}{Challenge}
 		 Data is complex and high-dimensional. E.g. the dataset of images lies in the space $\cX \subset \bbR^{\text{width} \times \text{height} \times \text{channels}}$.
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Problem statement}
+	\begin{block}{Conditional model}
+		In practice the popular task is to create a conditional model~$\pi(\bx | \by)$. 
+		\begin{itemize}
+		\item $\by$ -- class label, $\bx$ -- image $\Rightarrow$ image conditional model.
+		\item $\by$ -- text prompt, $\bx$ -- image $\Rightarrow$ text-to-image model.
+		\item $\by$ -- image, $\bx$ -- image $\Rightarrow$ image-to-image model.
+		\item $\by$ -- image, $\bx$ -- text $\Rightarrow$ text-to-image model (image captioning).
+		\item $\by$ -- sound, $\bx$ -- text $\Rightarrow$ speech-to-text model (automatic speech recognition).
+		\item $\by$ -- English text, $\bx$ -- Russian text $\Rightarrow$ sequence-to-sequence model (machine translation).
+		\item $\by = \emptyset$, $\bx$ -- image $\Rightarrow$ image unconditional model.
+		\end{itemize}
 	\end{block}
 \end{frame}
 %=======
