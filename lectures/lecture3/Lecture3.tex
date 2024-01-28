@@ -240,203 +240,91 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1907.07945}{Song Y., Meng C., Ermon S. Mintnet: Building invertible neural networks with masked convolutions, 2019}
 \end{frame}
 %=======
-\section{Neural ODE}
-%=======
-\begin{frame}{Neural ODE}
-	Consider Ordinary Differential Equation (ODE)
-	\begin{align*}
-	    \frac{d \bz(t)}{dt} &= f_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
-	    \bz(t_1) &= \int^{t_1}_{t_0} f_{\btheta}(\bz(t), t) d t  + \bz_0 = \text{ODESolve}(\bz(t_0), f_{\btheta}, t_0,t_1).
-	\end{align*}
-	\vspace{-0.4cm}
-	\begin{block}{Euler update step}
-		\vspace{-0.6cm}
-		\[
-		    \frac{\bz(t + \Delta t) - \bz(t)}{\Delta t} = f_{\btheta}(\bz(t), t) \,\, \Rightarrow \,\, \bz(t + \Delta t) = \bz(t) + \Delta t \cdot f_{\btheta}(\bz(t), t)
-		\]
-		\vspace{-0.7cm}
-	\end{block}
-	\begin{block}{Residual block}
-		\begin{minipage}[t]{0.7\columnwidth}
-			\vspace{-0.4cm}
-			\[
-				\bz_{t + 1} = \bz_t + f_{\btheta}(\bz_t)
-			\]
-			\vspace{-0.6cm}
-			\begin{itemize}
-				 \item It is equavalent to Euler update step for solving ODE with $\Delta t = 1$!
-				 \item Euler update step is unstable and trivial. There are more sophisticated methods.
-			\end{itemize}
-		\end{minipage}%
-		\begin{minipage}[t]{0.3\columnwidth}
-			\vspace{-0.2cm}
-			\begin{figure}
-			    \centering
-			    \includegraphics[width=\linewidth]{figs/resnet_1.png}
-			\end{figure}
-		\end{minipage}
-		\vspace{-0.4cm}
-	\end{block}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
-\begin{frame}{Neural ODE}
-	\begin{block}{Residual block}
-	\vspace{-0.4cm}
-	\[
-	    \bz_{t+1} = \bz_t + f_{\btheta}(\bz_t).
-	\]
-	\vspace{-0.4cm}
-	\end{block}
-	In the limit of adding more layers and taking smaller steps, we parameterize the continuous dynamics of hidden units using an ODE specified by a neural network: 
-	\[
-	    \frac{d \bz(t)}{dt} = f_{\btheta}(\bz(t), t); \quad \bz(t_0) = \bx; \quad \bz(t_1) = \by.
-	\]
-	\begin{minipage}[t]{0.4\columnwidth}
-		\begin{figure}
-			\centering
-			\includegraphics[width=0.8\linewidth]{figs/euler}
-		\end{figure}
-	\end{minipage}%
-	\begin{minipage}[t]{0.6\columnwidth}
-		\vspace{-0.4cm}
-		\begin{figure}
-			\centering
-			\includegraphics[width=0.9\linewidth]{figs/resnet_vs_neural_ode.png}
-		\end{figure}
-	\end{minipage}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
-\begin{frame}{Neural ODE}
-	\begin{block}{Forward pass (loss function)}
-		\vspace{-0.8cm}
-		\begin{align*}
-			L(\by) = L(\bz(t_1)) &= L\left( \bz(t_0) + \int_{t_0}^{t_1} f_{\btheta}(\bz(t), t) dt \right) \\ &= L\bigl(\text{ODESolve}(\bz(t_0), f_{\btheta}, t_0,t_1) \bigr)
-		\end{align*}
-	\vspace{-0.5cm}
-	\end{block}
-	\textbf{Note:} ODESolve could be any method (Euler step, Runge-Kutta methods).
-	\begin{block}{Backward pass (gradients computation)}
-		For fitting parameters we need gradients:
-		\[
-			\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)}.
-		\]
-		In theory of optimal control these functions called \textbf{adjoint} functions. 
-		They show how the gradient of the loss depends on the hidden state~$\bz(t)$ and parameters $\btheta$.
-	\end{block}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}     
-\end{frame}
-%=======
-\section{Adjoint method}
-%=======
-\begin{frame}{Adjoint method}
-	\vspace{-0.3cm}
-	\begin{block}{Adjoint functions}
-		\vspace{-0.3cm}
-		\[
-		\ba_{\bz}(t) = \frac{\partial L(\by)}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L(\by)}{\partial \btheta(t)}.
-		\]
-		\vspace{-0.6cm}
-	\end{block}
-	\begin{block}{Theorem (Pontryagin)}
-		\vspace{-0.6cm}
-		\[
-		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f_{\btheta}(\bz(t),  t)}{\partial \btheta}.
-		\]
-		Do we know any initilal condition?
-	\end{block}
-	\begin{block}{Solution for adjoint function}
-		\vspace{-0.8cm}
-		\begin{align*}
-			\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \btheta(t)} dt + 0\\
-			\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)}\\
-		\end{align*}
-		\vspace{-1.2cm}
-	\end{block}
-	\textbf{Note:} These equations are solved back in time.
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
-\begin{frame}{Adjoint method}
-	\vspace{-0.2cm}
-	\begin{block}{Forward pass}
-		\vspace{-0.5cm}
-		\[
-		\bz(t_1) = \int^{t_1}_{t_0} f_{\btheta}(\bz(t), t) d t  + \bz_0 \quad \Rightarrow \quad \text{ODE Solver}
-		\]
-		\vspace{-0.6cm}
-	\end{block}
-	\begin{block}{Backward pass}
-		\vspace{-0.8cm}
-		\begin{equation*}
-			\left.
-			{\footnotesize 
-				\begin{aligned}
-					\frac{\partial L}{\partial \btheta(t_0)} &= \ba_{\btheta}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \btheta(t)} dt + 0 \\
-					\frac{\partial L}{\partial \bz(t_0)} &= \ba_{\bz}(t_0) =  - \int_{t_1}^{t_0} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_1)} \\
-					\bz(t_0) &= - \int^{t_0}_{t_1} f_{\btheta}(\bz(t), t) d t  + \bz_1.
-				\end{aligned}
-			}
-			\right\rbrace
-			\Rightarrow
-			\text{ODE Solver}
-		\end{equation*}
-		\vspace{-0.4cm} 
-	\end{block}
-	\textbf{Note:} These scary formulas are the standard backprop in the discrete case.
-	\begin{figure}
-		\centering
-		\includegraphics[width=\linewidth]{figs/neural_ode}
-	\end{figure}
-	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
-\end{frame}
-%=======
 \section{Continuous-in-time Normalizing Flows}
 %=======
 \begin{frame}{Continuous-in-time Normalizing Flows}
 	\vspace{-0.3cm}
 	\begin{block}{Discrete-in-time NF}
-		\vspace{-0.8cm}
+		Previously we assume that the time axis is discrete:
+		\vspace{-0.3cm}
 		  \[
-		  \bz_{t+1} = f_{\btheta}(\bz_t); \quad \log p(\bz_{t+1}) = \log p(\bz_{t}) - \log \left| \det \frac{\partial f_{\btheta}(\bz_t)}{\partial \bz_{t}} \right| .
+			  \bz_{t+1} = f_{\btheta}(\bz_t); \quad \log p(\bz_{t+1}) = \log p(\bz_{t}) - \log \left| \det \frac{\partial f_{\btheta}(\bz_t)}{\partial \bz_{t}} \right| .
 		  \]
-		\vspace{-0.7cm}
+		\vspace{-0.6cm}
 	\end{block}
+	Let assume the more general case of continuous time. It means that we will have the dynamic function $\bz(t)$.
 	\begin{block}{Continuous-in-time dynamics}
-		\vspace{-0.2cm}
-		\[
-			\frac{d\bz(t)}{dt} = f_{\btheta}(\bz(t), t).
-		\]
+		Consider Ordinary Differential Equation (ODE)
+		\vspace{-0.3cm}
+		\begin{align*}
+		   \frac{d \bz(t)}{dt} &= f_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
+		   \bz(t_1) &= \int^{t_1}_{t_0} f_{\btheta}(\bz(t), t) d t  + \bz_0 = \text{ODESolve}(\bz(t_0), f_{\btheta}, t_0,t_1).
+		\end{align*}
+		\vspace{-0.5cm}
 	\end{block}
-	\vspace{-0.6cm}
+	Here we need to define the $\text{ODESolve}(\bz(t_0), f_{\btheta}, t_0,t_1)$ procedure.
+	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018}  
+\end{frame}
+%=======
+\begin{frame}{Continuous-in-time Normalizing Flows}
+	\begin{block}{Euler update step}
+		\vspace{-0.5cm}
+		\[
+		    \frac{\bz(t + \Delta t) - \bz(t)}{\Delta t} = f_{\btheta}(\bz(t), t) \,\, \Rightarrow \,\, \bz(t + \Delta t) = \bz(t) + \Delta t \cdot f_{\btheta}(\bz(t), t)
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\textbf{Note:} Euler method is the simplest version of ODESolve that is unstable in practice.  It is possible to use more sophisticated methods ( e.x. Runge-Kutta methods).
 	\begin{minipage}[t]{0.4\columnwidth}
 		\begin{figure}
 			\centering
-			\includegraphics[width=0.75\linewidth]{figs/cnf_flow.png}
+			\includegraphics[width=0.7\linewidth]{figs/euler}
 		\end{figure}
 	\end{minipage}%
 	\begin{minipage}[t]{0.6\columnwidth}
+		\vspace{-0.2cm}
 		\begin{figure}
 			\centering
-			\includegraphics[width=0.8\linewidth]{figs/ffjord.png}
+			\includegraphics[width=0.9\linewidth]{figs/resnet_vs_neural_ode.png}
+		\end{figure}
+	\end{minipage}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+
+\end{frame}
+%=======
+\begin{frame}{Continuous-in-time Normalizing Flows}
+	\vspace{-0.5cm}
+	\begin{block}{Neural ODE}
+		\vspace{-0.5cm}
+		\begin{align*}
+  \frac{d \bz(t)}{dt} &= f_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0
+		\end{align*}
+		\vspace{-0.8cm}
+	\end{block}
+	\begin{minipage}[t]{0.6\columnwidth}
+		\begin{itemize}
+			\item Let $\bz(t_0)$ will be a random variable with some density function $p(\bz(t_0))$.
+		 	\item Then $\bz(t_1)$ will be also a random variable with some other density function $p(\bz(t_1))$.
+			\item We could say that we have the joint density function $p(\bz(t), t)$.
+			\item What is the difference between $p(\bz(t), t)$ and $p(\bz, t)$?
+		\end{itemize}
+	\end{minipage}%
+	\begin{minipage}[t]{0.4\columnwidth}	
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth]{figs/cnf_flow.png}
 		\end{figure}
 	\end{minipage}
 	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018}  
 \end{frame}
 %=======
 \begin{frame}{Continuous-in-time Normalizing Flows}
+	Let say that $p(\bz, t_0)$ is the base distribution (e.x. standard Normal) and $p(\bz, t_1)$ is the desired model distribution $p(\bx | \btheta)$.
 	\begin{block}{Theorem (Picard)}
 		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then the ODE has a \textbf{unique} solution.
 	\end{block}
-	\textbf{Note:} Unlike discrete-in-time NF, $f$ does not need to be bijective (uniqueness guarantees bijectivity).
-	\begin{itemize}
-		\item Discrete-in-time NF need invertible $f$. Here we have sequence of $\log p(\bz_t)$.
-		\item Continuous-in-time NF require only smoothness of $f$. Here we need to get $\log(p(\bz(t), t))$
-	\end{itemize}
+	It means that we are able \textbf{uniquely revert} our ODE. 
 	\begin{block}{Forward and inverse transforms}
 		\vspace{-0.7cm}
 		\begin{align*}
@@ -445,63 +333,61 @@
 		\end{align*}
 		\vspace{-0.7cm}
 	\end{block}
+	\textbf{Note:} Unlike discrete-in-time NF, $f$ does not need to be bijective (uniqueness guarantees bijectivity).
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
 \begin{frame}{Continuous-in-time Normalizing Flows}
+	\begin{block}{What do we need?}
+		\begin{itemize}
+			\item We need the way to compute $p(\bz, t)$ at any moment $t$.
+			\item We need the way to find the optimal parameters $\theta$ of the dynamic $f_{\btheta}$.
+		\end{itemize}
+	\end{block}
 	\vspace{-0.3cm}
 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck: special case)}
 		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
 		\[
 			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right).
 		\]
-	\end{block}
-	\vspace{-0.6cm}
-	\[
-		\log p(\bx | \btheta) = \log p(\bz) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt.
-	\]
-	Here $p(\bx | \btheta) = p(\bz(t_1), t_1)$, $p(\bz) = p(\bz(t_0), t_0)$.
-	\textbf{Adjoint} method is used for getting the derivatives.
-	\begin{block}{Forward transform + log-density}
-		\vspace{-0.3cm}
 		\[
-			\begin{bmatrix}
-				\bx \\
-				\log p(\bx | \btheta)
-			\end{bmatrix}
-			= 
-			\begin{bmatrix}
-				\bz \\
-				\log p(\bz)
-			\end{bmatrix} + 
-			\int_{t_0}^{t_1} 
-			\begin{bmatrix}
-				f_{\btheta}(\bz(t), t) \\
-				- \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) 
-			\end{bmatrix} dt.
+			\log p(\bz(t_1), t_1) = \log p(\bz(t_0), t_0) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt.
 		\]
-		\vspace{-0.4cm}
 	\end{block}
-	It costs $O(m^2)$ to get the trace of the Jacobian (evaluation of determinant of the Jacobian costs $O(m^3)$!).
+	It means that if we have the value $\bz_0 = \bz(t_0)$ then the solution of the ODE will give us the density at the moment $t_1$.
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
 \begin{frame}{Continuous-in-time Normalizing Flows}
-	\vspace{0.2cm}
+	\begin{block}{Forward transform + log-density}
+		\vspace{-0.5cm}
+		\begin{align*}
+				\bx &= \bz + \int_{t_0}^{t_1} f_{\btheta}(\bz(t), t) dt \\
+				\log p(\bx | \btheta) &= \log p(\bz) - \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
+		\end{align*}
+		Here $p(\bx | \btheta) = p(\bz(t_1), t_1)$, $p(\bz) = p(\bz(t_0), t_0)$.
+	\end{block}
 	\begin{itemize}
-		\item $\text{tr} \left( \frac{\partial f_{\btheta}(\bz(t))}{\partial \bz(t)} \right)$ costs $O(m^2)$ ($m$
-		evaluations of $f$), since we have to compute a derivative for each diagonal element. 
-		\item Jacobian vector products ${\color{violet}\bv^T \frac{\partial f}{\partial \bz}}$ can be computed for approximately the same cost as evaluating $f$.
+		\item \textbf{Discrete-in-time NF}: evaluation of determinant of the Jacobian costs $O(m^3)$ (we need invertible $f$).
+		\item \textbf{Continuous-in-time NF}: getting the trace of the Jacobian costs $O(m^2)$ (we need smooth $f$).
 	\end{itemize}
-	It is possible to reduce cost from $O(m^2)$ to $O(m)$!
+	\begin{block}{Why $O(m^2)$?}
+		$\text{tr} \left( \frac{\partial f_{\btheta}(\bz(t))}{\partial \bz(t)} \right)$ costs $O(m^2)$ ($m$ evaluations of $f$), since we have to compute a derivative for each diagonal element. It is possible to reduce cost from $O(m^2)$ to $O(m)$!
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
+\begin{frame}{Continuous-in-time Normalizing Flows}
 	\begin{block}{Hutchinson's trace estimator}
-		If $\bepsilon \in \bbR^m$ is a random variable with $\mathbb{E} [\bepsilon] = 0$ and $\text{Cov} (\bepsilon) = I$, then
+		If $\bepsilon \in \bbR^m$ is a random variable with $\mathbb{E} [\bepsilon] = 0$ and $\text{cov} (\bepsilon) = \bI$, then
 		\vspace{-0.3cm}
-		\[
-		    \text{tr}(\mathbf{A}) = \text{tr}\left(\mathbf{A}\mathbb{E}_{p(\bepsilon)} \left[ \bepsilon \bepsilon^T \right]\right) =  \mathbb{E}_{p(\bepsilon)} \left[  \text{tr}\left(  \mathbf{A}  \bepsilon \bepsilon^T \right) \right] =  \mathbb{E}_{p(\bepsilon)} \left[ {\color{violet} \bepsilon^T \mathbf{A}} \bepsilon  \right]
-		\]
+		\begin{multline*}
+		    \text{tr}(\mathbf{A}) = \text{tr}\left(\mathbf{A} \cdot {\color{olive}\bI} \right) = \text{tr}\left(\mathbf{A} \cdot {\color{olive}\mathbb{E}_{p(\bepsilon)} \left[ \bepsilon \bepsilon^T \right]} \right) = \\ 
+		    =  \mathbb{E}_{p(\bepsilon)} \left[  \text{tr}\left(  \mathbf{A}  \bepsilon \bepsilon^T \right) \right] =  \mathbb{E}_{p(\bepsilon)} \left[ {\color{violet} \bepsilon^T \mathbf{A}} \bepsilon  \right]
+		\end{multline*}
 		\vspace{-0.6 cm}
 	\end{block}
+	Jacobian vector products ${\color{violet}\bv^T \frac{\partial f}{\partial \bz}}$ can be computed for approximately the same cost as evaluating $f$ (\texttt{torch.autograd.functional.jvp}).
 	\begin{block}{FFJORD density estimation}
 		\vspace{-0.8cm}
 		\begin{multline*}
@@ -511,17 +397,115 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
 \end{frame}
 %=======
+\section{Adjoint method}
+%=======
+\begin{frame}{Neural ODE}
+	\begin{block}{Continuous-in-time NF}
+		{\small
+		\begin{minipage}[t]{0.4\columnwidth}
+			\[
+	 			 \frac{d \bz(t)}{dt} = f_{\btheta}(\bz(t), t) 	 
+	 		\]
+	 		\[
+	 			 \bx = \bz + \int_{t_0}^{t_1} f_{\btheta}(\bz(t), t) dt 
+			\]
+		\end{minipage}% 
+		\begin{minipage}[t]{0.6\columnwidth}
+			\vspace{-0.4cm}
+			\[
+					\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) 
+	 		\]
+	 		\[
+					\log p(\bx | \btheta) = \log p(\bz) - \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
+			\]
+		\end{minipage}
+		}
+	\end{block}
+	How to get optimal parameters of $\btheta$? \\
+	
+	For fitting parameters we need gradients. We need the analogue of the backpropagation.
+	\begin{block}{Forward pass (Loss function)}
+		\vspace{-0.3cm}
+		\[
+			\bz = \bx + \int_{t_1}^{t_0} f_{\btheta}(\bz(t), t) dt, \quad L(\bz) = \log p(\bz)
+		\]
+		\[
+			L(\bz) = L\left( \bx + \int_{t_1}^{t_0} f_{\btheta}(\bz(t), t) dt \right) = L\bigl(\text{ODESolve}(\bx, f_{\btheta}, t_1, t_0) \bigr)
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}     
+\end{frame}
+%=======
+\begin{frame}{Neural ODE}
+	\vspace{-0.2cm}
+	\begin{block}{Adjoint functions}
+		\vspace{-0.4cm}
+		\[
+			\ba_{\bz}(t) = \frac{\partial L}{\partial \bz(t)}; \quad \ba_{\btheta}(t) = \frac{\partial L}{\partial \btheta(t)}.
+		\]
+		These functions show how the gradient of the loss depends on the hidden state~$\bz(t)$ and parameters $\btheta$.
+		\vspace{-0.3cm}
+	\end{block}
+
+	\begin{block}{Theorem (Pontryagin)}
+		\vspace{-0.6cm}
+		\[
+		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f_{\btheta}(\bz(t),  t)}{\partial \btheta}.
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Solution for adjoint function}
+		\vspace{-0.6cm}
+		{\small
+		\begin{align*}
+			\frac{\partial L}{\partial \btheta(t_1)} &= \ba_{\btheta}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \btheta(t)} dt + 0\\
+			\frac{\partial L}{\partial \bz(t_1)} &= \ba_{\bz}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_0)}\\
+		\end{align*}
+		}
+		\vspace{-1.3cm}
+	\end{block}
+	\textbf{Note:} These equations are solved in reverse time direction.
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
+\begin{frame}{Adjoint method}
+	\begin{block}{Forward pass}
+		\vspace{-0.3cm}
+		\[
+		\bz = \bz(t_0) = \int^{t_1}_{t_0} f_{\btheta}(\bz(t), t) d t  + \bx \quad \Rightarrow \quad \text{ODE Solver}
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{block}{Backward pass}
+		\vspace{-0.5cm}
+		\begin{equation*}
+			\left.
+			{\footnotesize 
+				\begin{aligned}
+					\frac{\partial L}{\partial \btheta(t_1)} &= \ba_{\btheta}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \btheta(t)} dt + 0 \\
+					\frac{\partial L}{\partial \bz(t_1)} &= \ba_{\bz}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_0)} \\
+					\bz(t_1) &= - \int^{t_0}_{t_1} f_{\btheta}(\bz(t), t) d t  + \bz_0.
+				\end{aligned}
+			}
+			\right\rbrace
+			\Rightarrow
+			\text{ODE Solver}
+		\end{equation*}
+		\vspace{-0.4cm} 
+	\end{block}
+	\textbf{Note:} These scary formulas are the standard backprop in the discrete case.
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
 \begin{frame}{Summary}
 	\begin{itemize}
 		\item The RealNVP coupling layer is an effective type of flow (special case of AR flows) that has fast inference and generation modes.
 		\vfill
-		\item Residual networks could be interpreted as solution of ODE with Euler method.
-		\vfill
-		\item Adjoint method generalizes backpropagation procedure and allows to train Neural ODE solving ODE for adjoint function back in time.
-		\vfill
 		\item Kolmogorov-Fokker-Planck theorem allows to construct continuous-in-time normalizing flow with less functional restrictions.
 		\vfill
 		\item FFJORD model makes such kind of NF scalable.
+		\vfill
+		\item Adjoint method generalizes backpropagation procedure and allows to train Neural ODE solving ODE for adjoint function back in time.
 	\end{itemize}
 \end{frame}
 \end{document} 
