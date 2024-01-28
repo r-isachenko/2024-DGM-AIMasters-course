@@ -275,119 +275,26 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
 \end{frame}
 %=======
-\section{Langevin dynamic and SDE basics}
+\section{Langevin dynamic}
 %=======
 \begin{frame}{Langevin dynamic}
-	Imagine that we have some generative model $p(\bx | \btheta)$.
-	\begin{block}{Statement}
-		Let $\bx_0$ be a random vector. Then under mild regularity conditions for small enough $\eta$ samples from the following dynamics
-		\[
-			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx_t} \log p(\bx_t | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
-		\]
-		will comes from $p(\bx | \btheta)$.
-	\end{block}
-	What do we get if $\bepsilon = \boldsymbol{0}$?
-	\begin{block}{Energy-based model}
-		\vspace{-0.4cm}
-		\[
-			p(\bx | \btheta) = \frac{\hat{p}(\bx | \btheta)}{Z_{\btheta}}, \quad \text{where } Z_{\btheta} = \int \hat{p}(\bx | \btheta) d \bx
-		\]
-		\[
-			\nabla_{\bx} \log p(\bx | \btheta) = \nabla_{\bx} \log \hat{p}(\bx | \btheta) - \nabla_{\bx} \log Z_{\btheta} = \nabla_{\bx} \log \hat{p}(\bx | \btheta)
-		\]
-		Gradient of normalized density equals to gradient of unnormalized density.
-	\end{block}
-	\myfootnotewithlink{https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf}{Welling M. Bayesian Learning via Stochastic Gradient Langevin Dynamics, 2011}
-\end{frame}
-%=======
-\begin{frame}{Stochastic differential equation (SDE)}
-	Let define stochastic process $\bx(t)$ with initial condition $\bx(0) \sim p_0(\bx)$:
-	\[
-		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
-	\]
-	\vspace{-0.6cm}
-	\begin{itemize}
-		 \item $\mathbf{f}(\bx, t)$ is the \textbf{drift} function of $\bx(t)$.
-		 \item $g(t)$ is the \textbf{diffusion} coefficient of $\bx(t)$.
-		 \item If $g(t) = 0$ we get standard ODE.
-		 \item $\bw(t)$ is the standard Wiener process (Brownian motion):
-		 \begin{enumerate}
-		 	\item $\bw(0) = 0$ (almost surely);
-		 	\item $\bw(t)$ has independent increments;
-			 \item $\bw(t) - \bw(s) \sim \cN(0, (t - s) \bI)$.
-		 \end{enumerate}
-		 \item $d \bw = \bw(t + dt) - \bw(t) = \cN(0, \bI \cdot dt ) = \bepsilon \cdot \sqrt{dt}$, where $\bepsilon \sim \cN(0, \bI)$.
-	\end{itemize}
-	\textbf{Note:} In contrast to ODE, initial condition $\bx(0)$ does not uniquely determine the process trajectory.
-\end{frame}
-%=======
-\begin{frame}{Stochastic differential equation (SDE)}
-	\vspace{-0.4cm}
-	\[
-		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw, \quad d \bw = \bepsilon \cdot \sqrt{dt}, \quad \bepsilon \sim \cN(0, \bI).
-	\]
-	\vspace{-0.4cm}
-	\begin{itemize}
-		\item At each moment $t$ we have the density $p(\bx(t), t)$.
-		\item How to get distribution $p(\bx, t)$ for $\bx(t)$?
-	\end{itemize}
- 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
- 		Evolution of the distribution $p(\bx, t)$ is given by the following ODE:
- 		\vspace{-0.2cm}
- 		\[
- 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
- 		\]
- 		\textbf{Note:} This is the generalization of KFP theorem that we used in continuous-in-time NF.
- 	\end{block}
- 	\begin{block}{Langevin SDE (special case)}
- 		\vspace{-0.6cm}
- 		\begin{align*}
- 			d\bx &= {\color{violet}\mathbf{f}(\bx, t)} dt + {\color{teal}g(t)} d \bw \\
- 			d \bx &= {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
- 		\end{align*}
- 	\end{block}
-\end{frame}
-%=======
-\begin{frame}{Langevin SDE (special case)}
-	\[
-		d \bx = {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
-	\]
-	Let apply KFP theorem.
-	\begin{multline*}
-		\frac{\partial p(\bx, t)}{\partial t} =  \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}p(\bx, t) \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
-		= \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}\frac{1}{2} \frac{\partial}{\partial \bx} p(\bx, t) } \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = 0
-	\end{multline*}
-	The density $p(\bx, t) = \text{const}(t)$! \\
-	\begin{block}{Discretized Langevin SDE}
-		\vspace{-0.3cm}
-		\[
-			\bx_{t + 1} - \bx_t = \eta \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
-		\]
-		\vspace{-0.4cm}
-	\end{block}
-	\begin{block}{Langevin dynamic}
-		\vspace{-0.3cm}
-		\[
-			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx} \log p(\bx | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
-		\]
-		\vspace{-0.3cm}
-	\end{block}
-\end{frame}
-%=======
-\begin{frame}{Stochastic differential equation (SDE)}
 	\vspace{-0.4cm}
 	\begin{block}{Statement}
 		Let $\bx_0$ be a random vector. Then samples from the following dynamics
+		\vspace{-0.3cm}
 		\[
 			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx_t} \log p(\bx_t | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
 		\]
 		will come from $p(\bx | \btheta)$ under mild regularity conditions for small enough $\eta$ and large enough $t$.
 	\end{block}
-	\begin{minipage}{0.6\linewidth}
-		The density $p(\bx | \btheta)$ is a \textbf{stationary} distribution for this SDE.
+	\begin{minipage}{0.55\linewidth}
+		\begin{itemize}
+			\item Here we assume that we already have some generative model $p(\bx | \btheta)$.
+			\item The density $p(\bx | \btheta)$ is a \textbf{stationary} distribution for this SDE. \\
+			\item What do we get if $\bepsilon = \boldsymbol{0}$?
+		\end{itemize}
 	\end{minipage}%
-	\begin{minipage}{0.35\linewidth}
-		\vspace{-0.2cm}
+	\begin{minipage}{0.4\linewidth}
 		\begin{figure}
 			\centering
 			\includegraphics[width=0.9\linewidth]{figs/langevin_dynamic}
@@ -395,6 +302,27 @@
 	\end{minipage}
 	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021} 
 	\end{frame}
+%=======
+\begin{frame}{Energy-based models}
+	\begin{itemize}
+		\item We could sample from the model using Langevin dynamics if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
+		\item Where is it helpful?
+	\end{itemize}
+	\begin{block}{Unnormalized density}
+		\vspace{-0.2cm}
+		\[
+			p(\bx | \btheta) = \frac{\hat{p}(\bx | \btheta)}{Z_{\btheta}}, \quad \text{where } Z_{\btheta} = \int \hat{p}(\bx | \btheta) d \bx
+		\]
+		\begin{itemize}
+			\item $\hat{p}(\bx | \btheta)$ is any non-negative function. \\
+			\item If we use the reparametrization $\hat{p}(\bx | \btheta) = \exp(-f_{\btheta}(\bx))$, we remove the non-negativite constraint.
+		\end{itemize}
+		\[
+			\nabla_{\bx} \log p(\bx | \btheta) = \nabla_{\bx} \log \hat{p}(\bx | \btheta) - \nabla_{\bx} \log Z_{\btheta} = \nabla_{\bx} \log \hat{p}(\bx | \btheta)
+		\]
+		The gradient of the normalized density equals to the gradient of the unnormalized density.
+	\end{block}
+\end{frame}
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
@@ -404,7 +332,7 @@
 		\vfill
 		\item DDPM is really slow, because we have to apply the model $T$ times.
 		\vfill
-		\item Langevin dynamics allows to sample from the energy-based model using the score function (due to the existence of stationary distribution of SDE).
+		\item Langevin dynamics allows to sample from the generative model using the gradient of the log-likelihood.
 	\end{itemize}
 \end{frame}
 \end{document} 

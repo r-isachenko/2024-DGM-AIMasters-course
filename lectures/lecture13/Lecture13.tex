@@ -139,6 +139,82 @@
 	\tableofcontents
 \end{frame}
 %=======
+\section{SDE basics}
+%=======
+\begin{frame}{Stochastic differential equation (SDE)}
+	Let define stochastic process $\bx(t)$ with initial condition $\bx(0) \sim p_0(\bx)$:
+	\[
+		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
+	\]
+	\vspace{-0.6cm}
+	\begin{itemize}
+		 \item $\mathbf{f}(\bx, t)$ is the \textbf{drift} function of $\bx(t)$.
+		 \item $g(t)$ is the \textbf{diffusion} coefficient of $\bx(t)$.
+		 \item If $g(t) = 0$ we get standard ODE.
+		 \item $\bw(t)$ is the standard Wiener process (Brownian motion):
+		 \begin{enumerate}
+		 	\item $\bw(0) = 0$ (almost surely);
+		 	\item $\bw(t)$ has independent increments;
+			 \item $\bw(t) - \bw(s) \sim \cN(0, (t - s) \bI)$.
+		 \end{enumerate}
+		 \item $d \bw = \bw(t + dt) - \bw(t) = \cN(0, \bI \cdot dt ) = \bepsilon \cdot \sqrt{dt}$, where $\bepsilon \sim \cN(0, \bI)$.
+	\end{itemize}
+	\textbf{Note:} In contrast to ODE, initial condition $\bx(0)$ does not uniquely determine the process trajectory.
+\end{frame}
+%=======
+\begin{frame}{Stochastic differential equation (SDE)}
+	\vspace{-0.4cm}
+	\[
+		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw, \quad d \bw = \bepsilon \cdot \sqrt{dt}, \quad \bepsilon \sim \cN(0, \bI).
+	\]
+	\vspace{-0.4cm}
+	\begin{itemize}
+		\item At each moment $t$ we have the density $p(\bx(t), t)$.
+		\item How to get distribution $p(\bx, t)$ for $\bx(t)$?
+	\end{itemize}
+ 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
+ 		Evolution of the distribution $p(\bx, t)$ is given by the following ODE:
+ 		\vspace{-0.2cm}
+ 		\[
+ 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
+ 		\]
+ 		\textbf{Note:} This is the generalization of KFP theorem that we used in continuous-in-time NF.
+ 	\end{block}
+ 	\begin{block}{Langevin SDE (special case)}
+ 		\vspace{-0.6cm}
+ 		\begin{align*}
+ 			d\bx &= {\color{violet}\mathbf{f}(\bx, t)} dt + {\color{teal}g(t)} d \bw \\
+ 			d \bx &= {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
+ 		\end{align*}
+ 	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Langevin SDE (special case)}
+	\[
+		d \bx = {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
+	\]
+	Let apply KFP theorem.
+	\begin{multline*}
+		\frac{\partial p(\bx, t)}{\partial t} =  \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}p(\bx, t) \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
+		= \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}\frac{1}{2} \frac{\partial}{\partial \bx} p(\bx, t) } \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = 0
+	\end{multline*}
+	The density $p(\bx, t) = \text{const}(t)$! \\
+	\begin{block}{Discretized Langevin SDE}
+		\vspace{-0.3cm}
+		\[
+			\bx_{t + 1} - \bx_t = \eta \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{block}{Langevin dynamic}
+		\vspace{-0.3cm}
+		\[
+			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx} \log p(\bx | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+\end{frame}
+%=======
 \section{Diffusion and Score matching SDEs}
 %=======
 \begin{frame}{Score matching SDE}
