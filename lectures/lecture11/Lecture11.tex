@@ -324,6 +324,26 @@
 	\end{block}
 \end{frame}
 %=======
+\begin{frame}{Score matching}
+	We could sample from the model using Langevin dynamics if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
+	\begin{block}{Fisher divergence}
+		\vspace{-0.3cm}
+		\[
+		D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	Let introduce \textbf{score function} $\bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)$. 
+	\vspace{-0.2cm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.75\linewidth]{figs/smld}
+	\end{figure}
+	\vspace{-0.3cm} 
+	\textbf{Problem:} we do not know $\nabla_\bx \log \pi(\bx)$.
+	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
+\end{frame}
+%=======
 \begin{frame}{Summary}
 	\begin{itemize}
 		\item DDPM is a VAE model with hierarchical latent variables.
@@ -332,7 +352,9 @@
 		\vfill
 		\item DDPM is really slow, because we have to apply the model $T$ times.
 		\vfill
-		\item Langevin dynamics allows to sample from the generative model using the gradient of the log-likelihood.
+		\item Langevin dynamics allows to sample from the generative model using the gradient of the log-likelihood.	
+		\vfill
+		\item Score matching proposes to minimize Fisher divergence to get the score function.
 	\end{itemize}
 \end{frame}
 \end{document} 

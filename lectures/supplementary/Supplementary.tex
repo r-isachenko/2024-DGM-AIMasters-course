@@ -3473,4 +3473,62 @@ where $i$ is treated as random variable:
 	\myfootnotewithlink{https://arxiv.org/abs/2004.02088}{Zhao Y. et al. Feature Quantization Improves GAN Training, 2020} 
 \end{frame}
 %=======
+\section{Score matching}
+%=======
+\subsection{Implicit score matching}
+%=======
+\begin{frame}{Implicit score matching}
+	\begin{block}{Theorem}
+		Under some regularity conditions, it holds
+		\vspace{-0.2cm}
+		\[
+		\frac{1}{2} \bbE_{\pi}\bigl\| \bs_{\btheta}(\bx) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 = \bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs_{\btheta}(\bx) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs_{\btheta}(\bx)\bigr) \Bigr] + \text{const}
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{Proof (only for 1D)}
+		\vspace{-0.6cm}
+		{\small
+			\begin{multline*}
+				\bbE_{\pi}\bigl\| s(x) - \nabla_x \log \pi(x) \bigr\|^2_2 = \bbE_{\pi} \bigl[ s(x)^2 + (\nabla_x \log \pi(x))^2 - 2{\color{teal}[s(x) \nabla_x \log \pi(x) ] \bigr] }
+			\end{multline*}
+			\vspace{-0.8cm}
+			\begin{align*}
+				{\color{teal}\bbE_{\pi} [{\color{violet}s(x) } \nabla_x \log \pi(x) ] } &= \int {\color{olive}\pi(x) {\color{violet}s(x)}  \nabla_x \log \pi(x)} d x 
+				= \int \underbrace{\color{violet}\nabla_x \log p(x) }_{g} \underbrace{\color{olive}\nabla_x \pi(x) }_{\nabla f} dx \\
+				& = \Bigl. \underbrace{\nabla_x \log p(x)}_{g} \underbrace{\pi(x)}_{f} \Bigr|_{-\infty}^{+\infty} - \int \underbrace{\nabla_x \bigl( {\color{violet}\nabla_x \log p(x)} \bigr)}_{\nabla g} \underbrace{\pi(x)}_{f} dx \\
+				& = - \bbE_{\pi} \nabla_x {\color{violet}s(x)}
+			\end{align*}
+			\vspace{-0.4cm}
+			\[
+			\frac{1}{2} \bbE_{\pi}\bigl\| s(x) - \nabla_x \log \pi(x) \bigr\|^2_2 = \bbE_{\pi} \Bigr[\frac{1}{2} s(x)^2 + \nabla_x s(x) \Bigl]+ \text{const}.
+			\]
+		}
+	\end{block}
+	\myfootnotewithlink{https://jmlr.org/papers/volume6/hyvarinen05a/old.pdf}{Hyvarinen A. Estimation of non-normalized statistical models by score matching, 2005} 
+\end{frame}
+%=======
+\begin{frame}{Implicit score matching}
+	\vspace{-0.3cm}
+	\begin{block}{Theorem}
+		\vspace{-0.6cm}
+		\[
+		{\color{violet}\frac{1}{2} \bbE_{\pi}\bigl\| \bs_{\btheta}(\bx) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2} = {\color{teal}\bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs_{\btheta}(\bx) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs_{\btheta}(\bx)\bigr) \Bigr]} + \text{const}
+		\]
+		Here $\nabla_{\bx} \bs_{\btheta}(\bx) = \nabla_{\bx}^2 \log p(\bx | \btheta)$ is a Hessian matrix.
+	\end{block}
+	\begin{enumerate}
+		\item {\color{teal}The right hand side} is complex due to Hessian matrix -- \textbf{sliced score matching}.
+		\item {\color{violet}The left hand side} is intractable due to unknown $\pi(\bx)$ -- \textbf{denoising score matching}. 
+	\end{enumerate}
+	\begin{block}{Sliced score matching (Hutchinson's trace estimation)}
+	\vspace{-0.3cm}
+	\[
+		\text{tr}\bigl(\nabla_{\bx} \bs_{\btheta}(\bx)\bigr) = \mathbb{E}_{p(\bepsilon)} \left[ {\color{olive}\bepsilon^T \nabla_{\bx} \bs_{\btheta}(\bx)} \bepsilon \right]
+	\]
+	\end{block}
+	\myfootnote{\href{https://yang-song.net/blog/2021/ssm/}{Song Y. Sliced Score Matching: A Scalable Approach to Density and Score Estimation, 2019} \\
+	\href{https://yang-song.net/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}}
+\end{frame}
+%=======
 \end{document} 
