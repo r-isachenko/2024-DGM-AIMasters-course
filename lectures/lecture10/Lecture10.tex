@@ -12,6 +12,62 @@
 \titlepage
 \end{frame}
 %=======
+\begin{frame}{Recap of previous lecture}
+	Let take some pretrained image classification model to get the conditional label distribution $p(y | \bx)$ (e.g. ImageNet classifier).
+	\begin{block}{Evaluation of likelihood-free models}
+		\begin{itemize}
+			\item Sharpness $\Rightarrow$ low $H(y | \bx) = - \sum_{y} \int_{\bx} p(y, \bx) \log p(y | \bx) d\bx$.
+			\item Diversity $\Rightarrow$ high $H(y)  = - \sum_{y} p(y) \log p(y)$.
+		\end{itemize}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{Inception Score}
+		\vspace{-0.2cm}
+		\[
+			IS = \exp(H(y) - H(y | \bx)) = \exp \left( \bbE_{\bx} KL(p(y | \bx) || p(y)) \right)
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Frechet Inception Distance}
+		\vspace{-0.3cm}
+		\[
+			D^2 (\pi, p) = \| \mathbf{m}_{\pi} - \mathbf{m}_{p}\|_2^2 + \text{Tr} \left( \bSigma_{\pi} + \bSigma_p - 2 \sqrt{\bSigma_{\pi} \bSigma_p} \right).
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	FID is related to moment matching.
+	
+	\myfootnote{\href{https://arxiv.org/abs/1606.03498}{Salimans T. et al. Improved Techniques for Training GANs, 2016} \\
+	\href{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017} }
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+		\begin{itemize}
+			\item $\cS_{\pi} = \{\bx_i\}_{i=1}^{n} \sim \pi(\bx)$ -- real samples;
+			\item $\cS_{p} = \{\bx_i\}_{i=1}^{n} \sim p(\bx | \btheta)$ -- generated samples.
+		\end{itemize}
+		Embed samples using pretrained classifier network (as previously):
+		\[
+			\cG_{\pi} = \{\mathbf{g}_i\}_{i=1}^n, \quad \cG_{p} = \{\mathbf{g}_i\}_{i=1}^n.
+		\]
+		Define binary function:
+		\[
+			f(\mathbf{g}, \cG) = 
+			\begin{cases}
+				1, \text{if exists } \mathbf{g}' \in \cG: \| \mathbf{g}  - \mathbf{g}'\|_2 \leq \| \mathbf{g}' - \text{NN}_k(\mathbf{g}', \cG)\|_2; \\
+				0, \text{otherwise.}
+			\end{cases}
+		\]
+		\[
+			\text{Precision} (\cG_{\pi}, \cG_{p}) = \frac{1}{n} \sum_{\mathbf{g} \in \cG_{p}} f(\mathbf{g}, \cG_{\pi}); \quad \text{Recall} (\cG_{\pi}, \cG_{p}) = \frac{1}{n} \sum_{\mathbf{g} \in \cG_{\pi}} f(\mathbf{g}, \cG_{p}).
+		\]
+		\vspace{-0.4cm}
+		\begin{figure}
+			\includegraphics[width=0.7\linewidth]{figs/pr_k_nearest}
+		\end{figure}
+		\myfootnotewithlink{https://arxiv.org/abs/1904.06991}{Kynkäänniemi T. et al. Improved precision and recall metric for assessing generative models, 2019}
+\end{frame}
+%=======
 \begin{frame}{Outline}
 	\tableofcontents
 \end{frame}
