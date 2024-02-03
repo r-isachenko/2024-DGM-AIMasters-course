@@ -13,99 +13,54 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.75\linewidth]{figs/smld}
-	\end{figure}
-	\vspace{-0.3cm} 
-	\begin{block}{Theorem (implicit score matching)}
-		\vspace{-0.6cm}
-		\[
-		{\color{violet}\frac{1}{2} \bbE_{\pi}\bigl\| \bs_{\btheta}(\bx) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2} = {\color{teal}\bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs_{\btheta}(\bx) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs_{\btheta}(\bx)\bigr) \Bigr]} + \text{const}
-		\]
-	\end{block}
-	\vspace{-0.5cm}
-	\begin{enumerate}
-		\item {\color{violet}The left hand side} is intractable due to unknown $\pi(\bx)$ -- \textbf{denoising score matching}. 
-		\item {\color{teal}The right hand side} is complex due to Hessian matrix -- \textbf{sliced score matching (Hutchinson's trace estimation)}.
-	\end{enumerate}
-	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
-\end{frame}
-%=======
-\begin{frame}{Recap of previous lecture}
-	Let perturb original data by normal noise $p(\bx' | \bx, \sigma) = \cN(\bx' | \bx, \sigma^2 \bI)$
 	\vspace{-0.3cm}
 	\[
-	\pi(\bx' | \sigma) = \int \pi(\bx) p(\bx' | \bx, \sigma) d\bx.
+		\cL_t = \bbE_{\color{violet}q(\bx_t | \bx_0)} \left[ {\color{olive}\frac{1}{2\tilde{\beta}_t}} \bigl\| \tilde{\bmu}_t(\bx_t, \bx_0) - \bmu_{\btheta}(\bx_t, t) \bigr\|^2  \right]
 	\]
-	\vspace{-0.6cm} \\
-	Then the solution of 
+	\vspace{-0.3cm}
+	\begin{block}{Reparametrization}
+		\vspace{-0.7cm}
+		\begin{align*}
+			\tilde{\bmu}_t(\bx_t, \bx_0) &= \frac{1}{\sqrt{\alpha_t}} \bx_t - \frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}} \bepsilon \\
+			\bmu_{\btheta}(\bx_t, t) &= \frac{1}{\sqrt{\alpha_t}} \bx_t - {\color{teal}\frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}}} \bepsilon_{\btheta}(\bx_t, t)
+		\end{align*}
+		\vspace{-0.7cm}
+	\end{block}
 	\vspace{-0.2cm}
 	\[
-	\frac{1}{2} \bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\cL_t  =	 \bbE_{\color{violet}\bepsilon \sim \cN(0, \bI)} \left[ \frac{(1 - \alpha_t)^2}{2\tilde{\beta}_t \alpha_t (1 - \bar{\alpha}_t)} \Bigl\| \bepsilon - \bepsilon_{\btheta}\bigl( {\color{violet}\sqrt{\bar{\alpha}_t} \bx_0 + \sqrt{1 - \bar{\alpha}_t} \bepsilon}, t\bigr) \Bigr\|^2 \right]
 	\]
-	\vspace{-0.5cm} \\
-	satisfies $\bs_{\btheta}(\bx', \sigma) \approx \bs_{\btheta}(\bx', 0) = \bs_{\btheta}(\bx')$ if $\sigma$ is small enough.
-	\begin{block}{Theorem (denoising score matching)}
-		\vspace{-0.8cm}
-		\begin{multline*}
-			\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log p(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
-		\end{multline*}
-		\vspace{-0.8cm}
+	At each step of reverse diffusion process we try to predict the noise~$\bepsilon$ that we used in the forward diffusion process!
+	\begin{block}{Simplified objective}
+		\vspace{-0.7cm}
+		\[
+			 \cL_{\text{simple}} = \bbE_{t \sim U[2, T]} \bbE_{\bepsilon \sim \cN(0, \bI)} \Bigl\| \bepsilon - \bepsilon_{\btheta}\bigl( \sqrt{\bar{\alpha}_t} \bx_0 + \sqrt{1 - \bar{\alpha}_t} \bepsilon, t\bigr) \Bigr\|^2 
+		\]
 	\end{block}
-	Here $\nabla_{\bx'} \log p(\bx' | \bx, \sigma) = - \frac{\bx' - \bx}{\sigma^2}$.
-	\begin{itemize}
-		\item The RHS does not need to compute $\nabla_{\bx'} \log \pi(\bx' | \sigma)$ and even more $\nabla_{\bx'} \log \pi(\bx')$.
-		\item $\bs_{\btheta}(\bx', \sigma)$ tries to \textbf{denoise} a corrupted sample.
-		\item Score function $\bs_{\btheta}(\bx', \sigma)$ parametrized by $\sigma$. 
-	\end{itemize}
-	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
-\end{frame}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+	\end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	\begin{block}{Noise conditioned score network}
-		\begin{itemize}
-			\item Define the sequence of noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_L$.
-			\item Train denoised score function $\bs_{\btheta}(\bx', \sigma)$ for each noise level:
-			\vspace{-0.3cm}
-			\[
-				\sum_{l=1}^L {\color{violet}\sigma_l^2} \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma_l)}\bigl\| \bs_{\btheta}(\bx', \sigma_l) - \nabla_\bx' \log p(\bx' | \bx, \sigma_l) \bigr\|^2_2 \rightarrow \min_{\btheta}
-			\]
-			\vspace{-0.5cm}
-			\item Sample from \textbf{annealed} Langevin dynamics (for $l=1, \dots, L$).
-		\end{itemize}
-	\end{block}
-	\begin{figure}
-		\includegraphics[width=0.55\linewidth]{figs/multi_scale}
-	\end{figure}
-	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/duoduo}
-	\end{figure}
-	\myfootnotewithlink{https://arxiv.org/abs/1907.05600}{Song Y. et al. Generative Modeling by Estimating Gradients of the Data Distribution, 2019}
-\end{frame}
-%=======
-\begin{frame}{Recap of previous lecture}
-	\begin{block}{NCSN training}
+	\begin{block}{Training}
 		\begin{enumerate}
 			\item Get the sample $\bx_0 \sim \pi(\bx)$.
-			\item Sample noise level $l \sim U[1, L]$ and the noise $\bepsilon \sim \cN(0, \bI)$.
-			\item Get noisy image $\bx' = \bx_0 + \sigma_l \cdot \bepsilon$.
-			\item Compute loss $ \cL = \| \bs_{\btheta}(\bx', \sigma_l) + \frac{\bepsilon}{\sigma_l} \|^2 $.
+			\item Sample timestamp $t \sim U[1, T]$ and the noise $\bepsilon \sim \cN(0, \bI)$.
+			\item Get noisy image $\bx_t = \sqrt{\bar{\alpha}_t} \bx_0 + \sqrt{1 - \bar{\alpha}_t} \bepsilon$.
+			\item Compute loss $ \cL_{\text{simple}} = \| \bepsilon - \bepsilon_{\btheta}(\bx_t , t) \|^2 $.
 		\end{enumerate}
 	\end{block}
-	\begin{block}{NCSN sampling (annealed Langevin dynamics)}
-		\begin{itemize}
-			\item Sample $\bx_0 \sim \cN(0, \sigma_1 \bI) \approx \pi(\bx | \sigma_1)$.
-			\item Apply $T$ steps of Langevin dynamic
-			\vspace{-0.2cm}
+	\begin{block}{Sampling}
+		\begin{enumerate}
+			\item Sample $\bx_T \sim \cN(0, \bI)$.
+			\item Compute mean of $p(\bx_{t-1} | \bx_t, \btheta) = \cN(\bmu_{\btheta}(\bx_t, t), \tilde{\beta}_t \bI)$:
 			\[
-				\bx_t = \bx_{t-1} + \frac{1}{2}\eta_l \bs_{\btheta}(\bx_{t - 1}, \sigma_l) + \sqrt{\eta_l} \bepsilon_t.
-			\] 
-			\vspace{-0.5cm}
-			\item Update $\bx_0 := \bx_T$ and choose the next $\sigma_l$.
-		\end{itemize}
+				\bmu_{\btheta}(\bx_t, t) = \frac{1}{\sqrt{\alpha_t}} \bx_t - \frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}} \bepsilon_{\btheta}(\bx_t, t)
+			\]
+			\vspace{-0.3cm}
+			\item Get denoised image $\bx_{t - 1} = \bmu_{\btheta}(\bx_t, t) +  \sqrt{\tilde{\beta}_t} \cdot \bepsilon$, where $\bepsilon \sim \cN(0, \bI)$.
+		\end{enumerate}
 	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/2006.09011}{Song Y. et al. Improved Techniques for Training Score-Based Generative Models, 2020}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
@@ -137,155 +92,6 @@
 %=======
 \begin{frame}{Outline}
 	\tableofcontents
-\end{frame}
-%=======
-\section{SDE basics}
-%=======
-\begin{frame}{Stochastic differential equation (SDE)}
-	Let define stochastic process $\bx(t)$ with initial condition $\bx(0) \sim p_0(\bx)$:
-	\[
-		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
-	\]
-	\vspace{-0.6cm}
-	\begin{itemize}
-		 \item $\mathbf{f}(\bx, t)$ is the \textbf{drift} function of $\bx(t)$.
-		 \item $g(t)$ is the \textbf{diffusion} coefficient of $\bx(t)$.
-		 \item If $g(t) = 0$ we get standard ODE.
-		 \item $\bw(t)$ is the standard Wiener process (Brownian motion):
-		 \begin{enumerate}
-		 	\item $\bw(0) = 0$ (almost surely);
-		 	\item $\bw(t)$ has independent increments;
-			 \item $\bw(t) - \bw(s) \sim \cN(0, (t - s) \bI)$.
-		 \end{enumerate}
-		 \item $d \bw = \bw(t + dt) - \bw(t) = \cN(0, \bI \cdot dt ) = \bepsilon \cdot \sqrt{dt}$, where $\bepsilon \sim \cN(0, \bI)$.
-	\end{itemize}
-	\textbf{Note:} In contrast to ODE, initial condition $\bx(0)$ does not uniquely determine the process trajectory.
-\end{frame}
-%=======
-\begin{frame}{Stochastic differential equation (SDE)}
-	\vspace{-0.4cm}
-	\[
-		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw, \quad d \bw = \bepsilon \cdot \sqrt{dt}, \quad \bepsilon \sim \cN(0, \bI).
-	\]
-	\vspace{-0.4cm}
-	\begin{itemize}
-		\item At each moment $t$ we have the density $p(\bx(t), t)$.
-		\item How to get distribution $p(\bx, t)$ for $\bx(t)$?
-	\end{itemize}
- 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
- 		Evolution of the distribution $p(\bx, t)$ is given by the following ODE:
- 		\vspace{-0.2cm}
- 		\[
- 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
- 		\]
- 		\textbf{Note:} This is the generalization of KFP theorem that we used in continuous-in-time NF.
- 	\end{block}
- 	\begin{block}{Langevin SDE (special case)}
- 		\vspace{-0.6cm}
- 		\begin{align*}
- 			d\bx &= {\color{violet}\mathbf{f}(\bx, t)} dt + {\color{teal}g(t)} d \bw \\
- 			d \bx &= {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
- 		\end{align*}
- 	\end{block}
-\end{frame}
-%=======
-\begin{frame}{Langevin SDE (special case)}
-	\[
-		d \bx = {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
-	\]
-	Let apply KFP theorem.
-	\begin{multline*}
-		\frac{\partial p(\bx, t)}{\partial t} =  \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}p(\bx, t) \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
-		= \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}\frac{1}{2} \frac{\partial}{\partial \bx} p(\bx, t) } \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = 0
-	\end{multline*}
-	The density $p(\bx, t) = \text{const}(t)$! \\
-	\begin{block}{Discretized Langevin SDE}
-		\vspace{-0.3cm}
-		\[
-			\bx_{t + 1} - \bx_t = \eta \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
-		\]
-		\vspace{-0.4cm}
-	\end{block}
-	\begin{block}{Langevin dynamic}
-		\vspace{-0.3cm}
-		\[
-			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx} \log p(\bx | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
-		\]
-		\vspace{-0.3cm}
-	\end{block}
-\end{frame}
-%=======
-\section{Diffusion and Score matching SDEs}
-%=======
-\begin{frame}{Score matching SDE}
-	\begin{block}{Denoising score matching}
-		\vspace{-0.7cm}
-		\begin{align*}
-			\bx_l &= \bx + \sigma_l \cdot \bepsilon_l, \quad p(\bx_l | \bx, \sigma_l) = \cN(\bx_l | \bx, \sigma_l^2 \bI) \\
-			\bx_{l-1} &= \bx + \sigma_{l-1} \cdot \bepsilon_{l-1}, \quad p(\bx_{l-1} | \bx, \sigma_{l-1}) = \cN(\bx_{l-1} | \bx, \sigma_{l-1}^2 \bI)
-		\end{align*}
-	\end{block}
-	\vspace{-0.7cm}
-	\[
-		\bx_l = \bx_{l - 1} + \sqrt{\sigma^2_l - \sigma^2_{l-1}} \cdot \bepsilon, \quad p(\bx_l | \bx_{l-1}, \sigma_l) = \cN(\bx_l | \bx_{l-1}, (\sigma_l^2 - \sigma_{l-1}^2) \cdot \bI)
-	\]
-	Let turn this Markov chain to the continuous stochastic process~$\bx(t)$ taking $L \rightarrow \infty$:
-	\[
-		{\color{teal}\bx(t + dt)} = {\color{teal}\bx(t)} + \sqrt{\frac{\sigma^2(t + dt) - \sigma^2(t)}{dt} {\color{violet}dt}} \cdot {\color{violet}\bepsilon} = \bx(t) + \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot {\color{violet}d \bw}
-	\]
-	\vspace{-0.5cm}
-	\begin{block}{Variance Exploding SDE}
-		\vspace{-0.3cm}
-		\[
-			d \bx = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot d \bw
-		\]
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
-\end{frame}
-%=======
-\begin{frame}{Diffusion SDE}
-	\begin{block}{Denoising Diffusion}
-		\vspace{-0.5cm}
-		\[
-			\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon, \quad q(\bx_t | \bx_{t-1}) = \cN(\bx_t | \sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI)
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	Let turn this Markov chain to the continuous stochastic process taking $T \rightarrow \infty$ and taking $\beta(\frac{t}{T}) = \beta_t \cdot T$
-	\begin{multline*}
-		{\color{teal}\bx(t)} = \sqrt{1 - \beta(t) dt} \cdot \bx(t - dt) + \sqrt{\beta(t)dt} \cdot \bepsilon \approx \\
-		\approx (1 - \frac{1}{2} \beta(t) dt) \cdot \bx(t - dt) + \sqrt{\beta(t){\color{violet}dt}} \cdot {\color{violet}\bepsilon} = \\
-		= {\color{teal}\bx(t - dt)} - \frac{1}{2} \beta(t) \bx(t - dt) dt  + \sqrt{\beta(t)} \cdot {\color{violet}d \bw}
-	\end{multline*}
-	\vspace{-0.5cm}
-	\begin{block}{Variance Preserving SDE}
-		\vspace{-0.3cm}
-		\[
-			{\color{teal}d \bx} = - \frac{1}{2} \beta(t) \bx(t) dt + \sqrt{\beta(t)} \cdot d \bw
-		\]
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
-\end{frame}
-%=======
-\begin{frame}{Diffusion SDE}
-	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/sde}
-	\end{figure}
-	\vspace{-0.3cm}
-	\begin{block}{Variance Exploding SDE (NCSN)}
-		\vspace{-0.3cm}
-		\[
-			d \bx = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot d \bw
-		\]
-		\vspace{-0.3cm}
-	\end{block}
-	\begin{block}{Variance Preserving SDE (DDPM)}
-		\vspace{-0.3cm}
-		\[
-			d \bx = - \frac{1}{2} \beta(t) \bx(t) dt + \sqrt{\beta(t)} \cdot d \bw
-		\]
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======
 \section{Guidance}
@@ -524,27 +330,153 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2207.12598}{Ho J., Salimans T. Classifier-Free Diffusion Guidance, 2022}
 \end{frame}
 %=======
-\section{The worst course overview}
+\section{SDE basics}
 %=======
-\begin{frame}{The worst course overview :)}
-	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/generative-overview}
-	\end{figure}
-	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
+\begin{frame}{Stochastic differential equation (SDE)}
+	Let define stochastic process $\bx(t)$ with initial condition $\bx(0) \sim p_0(\bx)$:
+	\[
+		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
+	\]
+	\vspace{-0.6cm}
+	\begin{itemize}
+		 \item $\mathbf{f}(\bx, t)$ is the \textbf{drift} function of $\bx(t)$.
+		 \item $g(t)$ is the \textbf{diffusion} coefficient of $\bx(t)$.
+		 \item If $g(t) = 0$ we get standard ODE.
+		 \item $\bw(t)$ is the standard Wiener process (Brownian motion):
+		 \begin{enumerate}
+		 	\item $\bw(0) = 0$ (almost surely);
+		 	\item $\bw(t)$ has independent increments;
+			 \item $\bw(t) - \bw(s) \sim \cN(0, (t - s) \bI)$.
+		 \end{enumerate}
+		 \item $d \bw = \bw(t + dt) - \bw(t) = \cN(0, \bI \cdot dt ) = \bepsilon \cdot \sqrt{dt}$, where $\bepsilon \sim \cN(0, \bI)$.
+	\end{itemize}
+	\textbf{Note:} In contrast to ODE, initial condition $\bx(0)$ does not uniquely determine the process trajectory.
 \end{frame}
 %=======
-\begin{frame}{The worst course overview :)}
-	\begin{figure}
-		\includegraphics[width=0.7\linewidth]{figs/trilemma}
-	\end{figure}
-	\myfootnotewithlink{https://arxiv.org/abs/2112.07804}{Xiao Z., Kreis K., Vahdat A. Tackling the generative learning trilemma with denoising diffusion GANs, 2021}
+\begin{frame}{Stochastic differential equation (SDE)}
+	\vspace{-0.4cm}
+	\[
+		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw, \quad d \bw = \bepsilon \cdot \sqrt{dt}, \quad \bepsilon \sim \cN(0, \bI).
+	\]
+	\vspace{-0.4cm}
+	\begin{itemize}
+		\item At each moment $t$ we have the density $p(\bx(t), t)$.
+		\item How to get distribution $p(\bx, t)$ for $\bx(t)$?
+	\end{itemize}
+ 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
+ 		Evolution of the distribution $p(\bx, t)$ is given by the following ODE:
+ 		\vspace{-0.2cm}
+ 		\[
+ 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
+ 		\]
+ 		\textbf{Note:} This is the generalization of KFP theorem that we used in continuous-in-time NF.
+ 	\end{block}
+ 	\begin{block}{Langevin SDE (special case)}
+ 		\vspace{-0.6cm}
+ 		\begin{align*}
+ 			d\bx &= {\color{violet}\mathbf{f}(\bx, t)} dt + {\color{teal}g(t)} d \bw \\
+ 			d \bx &= {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
+ 		\end{align*}
+ 	\end{block}
 \end{frame}
 %=======
-\begin{frame}{The worst course overview :)}
+\begin{frame}{Langevin SDE (special case)}
+	\[
+		d \bx = {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
+	\]
+	Let apply KFP theorem.
+	\begin{multline*}
+		\frac{\partial p(\bx, t)}{\partial t} =  \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}p(\bx, t) \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
+		= \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}\frac{1}{2} \frac{\partial}{\partial \bx} p(\bx, t) } \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = 0
+	\end{multline*}
+	The density $p(\bx, t) = \text{const}(t)$! \\
+	\begin{block}{Discretized Langevin SDE}
+		\vspace{-0.3cm}
+		\[
+			\bx_{t + 1} - \bx_t = \eta \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{block}{Langevin dynamic}
+		\vspace{-0.3cm}
+		\[
+			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx} \log p(\bx | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+\end{frame}
+%=======
+\section{Diffusion and Score matching SDEs}
+%=======
+\begin{frame}{Score matching SDE}
+	\begin{block}{Denoising score matching}
+		\vspace{-0.7cm}
+		\begin{align*}
+			\bx_l &= \bx + \sigma_l \cdot \bepsilon_l, \quad p(\bx_l | \bx, \sigma_l) = \cN(\bx_l | \bx, \sigma_l^2 \bI) \\
+			\bx_{l-1} &= \bx + \sigma_{l-1} \cdot \bepsilon_{l-1}, \quad p(\bx_{l-1} | \bx, \sigma_{l-1}) = \cN(\bx_{l-1} | \bx, \sigma_{l-1}^2 \bI)
+		\end{align*}
+	\end{block}
+	\vspace{-0.7cm}
+	\[
+		\bx_l = \bx_{l - 1} + \sqrt{\sigma^2_l - \sigma^2_{l-1}} \cdot \bepsilon, \quad p(\bx_l | \bx_{l-1}, \sigma_l) = \cN(\bx_l | \bx_{l-1}, (\sigma_l^2 - \sigma_{l-1}^2) \cdot \bI)
+	\]
+	Let turn this Markov chain to the continuous stochastic process~$\bx(t)$ taking $L \rightarrow \infty$:
+	\[
+		{\color{teal}\bx(t + dt)} = {\color{teal}\bx(t)} + \sqrt{\frac{\sigma^2(t + dt) - \sigma^2(t)}{dt} {\color{violet}dt}} \cdot {\color{violet}\bepsilon} = \bx(t) + \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot {\color{violet}d \bw}
+	\]
+	\vspace{-0.5cm}
+	\begin{block}{Variance Exploding SDE}
+		\vspace{-0.3cm}
+		\[
+			d \bx = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot d \bw
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Diffusion SDE}
+	\begin{block}{Denoising Diffusion}
+		\vspace{-0.5cm}
+		\[
+			\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon, \quad q(\bx_t | \bx_{t-1}) = \cN(\bx_t | \sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI)
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	Let turn this Markov chain to the continuous stochastic process taking $T \rightarrow \infty$ and taking $\beta(\frac{t}{T}) = \beta_t \cdot T$
+	\begin{multline*}
+		{\color{teal}\bx(t)} = \sqrt{1 - \beta(t) dt} \cdot \bx(t - dt) + \sqrt{\beta(t)dt} \cdot \bepsilon \approx \\
+		\approx (1 - \frac{1}{2} \beta(t) dt) \cdot \bx(t - dt) + \sqrt{\beta(t){\color{violet}dt}} \cdot {\color{violet}\bepsilon} = \\
+		= {\color{teal}\bx(t - dt)} - \frac{1}{2} \beta(t) \bx(t - dt) dt  + \sqrt{\beta(t)} \cdot {\color{violet}d \bw}
+	\end{multline*}
+	\vspace{-0.5cm}
+	\begin{block}{Variance Preserving SDE}
+		\vspace{-0.3cm}
+		\[
+			{\color{teal}d \bx} = - \frac{1}{2} \beta(t) \bx(t) dt + \sqrt{\beta(t)} \cdot d \bw
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Diffusion SDE}
 	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/gen_comp_table}
+		\includegraphics[width=\linewidth]{figs/sde}
 	\end{figure}
-	\myfootnotewithlink{https://udlbook.github.io/udlbook/}{Simon J.D. Prince. Understanding Deep Learning, 2023}
+	\vspace{-0.3cm}
+	\begin{block}{Variance Exploding SDE (NCSN)}
+		\vspace{-0.3cm}
+		\[
+			d \bx = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot d \bw
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\begin{block}{Variance Preserving SDE (DDPM)}
+		\vspace{-0.3cm}
+		\[
+			d \bx = - \frac{1}{2} \beta(t) \bx(t) dt + \sqrt{\beta(t)} \cdot d \bw
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======
 \begin{frame}{Summary}
