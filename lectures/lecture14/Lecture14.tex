@@ -42,6 +42,49 @@
 	\tableofcontents
 \end{frame}
 %=======
+\section{Probability flow ODE}
+%=======
+\begin{frame}{Probability flow ODE}
+	\begin{block}{Stochastic differential equation}
+		\[
+			d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
+		\] 	
+	\end{block}
+	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
+ 		\vspace{-0.2cm}
+ 		\[
+ 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
+ 		\]
+ 	\end{block}
+		\[
+			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt = \tilde{\mathbf{f}}(\bx, t) dt
+		\] 	
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Probability flow ODE}
+	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
+ 		\vspace{-0.2cm}
+ 		\begin{multline*}
+ 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
+ 			=  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}\frac{\partial p(\bx, t)}{\partial \bx}} \right]  \right) = \\
+ 			 =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}p(\bx, t) \frac{\partial \log p(\bx, t)}{\partial \bx}} \right]  \right)= \\
+ 			  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( \mathbf{f}(\bx, t) + \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}\right) p(\bx, t) \right]  \right)
+ 		\end{multline*}
+ 	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Probability flow ODE}
+	\[
+		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
+	\] 	
+	\[
+		d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+	\]
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
 \section{The worst course overview}
 %=======
 \begin{frame}{The worst course overview :)}
