@@ -27,7 +27,7 @@
 		\vspace{-0.3cm}
 	\end{block}
 	\begin{block}{Change of variable theorem (CoV)}
-		Let $\bx$ be a random variable with density function $p(\bx)$ and $f: \mathbb{R}^m \rightarrow \mathbb{R}^m$ is a differentiable, invertible function (diffeomorphism). If $\bz = f(\bx)$, $\bx = f^{-1}(\bz) = g(\bz)$, then
+		Let $\bx$ be a random variable with density function $p(\bx)$ and $f: \mathbb{R}^m \rightarrow \mathbb{R}^m$ is a differentiable, invertible function. If $\bz = f(\bx)$, $\bx = f^{-1}(\bz) = g(\bz)$, then
 		\begin{align*}
 			p(\bx) &= p(\bz) |\det(\bJ_f)| = p(\bz) \left|\det \left(  \frac{\partial \bz}{\partial \bx} \right) \right| = p(f(\bx)) \left|\det \left(  \frac{\partial f(\bx)}{\partial \bx} \right) \right| \\
 			p(\bz) &= p(\bx) |\det(\bJ_g)|= p(\bx) \left|\det \left(  \frac{\partial \bx}{\partial \bz} \right) \right| = p(g(\bz)) \left|\det \left(  \frac{\partial g(\bz)}{\partial \bz} \right) \right|.
@@ -341,7 +341,7 @@
 	\begin{block}{What do we need?}
 		\begin{itemize}
 			\item We need the way to compute $p(\bz, t)$ at any moment $t$.
-			\item We need the way to find the optimal parameters $\theta$ of the dynamic $f_{\btheta}$.
+			\item We need the way to find the optimal parameters $\btheta$ of the dynamic $f_{\btheta}$.
 		\end{itemize}
 	\end{block}
 	\vspace{-0.3cm}
@@ -360,7 +360,7 @@
 %=======
 \begin{frame}{Continuous-in-time Normalizing Flows}
 	\begin{block}{Forward transform + log-density}
-		\vspace{-0.5cm}
+		\vspace{-0.7cm}
 		\begin{align*}
 				\bx &= \bz + \int_{t_0}^{t_1} f_{\btheta}(\bz(t), t) dt \\
 				\log p(\bx | \btheta) &= \log p(\bz) - \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
