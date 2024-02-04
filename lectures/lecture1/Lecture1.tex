@@ -148,11 +148,11 @@
 \section{Problem statement}
 %=======
 \begin{frame}{Course tricks 1}
-	Let $\bx \in \bbR^m$ be a random variable with a density $p_x(\bx)$.
+	Let $\bx \in \bbR^m$ be a random variable with a density $p(\bx)$.
 	\begin{block}{Law of the unconscious statistician (LOTUS)}
-		Let $\by=f(\bx)$ with density $p_y(\by)$. Then
+		Let $\by=f(\bx)$ with density $p(\by)$. Then
 		\[
-			\bbE_{p_y} g(\by) = \int p_y(\by) g(\by) d \by = \int p_x(\bx) g(f(\bx)) d \bx = \bbE_{p_x} g(f(\bx)).
+			\bbE_{p(\by)} g(\by) = \int p_y(\by) g(\by) d \by = \int p_x(\bx) g(f(\bx)) d \bx = \bbE_{p(\bx)} g(f(\bx)).
 		\]
 		\vspace{-0.4cm}
 	\end{block}
@@ -162,13 +162,13 @@
 			\bbE_{p(\bx)} f(\bx) = \int p(\bx) f(\bx) d \bx \approx \frac{1}{n} \sum_{i=1}^n f(\bx_i), \quad 
 			\text{where } \bx_i \sim p(\bx).
 		\]
+		\vspace{-0.4cm}
 	\end{block}
 	\begin{block}{Jensen's Inequality}
 		Assume $f(\cdot)$ is a convex function. Then
 		\[
 			\bbE [f(\bx)] \geq f(\bbE[\bx]).
 		\]
-		\vspace{-0.4cm}
 	\end{block}
 \end{frame}
 %=======
@@ -179,13 +179,13 @@
 	\[
 		p(\bx) = p(x_1) \cdot p(x_2 | x_1) \cdot p(x_3 | x_2, x_1) \cdot \dots \cdot p(x_m|x_{m-1},\dots,x_1).
 	\]
-	\vspace{-0.3cm}
+	\vspace{-0.4cm}
 	\end{block}
 	\begin{block}{Log-derivative trick}
 		\[
 			\nabla \log f(\bx) = \frac{1}{f(\bx)} \cdot \nabla f(\bx).
 		\]
-		\vspace{-0.2cm}
+		\vspace{-0.4cm}
 	\end{block}
 		
 	\begin{block}{Dirac delta function}
@@ -204,7 +204,7 @@
 \end{frame}
 %=======
 \begin{frame}{Problem statement}
-	We are given i.i.d. samples $\{\bx_i\}_{i=1}^n \in \cX$ (e.g. $\cX = \bbR^m$) from unknown distribution $\pi(\bx)$.
+	We are given i.i.d. samples $\{\bx_i\}_{i=1}^n \in \bbR^m$ from \textbf{unknown} distribution $\pi(\bx)$.
 	
 	\begin{block}{Goal}
 		We would like to learn a distribution $\pi(\bx)$ for 
@@ -214,22 +214,7 @@
 		\end{itemize}
 	\end{block}
 	\begin{block}{Challenge}
-		 Data is complex and high-dimensional. E.g. the dataset of images lies in the space $\cX \subset \bbR^{\text{width} \times \text{height} \times \text{channels}}$.
-	\end{block}
-\end{frame}
-%=======
-\begin{frame}{Problem statement}
-	\begin{block}{Conditional model}
-		In practice the popular task is to create a conditional model~$\pi(\bx | \by)$. 
-		\begin{itemize}
-		\item $\by$ -- class label, $\bx$ -- image $\Rightarrow$ image conditional model.
-		\item $\by$ -- text prompt, $\bx$ -- image $\Rightarrow$ text-to-image model.
-		\item $\by$ -- image, $\bx$ -- image $\Rightarrow$ image-to-image model.
-		\item $\by$ -- image, $\bx$ -- text $\Rightarrow$ text-to-image model (image captioning).
-		\item $\by$ -- sound, $\bx$ -- text $\Rightarrow$ speech-to-text model (automatic speech recognition).
-		\item $\by$ -- English text, $\bx$ -- Russian text $\Rightarrow$ sequence-to-sequence model (machine translation).
-		\item $\by = \emptyset$, $\bx$ -- image $\Rightarrow$ image unconditional model.
-		\end{itemize}
+		 Data is complex and high-dimensional. E.g. the dataset of images lies in the space $\bbR^{\text{width} \times \text{height} \times \text{channels}}$. Curse of dimensionality does not allow us to find the exact density $\pi(\bx)$. 
 	\end{block}
 \end{frame}
 %=======
@@ -260,15 +245,30 @@
 	\end{align*}
 \end{frame}
 %=======
+\begin{frame}{Problem statement}
+	\begin{block}{Conditional model}
+		In practice the popular task is to create a conditional model~$\pi(\bx | \by)$. 
+		\begin{itemize}
+		\item $\by$ -- class label, $\bx$ -- image $\Rightarrow$ image conditional model.
+		\item $\by$ -- text prompt, $\bx$ -- image $\Rightarrow$ text-to-image model.
+		\item $\by$ -- image, $\bx$ -- image $\Rightarrow$ image-to-image model.
+		\item $\by$ -- image, $\bx$ -- text $\Rightarrow$ text-to-image model (image captioning).
+		\item $\by$ -- sound, $\bx$ -- text $\Rightarrow$ speech-to-text model (automatic speech recognition).
+		\item $\by$ -- English text, $\bx$ -- Russian text $\Rightarrow$ sequence-to-sequence model (machine translation).
+		\item $\by = \emptyset$, $\bx$ -- image $\Rightarrow$ image unconditional model.
+		\end{itemize}
+	\end{block}
+\end{frame}
+%=======
 \section{Divergence minimization framework}
 %=======
 \begin{frame}{Divergences}
 	Fix probabilistic model $p(\bx | \btheta)$~-- the set of parameterized distributions. \\
 	Instead of searching true $\pi(\bx)$ over all probability distributions, learn function approximation $p(\bx | \btheta) \approx \pi(\bx)$.
 	\begin{block}{What is a divergence?}
-		Let $\cS$ be the set of all possible probability distributions. Then $D: \cS \times \cS \rightarrow \bbR$ is a divergence if 
+		Let $\cP$ be the set of all possible probability distributions. Then $D: \cP \times \cP \rightarrow \bbR$ is a divergence if 
 		\begin{itemize}
-			\item $D(\pi || p) \geq 0$ for all $\pi, p \in \cS$;
+			\item $D(\pi || p) \geq 0$ for all $\pi, p \in \cP$;
 			\item $D(\pi || p) = 0$ if and only if $\pi \equiv p$.
 		\end{itemize}
 	\end{block}
@@ -313,12 +313,11 @@
 	What is the difference between these two formulations?
 	
 	\begin{block}{Maximum likelihood estimation (MLE)}
-	Let $\bX = \{\bx_i\}_{i=1}^n$ be the set of the given i.i.d. samples.
-		\vspace{-0.5cm}
+	Let $\{\bx_i\}_{i=1}^n$ be the set of the given i.i.d. samples.
+		\vspace{-0.3cm}
 		\[
-		\btheta^* = \argmax_{\btheta} p(\bX | \btheta) = \argmax_{\btheta} \prod_{i=1}^n p(\bx_i | \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta).
+		\btheta^* = \argmax_{\btheta} \prod_{i=1}^n p(\bx_i | \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta).
 		\]
-		\vspace{-0.1cm}
 	\end{block}
 \end{frame}
 %=======
@@ -327,8 +326,8 @@
 		\vspace{-0.5cm}
 		\begin{align*}
 			KL(\pi || p) &= \int \pi (\bx) \log \frac{\pi(\bx)}{p(\bx | \btheta)} d \bx \\
-			&= \int \pi (\bx) \log \pi(\bx) d \bx - \int \pi (\bx) \log p(\bx | \btheta) d \bx \\
-			&= - \bbE_{\pi(\bx)} \log p(\bx | \btheta) + \text{const} \\
+			&= {\color{violet}\int \pi (\bx) \log \pi(\bx) d \bx} - {\color{teal}\int \pi (\bx) \log p(\bx | \btheta) d \bx} \\
+			&= - {\color{teal}\bbE_{\pi(\bx)} \log p(\bx | \btheta)} + {\color{violet}\text{const}} \\
 			& \approx - \frac{1}{n} \sum_{i=1}^n \log p(\bx_i | \btheta) + \text{const} \rightarrow \min_{\btheta}.
 		\end{align*}
 		\vspace{-0.5cm}
@@ -344,61 +343,61 @@
 	\end{block}
 \end{frame}
 %=======
-\begin{frame}{Generative models zoo}
-\begin{tikzpicture}[
-	basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
-	root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
-	level 1/.style={sibling distance=55mm},
-	level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
-	level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
-	level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
-	level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
-	edge from parent/.style={->,draw},
-	>=latex]
-	
-	% root of the the initial tree, level 1
-	\node[root] {\Large Generative models}
-	% The first level, as children of the initial tree
-	child {node[level 2] (c1) {Likelihood-based}
-		child {node[level 3] (c11) {Tractable density}}
-		child {node[level 3] (c12) {Approximate density}}
-	}
-	child {node[level 2] (c2) {Implicit density}};
-	
-	% The second level, relatively positioned nodes
-	\begin{scope}[every node/.style={level 5}]
-		\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {\textbf{Autoregressive models}};
-	\end{scope}
-	
-	% The second level, relatively positioned nodes
-	\begin{scope}[every node/.style={level 4}]
-		\node [below of = c111] (c112) {Flow models};
-		
-		\node [below of = c12, xshift=10pt] (c121) {VAEs};
-		\node [below of = c121] (c122) {Diffusion models};
-		
-		\node [below of = c2, xshift=10pt] (c21) {GANs};
-	\end{scope}
-	
-	% lines from each level 1 node to every one of its "children"
-	\foreach \value in {1,2}
-	\draw[->] (c11.194) |- (c11\value.west);
-	
-	\foreach \value in {1,2}
-	\draw[->] (c12.194) |- (c12\value.west);
-	
-	\draw[->] (c2.194) |- (c21.west);
-	
-\end{tikzpicture}
-\end{frame}
-%=======
 \section{Autoregressive modelling}
+%=======
+\begin{frame}{Generative models zoo}
+	\begin{tikzpicture}[
+		basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
+		root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
+		level 1/.style={sibling distance=55mm},
+		level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
+		level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
+		level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
+		level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
+		edge from parent/.style={->,draw},
+		>=latex]
+		
+		% root of the the initial tree, level 1
+		\node[root] {\Large Generative models}
+		% The first level, as children of the initial tree
+		child {node[level 2] (c1) {Likelihood-based}
+			child {node[level 3] (c11) {Tractable density}}
+			child {node[level 3] (c12) {Approximate density}}
+		}
+		child {node[level 2] (c2) {Implicit density}};
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 5}]
+			\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {\textbf{Autoregressive models}};
+		\end{scope}
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 4}]
+			\node [below of = c111] (c112) {Flow models};
+			
+			\node [below of = c12, xshift=10pt] (c121) {VAEs};
+			\node [below of = c121] (c122) {Diffusion models};
+			
+			\node [below of = c2, xshift=10pt] (c21) {GANs};
+		\end{scope}
+		
+		% lines from each level 1 node to every one of its "children"
+		\foreach \value in {1,2}
+		\draw[->] (c11.194) |- (c11\value.west);
+		
+		\foreach \value in {1,2}
+		\draw[->] (c12.194) |- (c12\value.west);
+		
+		\draw[->] (c2.194) |- (c21.west);
+		
+	\end{tikzpicture}
+\end{frame}
 %=======
 \begin{frame}{Autoregressive modelling}
     \begin{block}{MLE problem}
-	    \vspace{-0.7cm}
+	    \vspace{-0.4cm}
 	    \[
-	        \btheta^* = \argmax_{\btheta} p(\bX | \btheta) = \argmax_{\btheta} \prod_{i=1}^n p(\bx_i | \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta).
+	        \btheta^* = \argmax_{\btheta} \prod_{i=1}^n p(\bx_i | \btheta) = \argmax_{\btheta} \sum_{i=1}^n \log p(\bx_i | \btheta).
 	    \]
 	    \vspace{-0.5cm}
     \end{block}
