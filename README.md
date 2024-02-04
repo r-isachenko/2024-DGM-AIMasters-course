@@ -23,46 +23,50 @@ The course is accompanied by practical tasks that allow you to understand the pr
 
 ## Materials
 
-| # | Date | Description | Slides | Video |
-|---|---|---|---|---|
-| 1 |  | <b>Lecture 1:</b> Logistics. Generative models overview and motivation. Problem statement. Divergence minimization framework. Autoregressive models (PixelCNN). |  | |
-|  |  | <b>Seminar 1:</b> Introduction. Maximum likelihood estimation. Histograms. Kernel density estimation (KDE). |  |  |
-| 2 |  | <b>Lecture 2:</b> Bayesian Framework. Latent Variable Models (LVM). Variational lower bound (ELBO). EM-algorithm, amortized inference. |  |  |
-|  |  | <b>Seminar 2:</b> PixelCNN for MNIST and Binarized MNIST coding. |  |  |
-| 3 |  | <b>Lecture 3:</b> ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). VAE limitations. Tighter ELBO (IWAE).  |  |  |
-|  |  | <b>Seminar 3:</b> Latent Variable Models. Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm. |  |  |
-| 4 |  | <b>Lecture 4:</b> Normalizing Flow (NF) intuition and definition. Forward and reverse KL divergence for NF. Linear NF. Gaussian autoregressive NF. |  |  |
-|  |  | <b>Seminar 4:</b> Variational EM algorithm for GMM. VAE: Implementation hints + Vanilla 2D VAE coding.  |  |  |
-| 5 |  | <b>Lecture 5:</b> Coupling layer (RealNVP). NF as VAE model. Discrete data vs continuous model. Model discretization (PixelCNN++). Data dequantization: uniform and variational (Flow++). |  |  | |
-|  |  | <b>Seminar 5:</b> VAE: posterior collapse, KL-annealing, free-bits. Normalizing flows: basics, planar flows, forward and backward kl for planar flows. |  |  |
-| 6 |  | <b>Lecture 6:</b> ELBO surgery and optimal VAE prior. NF-based VAE prior. Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). |  |  |
-|  |  | <b>Seminar 6:</b> Planar Flow (coding), RealNVP. |  |  |
-| 7 |  | <b>Lecture 7:</b> Gumbel-softmax trick (DALL-E). Likelihood-free learning. GAN optimality theorem.  |  |  |
-|  |  | <b>Seminar 7:</b> Glow. |  |  |
-| 8 |  | <b>Lecture 8:</b> Wasserstein distance. Wasserstein GAN (WGAN). WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). |  |  |
-|  |  | <b>Seminar 8:</b> Vanilla GAN in 1D coding. KL vs JS divergences. Mode collapse. Non-saturating GAN. |  |  |
-| 9 |  | <b>Lecture 9:</b> f-divergence minimization. GAN evaluation. Inception score, FID, Precision-Recall, truncation trick. |  |  |
-|  |  | <b>Seminar 9:</b> WGANs on multimodal 2D data. GANs zoo and evolution of GANs. StyleGAN coding. |  |  |
-| 10 |  | <b>Lecture 10:</b> Neural ODE. Adjoint method. Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). |  |  |
-|  |  | <b>Seminar 10:</b> StyleGAN: end discussions. Energy-Based models. |  |  |
-| 11 |  | <b>Lecture 11:</b> Gaussian diffusion process. Gaussian diffusion model as VAE, derivation of ELBO. |  |  |
-|  |  | <b>Seminar 11:</b> Gaussian diffusion process basics. |  |
-| 12 |  | <b>Lecture 12:</b> Denoising diffusion probabilistic model (DDPM): reparametrization and overview. Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. |  |  |
-|  |  | <b>Seminar 12:</b> Fast samplers: iDDPM and DDIM |  |  |
-| 13 |  | <b>Lecture 13:</b> Score matching: implicit/sliced score matching, denoising score matching. Noise Conditioned Score Network (NCSN). DDPM vs NCSN. |  |  |
-|  |  | <b>Seminar 13:</b> Noise Conditioned Score Network |  |  |
-| 14 |  | <b>Lecture 14:</b> Variance Preserving and Variance Exploding SDEs. Model guidance: classifier guidance, classfier-free guidance. |  |  |
-|  |  | <b>Seminar 14:</b> TBA |  |  |
+| # | Date | Description | Slides |
+|---|---|---|---|
+| 1 | February, 7 | <b>Lecture 1:</b> Logistics. Generative models overview and motivation. Problem statement. Divergence minimization framework. Autoregressive models (PixelCNN). | [slides](lectures/lecture1/Lecture1.pdf) |
+|  |  | <b>Seminar 1:</b> Introduction. Maximum likelihood estimation. Histograms. Kernel density estimation (KDE). |  |
+| 2 | February, 14 | <b>Lecture 2:</b> Normalizing Flow (NF) intuition and definition. Forward and reverse KL divergence for NF. Linear NF. Gaussian autoregressive NF. | [slides](lectures/lecture2/Lecture2.pdf) |
+|  |  | <b>Seminar 2:</b> PixelCNN for MNIST and Binarized MNIST coding. |  |
+<!---
+| 3 | February, 21 | <b>Lecture 3:</b> Coupling layer (RealNVP). Neural ODE. Adjoint method. Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). |  |
+|  |  | <b>Seminar 3:</b> Latent Variable Models. Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm. |  |
+| 4 | February, 28 | <b>Lecture 4:</b> Bayesian Framework. Latent Variable Models (LVM). Variational lower bound (ELBO). EM-algorithm, amortized inference. ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). VAE limitations. |  |
+|  |  | <b>Seminar 4:</b> Variational EM algorithm for GMM. VAE: Implementation hints + Vanilla 2D VAE coding.  |  |
+| 5 | March, 6 | <b>Lecture 5:</b> NF as VAE model. Discrete data vs continuous model. Model discretization (PixelCNN++). Data dequantization: uniform and variational (Flow++). |  |
+|  |  | <b>Seminar 5:</b> VAE: posterior collapse, KL-annealing, free-bits. Normalizing flows: basics, planar flows, forward and backward kl for planar flows. |  |
+| 6 | March, 13 | <b>Lecture 6:</b> ELBO surgery and optimal VAE prior. NF-based VAE prior. Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). |  |
+|  |  | <b>Seminar 6:</b> Planar Flow (coding), RealNVP. |  |
+| 7 | March, 20 | <b>Lecture 7:</b> Gumbel-softmax trick (DALL-E). Likelihood-free learning. GAN optimality theorem.  |  |
+|  |  | <b>Seminar 7:</b> Glow. |  |
+| 8 | March, 27 | <b>Lecture 8:</b> Wasserstein distance. Wasserstein GAN (WGAN). WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). |  |
+|  |  | <b>Seminar 8:</b> Vanilla GAN in 1D coding. KL vs JS divergences. Mode collapse. Non-saturating GAN. |  |
+| 9 | April, 3 | <b>Lecture 9:</b> f-divergence minimization. GAN evaluation. Inception score, FID, Precision-Recall, truncation trick. |  |
+|  |  | <b>Seminar 9:</b> WGANs on multimodal 2D data. GANs zoo and evolution of GANs. StyleGAN coding. |  |
+| 10 | April, 10 | <b>Lecture 10:</b>  |  |
+|  |  | <b>Seminar 10:</b> StyleGAN: end discussions. Energy-Based models. |  |
+| 11 | April, 17 | <b>Lecture 11:</b> Gaussian diffusion process. Gaussian diffusion model as VAE, derivation of ELBO. |  |
+|  |  | <b>Seminar 11:</b> Gaussian diffusion process basics. |
+| 12 | April, 24 | <b>Lecture 12:</b> Denoising diffusion probabilistic model (DDPM): reparametrization and overview. Kolmogorov-Fokker-Planck equation and Langevin dynamic. SDE basics. |  |
+|  |  | <b>Seminar 12:</b> Fast samplers: iDDPM and DDIM |  |
+| 13 | May, 8 | <b>Lecture 13:</b> Score matching: implicit/sliced score matching, denoising score matching. Noise Conditioned Score Network (NCSN). DDPM vs NCSN. |  |
+|  |  | <b>Seminar 13:</b> Noise Conditioned Score Network |  |
+| 14 | May, 15 | <b>Lecture 14:</b> Variance Preserving and Variance Exploding SDEs. Model guidance: classifier guidance, classfier-free guidance. |  |
+|  |  | <b>Seminar 14:</b> TBA |  |
+-->
 
 ## Homeworks
 | Homework | Date | Deadline | Description | Link |
 |---------|------|-------------|--------|-------|
-| 1 |  |  |  |  |
+| 1 | February, 14 | February, 28 |  |  |
+<!---
 | 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
-| 6 |  |  |  |  |
+| 3 | February, 28 | March, 13 |  |  |
+| 4 | March, 13 | March, 27 |  |  |
+| 5 | March, 27 | April, 10 |  |  |
+| 6 | April, 24 | May, 15 |  |  |
+-->
 
 ## Game rules
 - 6 homeworks each of 13 points = **78 points**
