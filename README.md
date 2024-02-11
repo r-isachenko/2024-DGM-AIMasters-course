@@ -26,15 +26,15 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | # | Date | Description | Slides |
 |---|---|---|---|
 | 1 | February, 7 | <b>Lecture 1:</b> Logistics. Generative models overview and motivation. Problem statement. Divergence minimization framework. Autoregressive models (PixelCNN). | [slides](lectures/lecture1/Lecture1.pdf) |
-|  |  | <b>Seminar 1:</b> Introduction. Maximum likelihood estimation. Histograms. Kernel density estimation (KDE). |  |
+|  |  | <b>Seminar 1:</b> TBA. |  |
 | 2 | February, 14 | <b>Lecture 2:</b> Normalizing Flow (NF) intuition and definition. Forward and reverse KL divergence for NF. Linear NF. Gaussian autoregressive NF. | [slides](lectures/lecture2/Lecture2.pdf) |
-|  |  | <b>Seminar 2:</b> PixelCNN for MNIST and Binarized MNIST coding. |  |
+|  |  | <b>Seminar 2:</b> TBA. |  |
+| 3 | February, 21 | <b>Lecture 3:</b> Coupling layer (RealNVP). Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Neural ODE. Adjoint method. | [slides](lectures/lecture3/Lecture3.pdf) |
+|  |  | <b>Seminar 3: TBA. |  |
+| 4 | February, 28 | <b>Lecture 4:</b> Latent Variable Models (LVM). Variational lower bound (ELBO). Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. | [slides](lectures/lecture4/Lecture4.pdf) |
+|  |  | <b>Seminar 4:</b> TBA. |  |
 <!---
-| 3 | February, 21 | <b>Lecture 3:</b> Coupling layer (RealNVP). Neural ODE. Adjoint method. Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). |  |
-|  |  | <b>Seminar 3:</b> Latent Variable Models. Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm. |  |
-| 4 | February, 28 | <b>Lecture 4:</b> Bayesian Framework. Latent Variable Models (LVM). Variational lower bound (ELBO). EM-algorithm, amortized inference. ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). VAE limitations. |  |
-|  |  | <b>Seminar 4:</b> Variational EM algorithm for GMM. VAE: Implementation hints + Vanilla 2D VAE coding.  |  |
-| 5 | March, 6 | <b>Lecture 5:</b> NF as VAE model. Discrete data vs continuous model. Model discretization (PixelCNN++). Data dequantization: uniform and variational (Flow++). |  |
+| 5 | March, 6 | <b>Lecture 5:</b> Variational Autoencoder (VAE). VAE limitations. NF as VAE model. Discrete data vs continuous model. Model discretization (PixelCNN++). Data dequantization: uniform and variational (Flow++). |  |
 |  |  | <b>Seminar 5:</b> VAE: posterior collapse, KL-annealing, free-bits. Normalizing flows: basics, planar flows, forward and backward kl for planar flows. |  |
 | 6 | March, 13 | <b>Lecture 6:</b> ELBO surgery and optimal VAE prior. NF-based VAE prior. Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). |  |
 |  |  | <b>Seminar 6:</b> Planar Flow (coding), RealNVP. |  |
@@ -59,12 +59,12 @@ The course is accompanied by practical tasks that allow you to understand the pr
 ## Homeworks
 | Homework | Date | Deadline | Description | Link |
 |---------|------|-------------|--------|-------|
-| 1 | February, 14 | February, 28 |  |  |
+| 1 | February, 14 | February, 28 | <ol><li>Theory (Kernel density estimation, alpha-divergences, curse of dimensionality).</li><li>PixelCNN (receptive field, autocomplete) on MNIST.</li><li>ImageGPT on MNIST.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw1.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2024-DGM-AIMasters-course/blob/main/homeworks/hw1.ipynb) |
 <!---
-| 2 |  |  |  |  |
-| 3 | February, 28 | March, 13 |  |  |
-| 4 | March, 13 | March, 27 |  |  |
-| 5 | March, 27 | April, 10 |  |  |
+| 2 | February, 28 | March, 13 |  |  |
+| 3 | March, 13 | March, 27 |  |  |
+| 4 | March, 27 | April, 10 |  |  |
+| 5 | April, 10 | April, 24 |  |  |
 | 6 | April, 24 | May, 15 |  |  |
 -->
 
