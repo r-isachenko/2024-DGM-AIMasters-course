@@ -298,11 +298,10 @@
 		\vspace{-0.3cm}
 	\end{block}
 	What is the complexity of the determinant computation?
-	\begin{block}{What we need:}
+	\begin{block}{What do we need?}
 		\begin{itemize}
 			\item efficient computation of the Jacobian matrix $\bJ_f = \frac{\partial f_{\btheta}(\bx)}{\partial \bx}$;
-			\item efficient inversion of $f_{\btheta}(\bx)$;
-			\item loss function to minimize.
+			\item efficient inversion of $f_{\btheta}(\bx)$.
 		\end{itemize}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1912.02762}{Papamakarios G. et al. Normalizing flows for probabilistic modeling and inference, 2019} 
@@ -443,7 +442,7 @@
 	\end{block}
 	\begin{block}{Invertible 1x1 conv}
 			
-		$\mathbf{W} \in \mathbb{R}^{c \times c}$ - kernel of 1x1 convolution with $c$ input and $c$ output channels.
+		$\mathbf{W} \in \mathbb{R}^{c \times c}$ -- kernel of 1x1 convolution with $c$ input and $c$ output channels.
 		The computational complexity of computing or differentiating $\det (\mathbf{W})$ is $O(c^3)$.
 		Cost to compute $\det (\mathbf{W})$ is $O(c^3)$. It should be invertible.
 	\end{block}
@@ -507,7 +506,7 @@
 	\end{block}
 	\begin{itemize}
 		\item We have an \textbf{invertible} and \textbf{differentiable} transformation from $p(\bz)$ to $p(\bx | \btheta)$.
-		\item It is an autoregressive (AR) NF with the base distribution $p(\bz) = \cN(0, 1)$!
+		\item It is an autoregressive (AR) NF with the base distribution $p(\bz) = \cN(0, \bI)$!
 		\item Jacobian of such transformation is triangular!
 	\end{itemize}
 	\myfootnotewithlink{https://arxiv.org/abs/1606.04934}{Kingma D. P. et al. Improving Variational Inference with Inverse Autoregressive Flow, 2016} 
@@ -530,7 +529,7 @@
 		\begin{itemize}
 			\item We need to be able to compute $f_{\btheta}(\bx)$ and its Jacobian.
 			\item We need to be able to compute the density $p(\bz)$.
-			\item We don’t need to think about computing the function $g_{\btheta}(\bz) = f^{-1}(\bz, \btheta)$ until we want to sample from the model.
+			\item We don’t need to think about computing the function $g_{\btheta}(\bz) = f_{\btheta}^{-1}(\bz)$ until we want to sample from the model.
 		\end{itemize}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1705.07057}{Papamakarios G., Pavlakou T., Murray I. Masked Autoregressive Flow for Density Estimation, 2017} 
