@@ -26,9 +26,9 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | # | Date | Description | Slides |
 |---|---|---|---|
 | 1 | February, 7 | <b>Lecture 1:</b> Logistics. Generative models overview and motivation. Problem statement. Divergence minimization framework. Autoregressive models (PixelCNN). | [slides](lectures/lecture1/Lecture1.pdf) |
-|  |  | <b>Seminar 1:</b> TBA. |  |
+|  |  | <b>Seminar 1:</b> Introduction. Maximum likelihood estimation. Histograms. Bayes' theorem. |  |
 | 2 | February, 14 | <b>Lecture 2:</b> Normalizing Flow (NF) intuition and definition. Forward and reverse KL divergence for NF. Linear NF. Gaussian autoregressive NF. | [slides](lectures/lecture2/Lecture2.pdf) |
-|  |  | <b>Seminar 2:</b> TBA. |  |
+|  |  | <b>Seminar 2:</b> PixelCNN. |  |
 | 3 | February, 21 | <b>Lecture 3:</b> Coupling layer (RealNVP). Continuous-in-time NF (FFJORD, Hutchinson's trace estimator). Neural ODE. Adjoint method. | [slides](lectures/lecture3/Lecture3.pdf) |
 |  |  | <b>Seminar 3: TBA. |  |
 | 4 | February, 28 | <b>Lecture 4:</b> Latent Variable Models (LVM). Variational lower bound (ELBO). Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. | [slides](lectures/lecture4/Lecture4.pdf) |
