@@ -217,6 +217,24 @@
 %=======
 \section{Variational inference}
 %=======
+\begin{frame}{Latent variable models (LVM)}
+	\[
+	\log p(\bx | \btheta) = \log \int p(\bx | \bz, \btheta) p(\bz) d\bz \rightarrow \max_{\btheta}
+	\]
+	\textbf{PCA} projects original data $\bX$ onto a low dimensional latent space while maximizing the variance of the projected data. 
+	\begin{figure}
+		\centering
+		\includegraphics[width=.7\linewidth]{figs/bayesian_pca}
+	\end{figure}
+	\vspace{-0.5cm}
+	\begin{itemize}
+		\item $p(\bx | \bz, \btheta) = \cN(\bx | \bW \bz + \bmu, \sigma^2 \bI)$
+		\item $p(\bz) = \cN(\bz | 0, \bI)$
+		\item $p(\bx) = \cN(\bx | \bmu, \bW \bW^T + \sigma^2 \bI)$
+		\item $p(\bz | \bx) = \cN \bigl(\bM^{-1} \bW^T (\bx - \bmu), \sigma^2 \bM\bigr)$, where $\bM = \bW \bW^T + \sigma^2 \bI$
+	\end{itemize}
+\end{frame}
+%=======
 \subsection{ELBO gradient, Log derivative trick}
 %=======
 \begin{frame}{ELBO gradient (E-step, $\nabla_{\bphi} \mathcal{L}(\bphi, \btheta)$)}

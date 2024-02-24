@@ -12,6 +12,57 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\begin{table}[]
+		\begin{tabular}{l|c|c}
+			& \textbf{VAE} & \textbf{NF} \\ \hline
+			\textbf{Objective} & ELBO $\cL$ & Forward KL/MLE \\ \hline
+			\textbf{Encoder} & \shortstack{stochastic \\ $\bz \sim q (\bz | \bx, \bphi)$} &  \shortstack{\\ deterministic \\ $\bz = f_{\btheta}(\bx)$ \\ $q(\bz | \bx, \btheta) = \delta(\bz - f_{\btheta}(\bx))$}  \\ \hline
+			\textbf{Decoder} & \shortstack{stochastic \\ $\bx \sim p (\bx | \bz, \btheta)$} & \shortstack{\\ deterministic \\ $\bx = g_{\btheta}(\bz)$ \\ $ p(\bx | \bz, \btheta) = \delta(\bx - g_{\btheta}(\bz))$} \\ \hline
+			\textbf{Parameters}  & $\bphi, \btheta$ & $\btheta \equiv \bphi$\\ 
+		\end{tabular}
+	\end{table}
+	\begin{block}{Theorem}
+		MLE for normalizing flow is equivalent to maximization of ELBO for VAE model with deterministic encoder and decoder:
+		\vspace{-0.3cm}
+		\[
+		p(\bx | \bz, \btheta) = \delta (\bx - f^{-1}(\bz, \btheta)) = \delta (\bx - g_{\btheta}(\bz));
+		\]
+		\[
+		q(\bz | \bx, \btheta) = p(\bz | \bx, \btheta) = \delta (\bz - f_{\btheta}(\bx)).
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Theorem}
+		\vspace{-0.3cm}
+		\[
+			\frac{1}{n} \sum_{i=1}^n KL(q(\bz | \bx_i) || p(\bz)) = KL({\color{teal}q_{\text{agg}}(\bz) }|| p(\bz)) + \bbI_{q} [\bx, \bz].
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{block}{ELBO surgery}
+		\vspace{-0.5cm}
+		{\small
+		\[
+		    \frac{1}{n} \sum_{i=1}^n \cL_i(q, \btheta) = \underbrace{\frac{1}{n} \sum_{i=1}^n \mathbb{E}_{q(\bz | \bx_i)} \log p(\bx_i | \bz, \btheta)}_{\text{Reconstruction loss}}
+		    - \underbrace{\vphantom{ \sum_{i=1}^n} \bbI_q [\bx, \bz]}_{\text{MI}} - \underbrace{\vphantom{ \sum_{i=1}^n} KL({\color{teal}q_{\text{agg}}(\bz)} || {\color{violet}p(\bz)})}_{\text{Marginal KL}}
+		\]}
+	\end{block}
+	\vspace{-0.8cm}
+	\begin{block}{Optimal prior}
+		\vspace{-0.6cm}
+		\[
+			KL(q_{\text{agg}}(\bz) || p(\bz)) = 0 \quad \Leftrightarrow \quad p (\bz) = q_{\text{agg}}(\bz) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx_i).
+		\]
+		\vspace{-0.3cm}\\
+		The optimal prior distribution $p(\bz)$ is aggregated posterior $q(\bz)$.
+	\end{block}
+	\myfootnotewithlink{http://approximateinference.org/accepted/HoffmanJohnson2016.pdf}{Hoffman M. D., Johnson M. J. ELBO surgery: yet another way to carve up the variational evidence lower bound, 2016}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
 	\begin{itemize}
 		\item Standard Gaussian $p(\bz) = \mathcal{N}(0, I)$ $\Rightarrow$ over-regularization;
 		\item $p(\bz) = q_{\text{agg}}(\bz) = \frac{1}{n}\sum_{i=1}^n q(\bz | \bx_i)$ $\Rightarrow$ overfitting and highly expensive.
