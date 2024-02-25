@@ -16,8 +16,8 @@
 		\begin{tabular}{l|c|c}
 			& \textbf{VAE} & \textbf{NF} \\ \hline
 			\textbf{Objective} & ELBO $\cL$ & Forward KL/MLE \\ \hline
-			\textbf{Encoder} & \shortstack{stochastic \\ $\bz \sim q (\bz | \bx, \bphi)$} &  \shortstack{\\ deterministic \\ $\bz = f_{\btheta}(\bx)$ \\ $q(\bz | \bx, \btheta) = \delta(\bz - f_{\btheta}(\bx))$}  \\ \hline
-			\textbf{Decoder} & \shortstack{stochastic \\ $\bx \sim p (\bx | \bz, \btheta)$} & \shortstack{\\ deterministic \\ $\bx = g_{\btheta}(\bz)$ \\ $ p(\bx | \bz, \btheta) = \delta(\bx - g_{\btheta}(\bz))$} \\ \hline
+			\textbf{Encoder} & \shortstack{stochastic \\ $\bz \sim q (\bz | \bx, \bphi)$} &  \shortstack{\\ deterministic \\ $\bz = \bff_{\btheta}(\bx)$ \\ $q(\bz | \bx, \btheta) = \delta(\bz - \bff_{\btheta}(\bx))$}  \\ \hline
+			\textbf{Decoder} & \shortstack{stochastic \\ $\bx \sim p (\bx | \bz, \btheta)$} & \shortstack{\\ deterministic \\ $\bx = \bg_{\btheta}(\bz)$ \\ $ p(\bx | \bz, \btheta) = \delta(\bx - \bg_{\btheta}(\bz))$} \\ \hline
 			\textbf{Parameters}  & $\bphi, \btheta$ & $\btheta \equiv \bphi$\\ 
 		\end{tabular}
 	\end{table}
@@ -25,10 +25,10 @@
 		MLE for normalizing flow is equivalent to maximization of ELBO for VAE model with deterministic encoder and decoder:
 		\vspace{-0.3cm}
 		\[
-		p(\bx | \bz, \btheta) = \delta (\bx - f^{-1}(\bz, \btheta)) = \delta (\bx - g_{\btheta}(\bz));
+		p(\bx | \bz, \btheta) = \delta (\bx - \bff^{-1}(\bz, \btheta)) = \delta (\bx - \bg_{\btheta}(\bz));
 		\]
 		\[
-		q(\bz | \bx, \btheta) = p(\bz | \bx, \btheta) = \delta (\bz - f_{\btheta}(\bx)).
+		q(\bz | \bx, \btheta) = p(\bz | \bx, \btheta) = \delta (\bz - \bff_{\btheta}(\bx)).
 		\]
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
@@ -64,7 +64,7 @@
 %=======
 \begin{frame}{Recap of previous lecture}
 	\begin{itemize}
-		\item Standard Gaussian $p(\bz) = \mathcal{N}(0, I)$ $\Rightarrow$ over-regularization;
+		\item Standard Gaussian $p(\bz) = \mathcal{N}(0, \bI)$ $\Rightarrow$ over-regularization;
 		\item $p(\bz) = q_{\text{agg}}(\bz) = \frac{1}{n}\sum_{i=1}^n q(\bz | \bx_i)$ $\Rightarrow$ overfitting and highly expensive.
 	\end{itemize}
 	\begin{block}{ELBO revisiting}
@@ -79,12 +79,12 @@
 		{\small
 			\begin{multline*}
 				\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + {\color{violet}\log p(\bz | \blambda)} - \log q(\bz | \bx, \bphi) \right] \\
-				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(f_{\blambda}(\bz)) + \log \left| \det (\bJ_f) \right|} \Bigr) }_{\text{flow-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
+				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(f_{\blambda}(\bz)) + \log \left| \det (\bJ_\bff) \right|} \Bigr) }_{\text{flow-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
 			\end{multline*}
 		}
 		\vspace{-0.5cm}
 		\[
-			\bz = f^{-1}_{\blambda}(\bz^*) = g_{\blambda}(\bz^*), \quad \bz^* \sim p(\bz^*) = \cN(0, 1)
+			\bz = \bff^{-1}_{\blambda}(\bz^*) = \bg_{\blambda}(\bz^*), \quad \bz^* \sim p(\bz^*) = \cN(0, 1)
 		\]
 	\end{block}
 	\vspace{-0.5cm}
@@ -267,7 +267,7 @@
 	The more powerful discriminative model we will have, the more likely we will get the "best" generative distribution $p(\bx | \btheta)$. \\
 	The most common way to learn a classifier is to minimize cross entropy loss.
 	\begin{itemize}
-		\item \textbf{Generator:} generative model $\bx = G(\bz)$, which makes generated sample more realistic. Here $\bz$ comes from the base (known) distribution $p(\bz)$ and $\bx \sim p(\bx | \btheta)$. Generator tries to \textbf{maximize} cross entropy.
+		\item \textbf{Generator:} generative model $\bx = \bG(\bz)$, which makes generated sample more realistic. Here $\bz$ comes from the base (known) distribution $p(\bz)$ and $\bx \sim p(\bx | \btheta)$. Generator tries to \textbf{maximize} cross entropy.
 		\item \textbf{Discriminator:} a classifier $p(y = 1 | \bx) = D(\bx) \in [0, 1]$, which distinguishes real samples from generated samples. Discriminator tries to \textbf{minimize} cross entropy (tries to enhance discriminative model).
 	\end{itemize}
 	\begin{block}{Objective}
@@ -276,7 +276,7 @@
 			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bx | \btheta)} \log (1 - D(\bx)) \right] 
 		\]
 		\[
-			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz))) \right]
+			\min_{G} \max_D \left[ \bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(\bG(\bz))) \right]
 		\]
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
@@ -338,7 +338,7 @@
 		The minimax game 
 		\vspace{-0.3cm}
 		\[
-			\min_{G} \max_D \Bigl[ \underbrace{\bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz)))}_{V(G, D)} \Bigr]
+			\min_{G} \max_D \Bigl[ \underbrace{\bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(\bG(\bz)))}_{V(G, D)} \Bigr]
 		\]
 		\vspace{-0.5cm} \\
 		has the global optimum $\pi(\bx) = p(\bx | \btheta)$, in this case $D^*(\bx) = 0.5$.
@@ -387,7 +387,7 @@
 		The minimax game 
 		\vspace{-0.3cm}
 		\[
-		\min_{G} \max_D \Bigl[ \underbrace{\bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(G(\bz)))}_{V(G, D)} \Bigr]
+		\min_{G} \max_D \Bigl[ \underbrace{\bbE_{\pi(\bx)} \log D(\bx) + \bbE_{p(\bz)} \log (1 - D(\bG(\bz)))}_{V(G, D)} \Bigr]
 		\]
 		\vspace{-0.5cm} \\
 		has the global optimum $\pi(\bx) = p(\bx | \btheta)$, in this case $D^*(\bx) = 0.5$.
@@ -406,11 +406,11 @@
 \end{frame}
 %=======
 \begin{frame}{GAN training}
-	Let further assume that generator and discriminator are parametric models: $D_{\bphi}(\bx)$ and $G_{\btheta}(\bz)$.
+	Let further assume that generator and discriminator are parametric models: $D_{\bphi}(\bx)$ and $\bG_{\btheta}(\bz)$.
 	\begin{block}{Objective}
 		\vspace{-0.7cm}
 		\[
-		\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D_{\bphi}(\bx) + \bbE_{p(\bz)} \log (1 - D_{\bphi}(G_{\btheta}(\bz))) \right]
+		\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D_{\bphi}(\bx) + \bbE_{p(\bz)} \log (1 - D_{\bphi}(\bG_{\btheta}(\bz))) \right]
 		\]
 		\vspace{-0.7cm}
 	\end{block}
@@ -421,7 +421,7 @@
 
 	\begin{itemize}
 		\item $\bz \sim p(\bz)$ is a latent variable.
-		\item $p(\bx | \bz, \btheta) = \delta(\bx - G_{\btheta}(\bz))$ is deterministic decoder ({\color{gray} like NF}).
+		\item $p(\bx | \bz, \btheta) = \delta(\bx - \bG_{\btheta}(\bz))$ is deterministic decoder ({\color{gray} like NF}).
 		\item We do not have encoder at all.
 	\end{itemize}
 
@@ -450,7 +450,7 @@
 \begin{frame}{Jensen-Shannon vs Kullback-Leibler }
 	\begin{itemize}
 		\item $\pi(\bx)$ is a fixed mixture of 2 gaussians.
-		\item $p(\bx | \mu, \sigma) - \cN(\mu, \sigma^2)$.
+		\item $p(\bx | \mu, \sigma) = \cN(\mu, \sigma^2)$.
 	\end{itemize}
 	\begin{block}{Mode covering vs mode seeking}
 		\vspace{-0.7cm}
@@ -487,7 +487,7 @@
 	\vspace{-0.3cm}
 	\begin{itemize}
 		\footnotesize
-		\item Since $\bz$ usually has lower dimensionality compared to $\bx$, manifold $G_{\btheta}(\bz)$ has a measure 0 in $\bx$ space. Hence, support of $p(\bx | \btheta)$ lies on low-dimensional manifold.
+		\item Since $\bz$ usually has lower dimensionality compared to $\bx$, manifold $\bG_{\btheta}(\bz)$ has a measure 0 in $\bx$ space. Hence, support of $p(\bx | \btheta)$ lies on low-dimensional manifold.
 		\item Distribution of real images $\pi(\bx)$ is also concentrated on a low dimensional manifold.
 		\begin{figure}
 			\centering
@@ -519,7 +519,7 @@
 \end{frame}
 %=======
 \begin{frame}{Wasserstein distance (continuous)}
-	\vspace{-0.6cm}
+	\vspace{-0.7cm}
 	\[
 		W(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{{\color{olive}\gamma}\in {\color{teal}\Gamma(\pi, p)}} \int {\color{violet} \| \bx - \by \|} {\color{olive}\gamma (\bx, \by)} d \bx d \by
 	\]
@@ -588,7 +588,7 @@
 %=======
 \begin{frame}{Wasserstein distance vs KL vs JSD}
 	\begin{block}{Theorem 1}
-		Let $G_{\btheta}(\bz)$ be (almost) any feedforward neural network, and $p(\bz)$ a prior over $\bz$ such that $\bbE_{p(\bz)} \|\bz\| < \infty$. Then therefore $W(\pi, p)$ is continuous everywhere and differentiable almost everywhere.
+		Let $\bG_{\btheta}(\bz)$ be (almost) any feedforward neural network, and $p(\bz)$ a prior over $\bz$ such that $\bbE_{p(\bz)} \|\bz\| < \infty$. Then therefore $W(\pi, p)$ is continuous everywhere and differentiable almost everywhere.
 	\end{block}
 	\begin{block}{Theorem 2}
 		Let $\pi$ be a distribution on a compact space $\cX$ and $\{p_t\}_{t=1}^\infty$ be a sequence of distributions on $\cX$. 
@@ -617,12 +617,12 @@
 		\[
 			W(\pi || p) = \frac{1}{K} \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right],
 		\]
-		where $\| f \|_L \leq K$ are $K-$Lipschitz continuous functions ($f: \cX \rightarrow \bbR$)
+		where $f : \bbR^n \rightarrow \bbR$, $\| f \|_L \leq K$ are $K-$Lipschitz continuous functions ($f: \cX \rightarrow \bbR$)
 		\vspace{-0.2cm}
 		\[
 			|f(\bx_1) - f(\bx_2)| \leq K \| \bx_1 - \bx_2 \|, \quad \text{for all } \bx_1, \bx_2 \in \cX.
 		\]
-		\vspace{-0.5cm}
+		\vspace{-0.6cm}
 	\end{block}
 	Now we need only samples to get Monte Carlo estimate for $W(\pi || p)$.
 

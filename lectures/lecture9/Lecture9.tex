@@ -12,7 +12,7 @@
 	\begin{block}{WGAN objective}
 		\vspace{-0.5cm}
 		\[
-		\min_{\btheta} W(\pi || p) = \min_{\btheta} \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f_{\bphi}(\bx)  - \bbE_{p(\bz)} f_{\bphi}(G_{\btheta}(\bz))\right].
+		\min_{\btheta} W(\pi || p) = \min_{\btheta} \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f_{\bphi}(\bx)  - \bbE_{p(\bz)} f_{\bphi}(\bG_{\btheta}(\bz))\right].
 		\]
 		\vspace{-0.5cm}
 	\end{block}
@@ -43,7 +43,7 @@
 		\]
 		\vspace{-0.5cm}
 	\end{block}
-	Samples $\hat{\bx}_t = t \by + (1 - t) \bz$ with $t \in [0, 1]$ are uniformly sampled along straight lines between pairs of points: $\by$ from the data distribution $\pi(\bx)$ and $\bz$ from the generator distribution $p(\bx | \btheta)$.
+	Samples $\hat{\bx}_t = t \cdot \by + (1 - t) \cdot \bz$ with $t \in [0, 1]$ are uniformly sampled along straight lines between pairs of points: $\by$ from the data distribution $\pi(\bx)$ and $\bz$ from the generator distribution $p(\bx | \btheta)$.
 	\myfootnote{
 	\href{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017} \\
 	\href{https://arxiv.org/abs/1704.00028}{Gulrajani I. et al. Improved Training of Wasserstein GANs, 2017} }
@@ -211,7 +211,7 @@
 	\begin{block}{BigGAN: truncated normal sampling}
 		\vspace{-0.3cm}
 		\[
-			p(\bz | \psi) = \cN(\bz | 0, 1) / \int_{-\infty}^\psi \cN(\bz | 0, 1) d\bz
+			p(\bz | \psi) = \cN(\bz | 0, \bI) / \int_{-\infty}^\psi \cN(\bz' | 0, \bI) d\bz'
 		\]
 		Components of $\bz \sim \cN(0, \bI)$ which fall outside a predefined range are resampled.
 	\end{block}

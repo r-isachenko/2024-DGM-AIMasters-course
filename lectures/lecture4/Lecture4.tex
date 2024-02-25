@@ -41,48 +41,48 @@
 	\begin{block}{Continuous-in-time dynamic (neural ODE)}
 		\vspace{-0.7cm}
 		\begin{align*}
-		   \frac{d \bz(t)}{dt} &= f_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
-		   \bz(t_1) &= \int^{t_1}_{t_0} f_{\btheta}(\bz(t), t) d t  + \bz_0 \approx \text{ODESolve}(\bz(t_0), f_{\btheta}, t_0,t_1).
+		   \frac{d \bz(t)}{dt} &= \bff_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
+		   \bz(t_1) &= \int^{t_1}_{t_0} \bff_{\btheta}(\bz(t), t) d t  + \bz_0 \approx \text{ODESolve}(\bz(t_0), \bff_{\btheta}, t_0,t_1).
 		\end{align*}
 		\vspace{-0.7cm}
 	\end{block}	
 	\begin{block}{Euler update step}
 		\vspace{-0.6cm}
 		\[
-   \frac{\bz(t + \Delta t) - \bz(t)}{\Delta t} = f_{\btheta}(\bz(t), t) \,\, \Rightarrow \,\, \bz(t + \Delta t) = \bz(t) + \Delta t \cdot f_{\btheta}(\bz(t), t)
+   \frac{\bz(t + \Delta t) - \bz(t)}{\Delta t} = \bff_{\btheta}(\bz(t), t) \,\, \Rightarrow \,\, \bz(t + \Delta t) = \bz(t) + \Delta t \cdot \bff_{\btheta}(\bz(t), t)
 		\]
 		\vspace{-0.7cm}
 	\end{block}	
 	\begin{block}{Theorem (Picard)}
-		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then the ODE has a \textbf{unique} solution.
+		If $\bff$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then the ODE has a \textbf{unique} solution.
 	\end{block}
 		\vspace{-0.7cm}
 		\begin{align*}
-			\bx &= \bz(t_1) = \bz(t_0) + \int_{t_0}^{t_1} f_{\btheta}(\bz(t), t) dt \\
-			\bz &= \bz(t_0) = \bz(t_1) + \int_{t_1}^{t_0} f_{\btheta}(\bz(t), t) dt
+			\bx &= \bz(t_1) = \bz(t_0) + \int_{t_0}^{t_1} \bff_{\btheta}(\bz(t), t) dt \\
+			\bz &= \bz(t_0) = \bz(t_1) + \int_{t_1}^{t_0} \bff_{\btheta}(\bz(t), t) dt
 		\end{align*}
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck: special case)}
-		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
+		If $\bff$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
 		\[
-			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right).
+			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right).
 		\]
 		\[
-			\log p(\bz(t_1), t_1) = \log p(\bz(t_0), t_0) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt.
+			\log p(\bz(t_1), t_1) = \log p(\bz(t_0), t_0) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt.
 		\]
 	\end{block}
 	\vspace{-0.3cm}
 	\begin{itemize}
-		\item \textbf{Discrete-in-time NF}: evaluation of determinant of the Jacobian costs $O(m^3)$ (we need invertible $f$).
-		\item \textbf{Continuous-in-time NF}: getting the trace of the Jacobian costs $O(m^2)$ (we need smooth $f$).
+		\item \textbf{Discrete-in-time NF}: evaluation of determinant of the Jacobian costs $O(m^3)$ (we need invertible $\bff$).
+		\item \textbf{Continuous-in-time NF}: getting the trace of the Jacobian costs $O(m^2)$ (we need smooth $\bff$).
 	\end{itemize}
 	\begin{block}{Hutchinson's trace estimator}
 		\vspace{-0.3cm}
 		\[
-  \log p(\bz(t_1)) = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ {\color{violet}\bepsilon^T \frac{\partial f}{\partial \bz}} \bepsilon \right] dt.
+  \log p(\bz(t_1)) = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ {\color{violet}\bepsilon^T \frac{\partial \bff}{\partial \bz}} \bepsilon \right] dt.
 		\]
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
@@ -99,19 +99,19 @@
 		{\small
 		\begin{minipage}[t]{0.4\columnwidth}
 			\[
-	 			 \frac{d \bz(t)}{dt} = f_{\btheta}(\bz(t), t) 	 
+	 			 \frac{d \bz(t)}{dt} = \bff_{\btheta}(\bz(t), t) 	 
 	 		\]
 	 		\[
-	 			 \bx = \bz + \int_{t_0}^{t_1} f_{\btheta}(\bz(t), t) dt 
+	 			 \bx = \bz + \int_{t_0}^{t_1} \bff_{\btheta}(\bz(t), t) dt 
 			\]
 		\end{minipage}% 
 		\begin{minipage}[t]{0.6\columnwidth}
 			\vspace{-0.4cm}
 			\[
-					\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) 
+					\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) 
 	 		\]
 	 		\[
-					\log p(\bx | \btheta) = \log p(\bz) - \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
+					\log p(\bx | \btheta) = \log p(\bz) - \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
 			\]
 		\end{minipage}
 		}
@@ -122,10 +122,10 @@
 	\begin{block}{Forward pass (Loss function)}
 		\vspace{-0.3cm}
 		\[
-			\bz = \bx + \int_{t_1}^{t_0} f_{\btheta}(\bz(t), t) dt, \quad L(\bz) = - \log p(\bx | \btheta)
+			\bz = \bx + \int_{t_1}^{t_0} \bff_{\btheta}(\bz(t), t) dt, \quad L(\bz) = - \log p(\bx | \btheta)
 		\]
 		\[
-			L(\bz) = - \log p(\bz) + \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
+			L(\bz) = - \log p(\bz) + \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
 		\]
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}     
@@ -145,7 +145,7 @@
 	\begin{block}{Theorem (Pontryagin)}
 		\vspace{-0.6cm}
 		\[
-		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial f_{\btheta}(\bz(t),  t)}{\partial \btheta}.
+		\frac{d \ba_{\bz}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz}; \quad \frac{d \ba_{\btheta}(t)}{dt} = - \ba_{\bz}(t)^T \cdot \frac{\partial \bff_{\btheta}(\bz(t),  t)}{\partial \btheta}.
 		\]
 		\vspace{-0.7cm}
 	\end{block}
@@ -153,8 +153,8 @@
 		\vspace{-0.6cm}
 		{\small
 		\begin{align*}
-			\frac{\partial L}{\partial \btheta(t_1)} &= \ba_{\btheta}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \btheta(t)} dt + 0\\
-			\frac{\partial L}{\partial \bz(t_1)} &= \ba_{\bz}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_0)}\\
+			\frac{\partial L}{\partial \btheta(t_1)} &= \ba_{\btheta}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \btheta(t)} dt + 0\\
+			\frac{\partial L}{\partial \bz(t_1)} &= \ba_{\bz}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_0)}\\
 		\end{align*}
 		}
 		\vspace{-1.3cm}
@@ -167,7 +167,7 @@
 	\begin{block}{Forward pass}
 		\vspace{-0.3cm}
 		\[
-		\bz = \bz(t_0) = \int^{t_1}_{t_0} f_{\btheta}(\bz(t), t) d t  + \bx \quad \Rightarrow \quad \text{ODE Solver}
+		\bz = \bz(t_0) = \int^{t_1}_{t_0} \bff_{\btheta}(\bz(t), t) d t  + \bx \quad \Rightarrow \quad \text{ODE Solver}
 		\]
 		\vspace{-0.4cm}
 	\end{block}
@@ -177,9 +177,9 @@
 			\left.
 			{\footnotesize 
 				\begin{aligned}
-					\frac{\partial L}{\partial \btheta(t_1)} &= \ba_{\btheta}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \btheta(t)} dt + 0 \\
-					\frac{\partial L}{\partial \bz(t_1)} &= \ba_{\bz}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_0)} \\
-					\bz(t_1) &= - \int^{t_0}_{t_1} f_{\btheta}(\bz(t), t) d t  + \bz_0.
+					\frac{\partial L}{\partial \btheta(t_1)} &= \ba_{\btheta}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \btheta(t)} dt + 0 \\
+					\frac{\partial L}{\partial \bz(t_1)} &= \ba_{\bz}(t_1) =  - \int_{t_0}^{t_1} \ba_{\bz}(t)^T \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} dt + \frac{\partial L}{\partial \bz(t_0)} \\
+					\bz(t_1) &= - \int^{t_0}_{t_1} \bff_{\btheta}(\bz(t), t) d t  + \bz_0.
 				\end{aligned}
 			}
 			\right\rbrace
@@ -273,7 +273,7 @@
 			\end{figure}
 			\vspace{-0.5cm}
 			\begin{itemize}
-				\item $p(\bx | z, \btheta) = \cN(\bx | \bmu_z, \bSigma_z)$
+				\item $p(\bx | z, \btheta) = \cN(\bmu_z, \bSigma_z)$
 				\item $p(z) = \text{Categorical}(\bpi)$
 			\end{itemize}
 		\end{minipage}%
@@ -286,8 +286,8 @@
 			\end{figure}
 			\vspace{-0.3cm}
 			\begin{itemize}
-				\item $p(\bx | \bz, \btheta) = \cN(\bx | \bW \bz + \bmu, \sigma^2 \bI)$
-				\item $p(\bz) = \cN(\bz | 0, \bI)$
+				\item $p(\bx | \bz, \btheta) = \cN(\bW \bz + \bmu, \sigma^2 \bI)$
+				\item $p(\bz) = \cN(0, \bI)$
 			\end{itemize}
 		\end{minipage}
 	\end{block}

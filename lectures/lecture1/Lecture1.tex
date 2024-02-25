@@ -150,16 +150,16 @@
 \begin{frame}{Course tricks 1}
 	Let $\bx \in \bbR^m$ be a random variable with a density $p(\bx)$.
 	\begin{block}{Law of the unconscious statistician (LOTUS)}
-		Let $\by=f(\bx)$ with density $p(\by)$. Then
+		Let $\by=\bff(\bx)$ with density $p(\by)$. Then
 		\[
-			\bbE_{p(\by)} g(\by) = \int p_y(\by) g(\by) d \by = \int p_x(\bx) g(f(\bx)) d \bx = \bbE_{p(\bx)} g(f(\bx)).
+			\bbE_{p(\by)} \bg(\by) = \int p(\by) \bg(\by) d \by = \int p(\bx) \bg(\bff(\bx)) d \bx = \bbE_{p(\bx)} \bg(\bff(\bx)).
 		\]
 		\vspace{-0.4cm}
 	\end{block}
 	\begin{block}{Monte-Carlo estimation}
 		Expected value could be estimated using only the samples:
 		\[
-			\bbE_{p(\bx)} f(\bx) = \int p(\bx) f(\bx) d \bx \approx \frac{1}{n} \sum_{i=1}^n f(\bx_i), \quad 
+			\bbE_{p(\bx)} \bff(\bx) = \int p(\bx) \bff(\bx) d \bx \approx \frac{1}{n} \sum_{i=1}^n \bff(\bx_i), \quad 
 			\text{where } \bx_i \sim p(\bx).
 		\]
 		\vspace{-0.4cm}
@@ -173,7 +173,7 @@
 \end{frame}
 %=======
 \begin{frame}{Course tricks 2}
-	Let $\bx \in \bbR^m$ be a random variable with a density $p_x(\bx)$.
+	Let $\bx \in \bbR^m$ be a random variable with a density $p(\bx)$.
 	\begin{block}{Decomposition to conditionals}
 	\vspace{-0.5cm}
 	\[
@@ -197,7 +197,7 @@
 				0, \quad \bx \neq 0;
 			\end{cases} \, 
 			\int \delta(\bx) d\bx = 1; \,\, 
-			\int f(\bx) \delta (\bx - \bx_0) dx = f(\bx_0).
+			\int \delta (\bx - \bx_0) \bff(\bx) dx = \bff(\bx_0).
 		\]
 		We could treat any deterministic variable $\bx_0$ as a random variable with density $p(\bx) = \delta(\bx - \bx_0)$.
 	\end{block}

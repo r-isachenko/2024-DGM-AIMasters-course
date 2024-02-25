@@ -14,9 +14,9 @@
 %=======
 \begin{frame}{Recap of previous lecture}
 	\begin{block}{Jacobian matrix}
-		Let $f: \mathbb{R}^m \rightarrow \mathbb{R}^m$ be a differentiable function.
+		Let $\bff: \mathbb{R}^m \rightarrow \mathbb{R}^m$ be a differentiable function.
 		\[
-		\bz = f(\bx), \quad 
+		\bz = \bff(\bx), \quad 
 		\bJ =  \frac{\partial \bz}{\partial \bx} =
 		\begin{pmatrix}
 			\frac{\partial z_1}{\partial x_1} & \dots & \frac{\partial z_1}{\partial x_m} \\
@@ -27,10 +27,10 @@
 		\vspace{-0.3cm}
 	\end{block}
 	\begin{block}{Change of variable theorem (CoV)}
-		Let $\bx$ be a random variable with density function $p(\bx)$ and $f: \mathbb{R}^m \rightarrow \mathbb{R}^m$ is a differentiable, invertible function. If $\bz = f(\bx)$, $\bx = f^{-1}(\bz) = g(\bz)$, then
+		Let $\bx$ be a random variable with density function $p(\bx)$ and $\bff: \mathbb{R}^m \rightarrow \mathbb{R}^m$ is a differentiable, invertible function. If $\bz = \bff(\bx)$, $\bx = \bff^{-1}(\bz) = \bg(\bz)$, then
 		\begin{align*}
-			p(\bx) &= p(\bz) |\det(\bJ_f)| = p(\bz) \left|\det \left(  \frac{\partial \bz}{\partial \bx} \right) \right| = p(f(\bx)) \left|\det \left(  \frac{\partial f(\bx)}{\partial \bx} \right) \right| \\
-			p(\bz) &= p(\bx) |\det(\bJ_g)|= p(\bx) \left|\det \left(  \frac{\partial \bx}{\partial \bz} \right) \right| = p(g(\bz)) \left|\det \left(  \frac{\partial g(\bz)}{\partial \bz} \right) \right|.
+			p(\bx) &= p(\bz) |\det(\bJ_\bff)| = p(\bz) \left|\det \left(  \frac{\partial \bz}{\partial \bx} \right) \right| = p(\bff(\bx)) \left|\det \left(  \frac{\partial \bff(\bx)}{\partial \bx} \right) \right| \\
+			p(\bz) &= p(\bx) |\det(\bJ_\bg)|= p(\bx) \left|\det \left(  \frac{\partial \bx}{\partial \bz} \right) \right| = p(\bg(\bz)) \left|\det \left(  \frac{\partial \bg(\bz)}{\partial \bz} \right) \right|.
 		\end{align*}
 		\vspace{-0.5cm}
 	\end{block}
@@ -48,7 +48,7 @@
 	\begin{block}{Log likelihood}
 		\vspace{-0.5cm}
 		\[
-			\log p(\bx | \btheta) = \log p(f_K \circ \dots \circ f_1(\bx)) + \sum_{k=1}^K\log |\det (\bJ_{f_k})|
+			\log p(\bx | \btheta) = \log p(\bff_K \circ \dots \circ \bff_1(\bx)) + \sum_{k=1}^K\log |\det (\bJ_{\bff_k})|
 		\]
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1605.08803}{Dinh L., Sohl-Dickstein J., Bengio S. Density estimation using Real NVP, 2016} 
@@ -58,14 +58,14 @@
 	\begin{block}{Forward KL for flow model}
 	  	\vspace{-0.1cm}
 		\[
-			\log p(\bx|\btheta) = \log p(f_{\btheta}(\bx)) + \log  |\det (\bJ_f)|
+			\log p(\bx|\btheta) = \log p(\bff_{\btheta}(\bx)) + \log  |\det (\bJ_\bff)|
 		\]
 		\vspace{-0.3cm}
 	\end{block}
 	\begin{block}{Reverse KL for flow model}
   		\vspace{-0.1cm}
 		\[
-			KL(p || \pi)  = \bbE_{p(\bz)} \left[  \log p(\bz) -  \log |\det (\bJ_g)| - \log \pi(g_{\btheta}(\bz)) \right]
+			KL(p || \pi)  = \bbE_{p(\bz)} \left[  \log p(\bz) -  \log |\det (\bJ_\bg)| - \log \pi(\bg_{\btheta}(\bz)) \right]
 		\]
 		\vspace{-0.5cm}
 	\end{block}
@@ -77,8 +77,8 @@
 		\vspace{-0.3cm}
 		\begin{itemize}
 			\item $p(\bz)$ is a base distribution; $\pi(\bx)$ is a data distribution;
-			\item $\bz \sim p(\bz)$, $\bx = g_{\btheta}(\bz)$, $\bx \sim p(\bx| \btheta)$;
-			\item $\bx \sim \pi(\bx)$, $\bz = f_{\btheta}(\bx)$, $\bz \sim p(\bz | \btheta)$.
+			\item $\bz \sim p(\bz)$, $\bx = \bg_{\btheta}(\bz)$, $\bx \sim p(\bx| \btheta)$;
+			\item $\bx \sim \pi(\bx)$, $\bz = \bff_{\btheta}(\bx)$, $\bz \sim p(\bz | \btheta)$.
 		\end{itemize}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1912.02762}{Papamakarios G. et al. Normalizing flows for probabilistic modeling and inference, 2019} 
@@ -89,7 +89,7 @@
 	\begin{block}{Flow log-likelihood}
 		\vspace{-0.3cm}
 		\[
-			\log p(\bx|\btheta) = \log p(f_{\btheta}(\bx)) + \log  |\det (\bJ_f)|
+			\log p(\bx|\btheta) = \log p(\bff_{\btheta}(\bx)) + \log  |\det (\bJ_\bff)|
 		\]
 		\vspace{-0.5cm}
 	\end{block}
@@ -97,7 +97,7 @@
 	\begin{block}{Linear flows}	
 		\vspace{-0.2cm}
 		\[
-			\bz = f_{\btheta}(\bx) = \bW \bx, \quad \bW \in \bbR^{m \times m}, \quad \btheta = \bW, \quad \bJ_f = \bW^T
+			\bz = \bff_{\btheta}(\bx) = \bW \bx, \quad \bW \in \bbR^{m \times m}, \quad \btheta = \bW, \quad \bJ_\bff = \bW^T
 		\]
 	\end{block}
 	\vspace{-0.3cm}
@@ -130,8 +130,8 @@
 	\begin{block}{Gaussian autoregressive NF}
 		\vspace{-0.5cm}
 		\begin{align*}
-			\bx &= g_{\btheta}(\bz) \quad \Rightarrow \quad {\color{violet} x_j} = \sigma_j ({\color{violet} \bx_{1:j-1}}) \cdot {\color{teal} z_j} + \mu_j({\color{violet} \bx_{1:j-1}}). \\
-			\bz &= f_{\btheta}(\bx) \quad \Rightarrow \quad {\color{teal} z_j} = \left({\color{violet}x_j} - \mu_j({\color{violet}\bx_{1:j-1}}) \right) \cdot \frac{1}{ \sigma_j ({\color{violet}\bx_{1:j-1}})}.
+			\bx &= \bg_{\btheta}(\bz) \quad \Rightarrow \quad {\color{violet} x_j} = \sigma_j ({\color{violet} \bx_{1:j-1}}) \cdot {\color{teal} z_j} + \mu_j({\color{violet} \bx_{1:j-1}}). \\
+			\bz &= \bff_{\btheta}(\bx) \quad \Rightarrow \quad {\color{teal} z_j} = \left({\color{violet}x_j} - \mu_j({\color{violet}\bx_{1:j-1}}) \right) \cdot \frac{1}{ \sigma_j ({\color{violet}\bx_{1:j-1}})}.
 		\end{align*}
 		\vspace{-0.5cm}
 	\end{block}
@@ -139,7 +139,7 @@
 		\item We have an \textbf{invertible} and \textbf{differentiable} transformation from $p(\bz)$ to $p(\bx | \btheta)$.
 		\item Jacobian of such transformation is triangular!
 	\end{itemize}
-	Generation function $g_{\btheta}(\bz)$ is \textbf{sequential}. \\ Inference function $f_{\btheta}(\bx)$ is \textbf{not sequential}.
+	Generation function $\bg_{\btheta}(\bz)$ is \textbf{sequential}. \\ Inference function $\bff_{\btheta}(\bx)$ is \textbf{not sequential}.
 	
 	\myfootnotewithlink{https://arxiv.org/abs/1705.07057}{Papamakarios G., Pavlakou T., Murray I. Masked Autoregressive Flow for Density Estimation, 2017} 
 \end{frame}
@@ -207,8 +207,8 @@
 	\begin{block}{Gaussian AR NF}
 		\vspace{-0.6cm}
 		\begin{align*}
-			\bx &= g_{\btheta}(\bz) \quad \Rightarrow \quad {\color{violet}x_j} = \sigma_j ({\color{violet}\bx_{1:j-1}}) \cdot {\color{teal} z_j} + \mu_j({\color{violet}\bx_{1:j-1}}). \\
-			\bz &= f_{\btheta}(\bx) \quad \Rightarrow \quad {\color{teal} z_j} = \left({\color{violet} x_j} - \mu_j({\color{violet}\bx_{1:j-1}}) \right) \cdot \frac{1}{\sigma_j ({\color{violet} \bx_{1:j-1}}) }.
+			\bx &= \bg_{\btheta}(\bz) \quad \Rightarrow \quad {\color{violet}x_j} = \sigma_j ({\color{violet}\bx_{1:j-1}}) \cdot {\color{teal} z_j} + \mu_j({\color{violet}\bx_{1:j-1}}). \\
+			\bz &= \bff_{\btheta}(\bx) \quad \Rightarrow \quad {\color{teal} z_j} = \left({\color{violet} x_j} - \mu_j({\color{violet}\bx_{1:j-1}}) \right) \cdot \frac{1}{\sigma_j ({\color{violet} \bx_{1:j-1}}) }.
 		\end{align*}
 		\vspace{-0.5cm}
 	\end{block}
@@ -248,7 +248,7 @@
 		Previously we assume that the time axis is discrete:
 		\vspace{-0.3cm}
 		  \[
-			  \bz_{t+1} = f_{\btheta}(\bz_t); \quad \log p(\bz_{t+1}) = \log p(\bz_{t}) - \log \left| \det \frac{\partial f_{\btheta}(\bz_t)}{\partial \bz_{t}} \right| .
+			  \bz_{t+1} = \bff_{\btheta}(\bz_t); \quad \log p(\bz_{t+1}) = \log p(\bz_{t}) - \log \left| \det \frac{\partial \bff_{\btheta}(\bz_t)}{\partial \bz_{t}} \right| .
 		  \]
 		\vspace{-0.6cm}
 	\end{block}
@@ -257,12 +257,12 @@
 		Consider Ordinary Differential Equation (ODE)
 		\vspace{-0.3cm}
 		\begin{align*}
-		   \frac{d \bz(t)}{dt} &= f_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
-		   \bz(t_1) &= \int^{t_1}_{t_0} f_{\btheta}(\bz(t), t) d t  + \bz_0 \approx \text{ODESolve}(\bz(t_0), f_{\btheta}, t_0,t_1).
+		   \frac{d \bz(t)}{dt} &= \bff_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0. \\
+		   \bz(t_1) &= \int^{t_1}_{t_0} \bff_{\btheta}(\bz(t), t) d t  + \bz_0 \approx \text{ODESolve}(\bz(t_0), \bff_{\btheta}, t_0,t_1).
 		\end{align*}
 		\vspace{-0.6cm}
 	\end{block}
-	Here we need to define the computational procedure $\text{ODESolve}(\bz(t_0), f_{\btheta}, t_0,t_1)$.
+	Here we need to define the computational procedure $\text{ODESolve}(\bz(t_0), \bff_{\btheta}, t_0,t_1)$.
 	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018}  
 \end{frame}
 %=======
@@ -270,7 +270,7 @@
 	\begin{block}{Euler update step}
 		\vspace{-0.5cm}
 		\[
-		    \frac{\bz(t + \Delta t) - \bz(t)}{\Delta t} = f_{\btheta}(\bz(t), t) \,\, \Rightarrow \,\, \bz(t + \Delta t) = \bz(t) + \Delta t \cdot f_{\btheta}(\bz(t), t)
+		    \frac{\bz(t + \Delta t) - \bz(t)}{\Delta t} = \bff_{\btheta}(\bz(t), t) \,\, \Rightarrow \,\, \bz(t + \Delta t) = \bz(t) + \Delta t \cdot \bff_{\btheta}(\bz(t), t)
 		\]
 		\vspace{-0.5cm}
 	\end{block}
@@ -298,7 +298,7 @@
 	\begin{block}{Neural ODE}
 		\vspace{-0.5cm}
 		\begin{align*}
-  \frac{d \bz(t)}{dt} &= f_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0
+  \frac{d \bz(t)}{dt} &= \bff_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0
 		\end{align*}
 		\vspace{-0.8cm}
 	\end{block}
@@ -322,18 +322,18 @@
 \begin{frame}{Continuous-in-time Normalizing Flows}
 	Let say that $p(\bz, t_0)$ is the base distribution (e.x. standard Normal) and $p(\bz, t_1)$ is the desired model distribution $p(\bx | \btheta)$.
 	\begin{block}{Theorem (Picard)}
-		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then the ODE has a \textbf{unique} solution.
+		If $\bff$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then the ODE has a \textbf{unique} solution.
 	\end{block}
 	It means that we are able \textbf{uniquely revert} our ODE. 
 	\begin{block}{Forward and inverse transforms}
 		\vspace{-0.7cm}
 		\begin{align*}
-			\bx &= \bz(t_1) = \bz(t_0) + \int_{t_0}^{t_1} f_{\btheta}(\bz(t), t) dt \\
-			\bz &= \bz(t_0) = \bz(t_1) + \int_{t_1}^{t_0} f_{\btheta}(\bz(t), t) dt
+			\bx &= \bz(t_1) = \bz(t_0) + \int_{t_0}^{t_1} \bff_{\btheta}(\bz(t), t) dt \\
+			\bz &= \bz(t_0) = \bz(t_1) + \int_{t_1}^{t_0} \bff_{\btheta}(\bz(t), t) dt
 		\end{align*}
 		\vspace{-0.7cm}
 	\end{block}
-	\textbf{Note:} Unlike discrete-in-time NF, $f$ does not need to be bijective (uniqueness guarantees bijectivity).
+	\textbf{Note:} Unlike discrete-in-time NF, $\bff$ does not need to be bijective (uniqueness guarantees bijectivity).
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
 %=======
@@ -341,17 +341,17 @@
 	\begin{block}{What do we need?}
 		\begin{itemize}
 			\item We need the way to compute $p(\bz, t)$ at any moment $t$.
-			\item We need the way to find the optimal parameters $\btheta$ of the dynamic $f_{\btheta}$.
+			\item We need the way to find the optimal parameters $\btheta$ of the dynamic $\bff_{\btheta}$.
 		\end{itemize}
 	\end{block}
 	\vspace{-0.3cm}
 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck: special case)}
-		If $f$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
+		If $\bff$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
 		\[
-			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right).
+			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right).
 		\]
 		\[
-			\log p(\bz(t_1), t_1) = \log p(\bz(t_0), t_0) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt.
+			\log p(\bz(t_1), t_1) = \log p(\bz(t_0), t_0) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt.
 		\]
 	\end{block}
 	It means that if we have the value $\bz_0 = \bz(t_0)$ then the solution of the ODE will give us the density at the moment $t_1$.
@@ -362,17 +362,17 @@
 	\begin{block}{Forward transform + log-density}
 		\vspace{-0.7cm}
 		\begin{align*}
-				\bx &= \bz + \int_{t_0}^{t_1} f_{\btheta}(\bz(t), t) dt \\
-				\log p(\bx | \btheta) &= \log p(\bz) - \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
+				\bx &= \bz + \int_{t_0}^{t_1} \bff_{\btheta}(\bz(t), t) dt \\
+				\log p(\bx | \btheta) &= \log p(\bz) - \int_{t_0}^{t_1} \text{tr} \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt
 		\end{align*}
 		Here $p(\bx | \btheta) = p(\bz(t_1), t_1)$, $p(\bz) = p(\bz(t_0), t_0)$.
 	\end{block}
 	\begin{itemize}
-		\item \textbf{Discrete-in-time NF}: evaluation of determinant of the Jacobian costs $O(m^3)$ (we need invertible $f$).
-		\item \textbf{Continuous-in-time NF}: getting the trace of the Jacobian costs $O(m^2)$ (we need smooth $f$).
+		\item \textbf{Discrete-in-time NF}: evaluation of determinant of the Jacobian costs $O(m^3)$ (we need invertible $\bff$).
+		\item \textbf{Continuous-in-time NF}: getting the trace of the Jacobian costs $O(m^2)$ (we need smooth $\bff$).
 	\end{itemize}
 	\begin{block}{Why $O(m^2)$?}
-		$\text{tr} \left( \frac{\partial f_{\btheta}(\bz(t))}{\partial \bz(t)} \right)$ costs $O(m^2)$ ($m$ evaluations of $f$), since we have to compute a derivative for each diagonal element. It is possible to reduce cost from $O(m^2)$ to $O(m)$!
+		$\text{tr} \left( \frac{\partial \bff_{\btheta}(\bz(t))}{\partial \bz(t)} \right)$ costs $O(m^2)$ ($m$ evaluations of $\bff$), since we have to compute a derivative for each diagonal element. It is possible to reduce cost from $O(m^2)$ to $O(m)$!
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
 \end{frame}
@@ -387,11 +387,11 @@
 		\end{multline*}
 		\vspace{-0.6 cm}
 	\end{block}
-	Jacobian vector products ${\color{violet}\bv^T \frac{\partial f}{\partial \bz}}$ can be computed for approximately the same cost as evaluating $f$ (\texttt{torch.autograd.functional.jvp}).
+	Jacobian vector products ${\color{violet}\bv^T \frac{\partial f}{\partial \bz}}$ can be computed for approximately the same cost as evaluating $\bff$ (\texttt{torch.autograd.functional.jvp}).
 	\begin{block}{FFJORD density estimation}
 		\vspace{-0.8cm}
 		\begin{multline*}
-		    \log p(\bz(t_1)) = \log p(\bz(t_0)) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial f_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt = \\ = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ {\color{violet}\bepsilon^T \frac{\partial f}{\partial \bz}} \bepsilon \right] dt.
+		    \log p(\bz(t_1)) = \log p(\bz(t_0)) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt = \\ = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ {\color{violet}\bepsilon^T \frac{\partial \bff}{\partial \bz}} \bepsilon \right] dt.
 		\end{multline*}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
