@@ -12,29 +12,6 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	\begin{table}[]
-		\begin{tabular}{l|c|c}
-			& \textbf{VAE} & \textbf{NF} \\ \hline
-			\textbf{Objective} & ELBO $\cL$ & Forward KL/MLE \\ \hline
-			\textbf{Encoder} & \shortstack{stochastic \\ $\bz \sim q (\bz | \bx, \bphi)$} &  \shortstack{\\ deterministic \\ $\bz = \bff_{\btheta}(\bx)$ \\ $q(\bz | \bx, \btheta) = \delta(\bz - \bff_{\btheta}(\bx))$}  \\ \hline
-			\textbf{Decoder} & \shortstack{stochastic \\ $\bx \sim p (\bx | \bz, \btheta)$} & \shortstack{\\ deterministic \\ $\bx = \bg_{\btheta}(\bz)$ \\ $ p(\bx | \bz, \btheta) = \delta(\bx - \bg_{\btheta}(\bz))$} \\ \hline
-			\textbf{Parameters}  & $\bphi, \btheta$ & $\btheta \equiv \bphi$\\ 
-		\end{tabular}
-	\end{table}
-	\begin{block}{Theorem}
-		MLE for normalizing flow is equivalent to maximization of ELBO for VAE model with deterministic encoder and decoder:
-		\vspace{-0.3cm}
-		\[
-		p(\bx | \bz, \btheta) = \delta (\bx - \bff^{-1}(\bz, \btheta)) = \delta (\bx - \bg_{\btheta}(\bz));
-		\]
-		\[
-		q(\bz | \bx, \btheta) = p(\bz | \bx, \btheta) = \delta (\bz - \bff_{\btheta}(\bx)).
-		\]
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
-\end{frame}
-%=======
-\begin{frame}{Recap of previous lecture}
 	\begin{block}{Theorem}
 		\vspace{-0.3cm}
 		\[
