@@ -33,10 +33,10 @@ The course is accompanied by practical tasks that allow you to understand the pr
 |  |  | <b>Seminar 3: TBA. |  |
 | 4 | February, 28 | <b>Lecture 4:</b> Adjoint method for continuous-in-time NF. Latent Variable Models (LVM). Variational lower bound (ELBO). | [slides](lectures/lecture4/Lecture4.pdf) |
 |  |  | <b>Seminar 4:</b> TBA. |  |
-| 5 | March, 6 | <b>Lecture 5:</b> Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). Discrete data vs continuous model. Uniform data dequantization.| [slides](lectures/lecture5/Lecture5.pdf) |
+| 5 | March, 6 | <b>Lecture 5:</b> Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). Uniform data dequantization. NF as VAE model. | [slides](lectures/lecture5/Lecture5.pdf) |
 |  |  | <b>Seminar 5:</b> TBA. |  |
 <!---
-| 6 | March, 13 | <b>Lecture 6:</b>  NF as VAE model. ELBO surgery and optimal VAE prior. NF-based VAE prior. Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). |  |
+| 6 | March, 13 | <b>Lecture 6:</b> ELBO surgery and optimal VAE prior. NF-based VAE prior. Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). |  |
 |  |  | <b>Seminar 6:</b> Planar Flow (coding), RealNVP. |  |
 | 7 | March, 20 | <b>Lecture 7:</b> Gumbel-softmax trick (DALL-E). Likelihood-free learning. GAN optimality theorem.  |  |
 |  |  | <b>Seminar 7:</b> Glow. |  |
