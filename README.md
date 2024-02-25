@@ -30,7 +30,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 2 | February, 14 | <b>Lecture 2:</b> Normalizing Flow (NF) intuition and definition. Forward and reverse KL divergence for NF. Linear NF. Gaussian autoregressive NF. | [slides](lectures/lecture2/Lecture2.pdf) |
 |  |  | <b>Seminar 2:</b> PixelCNN. |  |
 | 3 | February, 21 | <b>Lecture 3:</b> Coupling layer (RealNVP). Continuous-in-time NF and neural ODE. Kolmogorov-Fokker-Planck equation for NF log-likelihood. FFJORD and Hutchinson's trace estimator. | [slides](lectures/lecture3/Lecture3.pdf) |
-|  |  | <b>Seminar 3: Planar and Radial Flows. Forward vs Reverse KL. |  |
+|  |  | <b>Seminar 3:</b> Planar and Radial Flows. Forward vs Reverse KL. |  |
 | 4 | February, 28 | <b>Lecture 4:</b> Adjoint method for continuous-in-time NF. Latent Variable Models (LVM). Variational lower bound (ELBO). | [slides](lectures/lecture4/Lecture4.pdf) |
 |  |  | <b>Seminar 4:</b> RealNVP. Glow. |  |
 | 5 | March, 6 | <b>Lecture 5:</b> Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). Uniform data dequantization. NF as VAE model. | [slides](lectures/lecture5/Lecture5.pdf) |
