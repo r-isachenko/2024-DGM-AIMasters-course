@@ -60,8 +60,8 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | Homework | Date | Deadline | Description | Link |
 |---------|------|-------------|--------|-------|
 | 1 | February, 14 | February, 28 | <ol><li>Theory (Kernel density estimation, alpha-divergences, curse of dimensionality).</li><li>PixelCNN (receptive field, autocomplete) on MNIST.</li><li>ImageGPT on MNIST.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw1.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2024-DGM-AIMasters-course/blob/main/homeworks/hw1.ipynb) |
-<!---
 | 2 | February, 28 | March, 13 | <ol><li>Theory (Sylvester flows, NF expressivity, Neural ODE Pontryagin theorem).</li><li>RealNVP on 2D data.</li><li>RealNVP on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw2.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2024-DGM-AIMasters-course/blob/main/homeworks/hw2.ipynb) |
+<!---
 | 3 | March, 13 | March, 27 |  |  |
 | 4 | March, 27 | April, 10 |  |  |
 | 5 | April, 10 | April, 24 |  |  |
