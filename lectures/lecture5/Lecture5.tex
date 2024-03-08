@@ -571,76 +571,6 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
 \end{frame}
 %=======
-\section{Data dequantization}
-%=======
-\begin{frame}{Discrete data vs continuous model}
-	Let our data $\by$ comes from discrete distribution $\Pi(\by)$ and we have continuous model $p(\bx | \btheta) = \text{NN}(\bx, \btheta)$.
-	\begin{itemize}
-		\item Images {\color{gray}(and not only images)} are discrete data, pixels lie in the integer domain (\{0, 255\}). 
-		\item By fitting a continuous density model $p(\bx | \btheta)$ to discrete data $\Pi(\by)$, one can produce a degenerate solution with all probability mass on discrete values. 
-	\end{itemize}
-	\begin{block}{Discrete model}
-		\begin{itemize}
-			\item Use \textbf{discrete} model (e.x. $P(\by | \btheta) = \text{Cat}(\bpi(\btheta))$). 
-			\item Minimize any suitable divergence measure $D(\Pi, P)$.
-			\item NF works only with continuous data $\bx$ (there are discrete NF, see papers below).
-			\item If pixel value is not presented in the train data, it won't be predicted.		
-		\end{itemize}
-	\end{block}
-	\myfootnote{\href{https://arxiv.org/abs/1905.07376}{Hoogeboom E. et al. Integer discrete flows and lossless compression, 2019} \\
-		\href{https://arxiv.org/abs/1905.10347}{Tran D. et al. Discrete flows: Invertible generative models of discrete data, 2019}}
-\end{frame}
-%=======
-\begin{frame}{Discrete data vs continuous model}
-	\begin{block}{Continuous model}
-		\begin{itemize}
-			\item Use \textbf{continuous} model (e.x. $p(\bx | \btheta) = \cN(\bmu_{\btheta}(\bx), \bsigma_{\btheta}^2(\bx))$), but
-			\begin{itemize}
-				\item \textbf{discretize} model (make the model outputs discrete): transform $p(\bx | \btheta)$ to $P(\by | \btheta)$;
-				\item \textbf{dequantize} data (make the data continuous): transform $\Pi(\by)$ to $\pi(\bx)$.
-			\end{itemize}
-			\item Continuous distribution knows numerical relationships.
-		\end{itemize}
-	\end{block}
-	\begin{block}{CIFAR-10 pixel values distribution}
-		\begin{figure}
-			\includegraphics[width=0.6\linewidth,height=0.2\linewidth]{figs/CIFAR_pixel_distr}
-		\end{figure}
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/1701.05517}{Salimans T. et al. PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications, 2017}
-\end{frame}
-%=======
-\begin{frame}{Uniform dequantization}
-	Let dequantize discrete distribution $\Pi(\by)$ to continuous distribution $\pi(\bx)$ in the following way: $\bx = \by + \bu$, where  $\bu \sim U[0, 1]$.
-	\begin{minipage}{0.7\linewidth}	
-		\begin{block}{Theorem}
-			Fitting continuous model $p(\bx | \btheta)$ on uniformly dequantized data is equivalent to maximization of a lower bound on log-likelihood for a discrete model:
-			\vspace{-0.2cm}
-			\[
-			P(\by | \btheta) = \int_{U[0, 1]} p(\by + \bu | \btheta) d \bu
-			\]
-			\vspace{-0.5cm} 
-		\end{block}
-	\end{minipage}%
-	\begin{minipage}{0.3\linewidth}
-		\begin{figure}
-			\centering
-			\includegraphics[width=\linewidth,height=0.8\linewidth]{figs/uniform_dequantization.png}
-		\end{figure}
-	\end{minipage}
-
-	\begin{block}{Proof}
-		\vspace{-0.8cm}
-		{\small
-		\begin{multline*}
-			\bbE_{\pi} \log p(\bx | \btheta) = \int \pi(\bx) \log p(\bx | \btheta) d \bx = \sum \Pi(\by) \int_{U[0,1]} \log p(\by + \bu | \btheta) d \bu \leq \\
-			\leq \sum \Pi(\by) \log \int_{U[0,1]}  p(\by + \bu | \btheta) d \bu = \\ = \sum \Pi(\by) \log P(\by | \btheta) = \bbE_{\Pi} \log P(\by | \btheta).
-		\end{multline*}
-		}
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/1511.01844}{Theis L., Oord A., Bethge M. A note on the evaluation of generative models. 2015}
-\end{frame}
-%=======
 \begin{frame}{Summary}
 	\begin{itemize}
 		\item The general variational EM algorithm maximizes ELBO objective for LVM model to find MLE for parameters $\btheta$.	
@@ -652,8 +582,6 @@
 		\item The VAE model is an LVM with two neural network: stochastic encoder $q(\bz | \bx, \bphi)$ and stochastic decoder $p(\bx | \bz, \btheta)$.
 		\vfill
 		\item NF models could be treated as VAE model with deterministic encoder and decoder.
-		\vfill
-		\item Uniform dequantization helps to make discrete data continuous. It gives us lower bound on the log-likelihood.
 	\end{itemize}
 \end{frame}
 %=======

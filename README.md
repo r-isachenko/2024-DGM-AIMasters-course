@@ -33,12 +33,12 @@ The course is accompanied by practical tasks that allow you to understand the pr
 |  |  | <b>Seminar 3:</b> Planar and Radial Flows. Forward vs Reverse KL. | [slides](seminars/seminar3/seminar3.ipynb) |
 | 4 | February, 28 | <b>Lecture 4:</b> Adjoint method for continuous-in-time NF. Latent Variable Models (LVM). Variational lower bound (ELBO). | [slides](lectures/lecture4/Lecture4.pdf) |
 |  |  | <b>Seminar 4:</b> RealNVP. | [slides](seminars/seminar4/real_nvp_notes.ipynb) |
-| 5 | March, 6 | <b>Lecture 5:</b> Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). Uniform data dequantization. NF as VAE model. | [slides](lectures/lecture5/Lecture5.pdf) |
+| 5 | March, 6 | <b>Lecture 5:</b> Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). NF as VAE model. | [slides](lectures/lecture5/Lecture5.pdf) |
 |  |  | <b>Seminar 5:</b> Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm. Variational EM algorithm for GMM. | [slides](seminars/seminar5/seminar5.ipynb) |
+| 6 | March, 13 | <b>Lecture 6:</b> Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). ELBO surgery and optimal VAE prior. NF-based VAE prior. | [slides](lectures/lecture6/Lecture6.pdf) |
+|  |  | <b>Seminar 6:</b> TBA. |  |
 <!---
-| 6 | March, 13 | <b>Lecture 6:</b> ELBO surgery and optimal VAE prior. NF-based VAE prior. Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). |  |
-|  |  | <b>Seminar 6:</b> Planar Flow (coding), RealNVP. |  |
-| 7 | March, 20 | <b>Lecture 7:</b> Gumbel-softmax trick (DALL-E). Likelihood-free learning. GAN optimality theorem.  |  |
+| 7 | March, 20 | <b>Lecture 7:</b> Likelihood-free learning. GAN optimality theorem.  |  |
 |  |  | <b>Seminar 7:</b> Glow. |  |
 | 8 | March, 27 | <b>Lecture 8:</b> Wasserstein distance. Wasserstein GAN (WGAN). WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). |  |
 |  |  | <b>Seminar 8:</b> Vanilla GAN in 1D coding. KL vs JS divergences. Mode collapse. Non-saturating GAN. |  |
