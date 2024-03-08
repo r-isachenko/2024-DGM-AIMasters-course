@@ -229,18 +229,15 @@
 \end{frame}
 %=======
 \begin{frame}{Vector quantization}
+	Define the dictionary space $\{\be_k\}_{k=1}^K$, where $\be_k \in \bbR^C$, $K$ is the size of the dictionary.
 	\begin{block}{Quantized representation}
-		$\bz_q \in \bbR^{C}$  for $\bz \in \bbR^C$ is defined by a nearest neighbor look-up using the shared dictionary space
+		$\bz_q \in \bbR^{C}$  for $\bz \in \bbR^C$ is defined by a nearest neighbor look-up using the  dictionary space
 		\vspace{-0.3cm}
 		\[
-		\bz_q = \be_{k^*}, \quad \text{where } k^* = \argmin_k \| \bz - \be_k \|.
+		\bz_q = \bq (\bz) = \be_{k^*}, \quad \text{where } k^* = \argmin_k \| \bz - \be_k \|.
 		\] 
 		\vspace{-0.7cm}
 	\end{block}
-	\begin{itemize}
-		\item Let our encoder outputs continuous representation $\bz$. 
-		\item Quantization will give us the discrete distribution $q(c | \bx, \bphi)$.
-	\end{itemize}
 	\vspace{-0.2cm}
 	\begin{block}{Quantization procedure}
 		If we have tensor with the spatial dimensions we apply the quantization for each of $W \times H$ locations.
@@ -259,26 +256,28 @@
 \end{frame}
 %=======
 \begin{frame}{Vector Quantized VAE (VQ-VAE)}
-	Let VAE latent variable $\bc \in \{1, \dots, K\}^{W \times H}$ is the discrete with spatial-independent variational posterior and prior distributions  
-	\vspace{-0.3cm}
-	\[
-	q(\bc | \bx, \bphi) = \prod_{i=1}^W \prod_{j=1}^H q(c_{ij} | \bx, \bphi); \quad p(\bc) = \prod_{i=1}^W \prod_{j=1}^H \text{Uniform}\{1, \dots, K\}.
-	\]
-	Let $\bz_e = \text{NN}_{e, \bphi}(\bx) \in \bbR^{W \times H \times C}$ is the encoder output.
+	\begin{itemize}
+		\item Let our encoder outputs continuous representation $\bz_e = \text{NN}_{e, \bphi}(\bx) \in \bbR^{C}$.
+		\item Quantization will give us the deterministic mapping from the encoder output $\bz_e$ to its quantized representation $\bz_q$.
+		\item Let use the dictionary elements $\be_c$ in the generative distribution $p(\bx | \be_c, \btheta)$ (decoder).
+	\end{itemize}
 	\begin{block}{Deterministic variational posterior}
-		\vspace{-0.6cm}
+		\vspace{-0.3cm}
 		\[
-		q(c_{ij} = k^* | \bx, \bphi) = \begin{cases}
-			1 , \quad \text{for } k^* = \argmin_k \| [\bz_e]_{ij} - \be_k \|; \\
-			0, \quad \text{otherwise}.
+			q(c = k^* | \bx, \bphi) = \begin{cases}
+				1 , \quad \text{for } k^* = \argmin_k \| \bz_e - \be_k \|; \\
+				0, \quad \text{otherwise}.
 		\end{cases}
 		\]
-		$KL(q(c| \bx, \bphi) || p(c))$ term in ELBO is constant, entropy of the posterior is zero.
 		\[
-		KL(q(c | \bx, \bphi) || p(c)) = - H(q(c | \bx, \bphi)) + \log K = \log K. 
+			KL(q(c | \bx, \bphi) || p(c)) = - \underbrace{H(q(c | \bx, \bphi))}_{=0} + \log K = \log K. 
 		\]
-	\end{block}
-	
+	\end{block}	
+	\vspace{-0.4cm}
+	Generalization to the spatial dimension: $\bc \in \{1, \dots, K\}^{W \times H}$
+	\[
+		q(\bc | \bx, \bphi) = \prod_{i=1}^W \prod_{j=1}^H q(c_{ij} | \bx, \bphi); \quad p(\bc) = \prod_{i=1}^W \prod_{j=1}^H \text{Uniform}\{1, \dots, K\}.
+	\]
 	\myfootnotewithlink{https://arxiv.org/abs/1711.00937}{Oord A., Vinyals O., Kavukcuoglu K. Neural Discrete Representation Learning, 2017} 
 \end{frame}
 %=======
