@@ -146,6 +146,10 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2007.02731}{Nielsen D., et al. SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows, 2020}
 \end{frame}
 %=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
 \section{Discrete VAE latent representations}
 %=======
 \begin{frame}{Discrete VAE latents}
@@ -216,17 +220,6 @@
 \end{frame}
 %=======
 \subsection{Vector quantization}
-%=======
-\begin{frame}{Discrete VAE latents}
-	\begin{block}{How to implement this model?}
-		\begin{itemize}
-			\item Variational posterior $q(c | \bx, \bphi) = \text{Categorical}(\bpi_{\bphi}(\bx))$ (encoder) outputs discrete probabilities vector.
-			\item We sample $c^*$ from $q(c | \bx, \bphi)$ (reparametrization trick analogue).
-			\item Define the dictionary space $\{\be_k\}_{k=1}^K$, where $\be_k \in \bbR^C$, $K$ is the size of the dictionary.
-			\item We use $\be_{c^*}$ in the generative distribution $p(\bx | \be_{c^*}, \btheta)$ (decoder).
-		\end{itemize}
-	\end{block}
-\end{frame}
 %=======
 \begin{frame}{Vector quantization}
 	Define the dictionary space $\{\be_k\}_{k=1}^K$, where $\be_k \in \bbR^C$, $K$ is the size of the dictionary.
@@ -324,24 +317,40 @@
 %=======
 \subsection{Gumbel-softmax for discrete VAE latents}
 %=======
-\begin{frame}{Gumbel-softmax trick}
+\begin{frame}{Discrete probabilistic VAE encoder}
 	\begin{itemize}
 		\item VQ-VAE has deterministic variational posterior (it allows to get rid of discrete sampling and reparametrization trick).
 		\item There is no uncertainty in the encoder output. 
 	\end{itemize}
-	\vspace{-0.2cm}
-	\begin{block}{Gumbel-max trick}
-		Let $g_k \sim \text{Gumbel}(0, 1)$ for $k = 1, \dots, K$, i.e. $g = - \log (- \log u)$, $u \sim \text{Uniform}[0, 1]$. Then a discrete random variable
-		\vspace{-0.2cm}
+	\begin{block}{How to make the model with probabilistic encoder?}
+		\begin{itemize}
+			\item Variational posterior $q(c | \bx, \bphi) = \text{Categorical}(\bpi_{\bphi}(\bx))$ (encoder) outputs discrete probabilities vector $\bpi_{\bphi}(\bx) = \text{Softmax}(\text{NN}_{e, \bphi}(\bx))$.
+			\item We sample $c^*$ from $q(c | \bx, \bphi)$ (reparametrization trick analogue).
+			\item We use $\be_{c^*}$ in the generative distribution $p(\bx | \be_{c^*}, \btheta)$ (decoder).
+		\end{itemize}
+	\end{block}
+	\textbf{Problem}: Reparametrization trick does not work in this case. Non-differentiable sampling operation depends on the parameters~$\bpi_{\bphi}(\bx)$.
+\end{frame}
+%=======
+\begin{frame}{Gumbel-max trick}
+	\begin{block}{Gumbel distribution}		
+		\vspace{-0.5cm}
 		\[
-			c = \argmax_k [\log \pi_k + g_k],
+			g \sim \text{Gumbel}(0, 1) \quad \Leftrightarrow \quad g = - \log (- \log u), \, u \sim \text{Uniform}[0, 1]
 		\]
-		\vspace{-0.5cm} \\
+		\vspace{-0.8cm}
+	\end{block}
+	\begin{block}{Theorem}
+		Let $g_k \sim \text{Gumbel}(0, 1)$ for $k = 1, \dots, K$. Then a discrete random variable
+		\[
+			c = \argmax_k [\log {\color{violet}\pi_k} + {\color{teal}g_k}],
+		\]
+		\vspace{-0.4cm} \\
 		has a categorical distribution $c \sim \text{Categorical}(\bpi)$.
 	\end{block}
 	\begin{itemize}
-		\item Let our encoder $q(c | \bx, \bphi) = \text{Categorical}(\bpi_{\bphi}(\bx))$ outputs logits of $\bpi_{\bphi}(\bx)$.
 		\item We could sample from the discrete distribution using Gumbel-max reparametrization.
+		\item Here {\color{violet}parameters} and {\color{teal}random variable sampling} are separated (reparametrization trick). We could apply LOTUS trick.
 	\end{itemize}
 
 	\myfootnote{
@@ -364,10 +373,10 @@
 		{\color{violet}Con}{\color{teal}crete} distribution = {\color{violet}\textbf{con}tinuous} + {\color{teal}dis\textbf{crete}}
 		\vspace{-0.2cm}
 		\[
-			\hat{c}_k = \frac{\exp \left(\frac{\log q(k | \bx, \bphi) + g_k}{\tau}\right)}{\sum_{j=1}^K \exp \left(\frac{\log q(j | \bx, \bphi) + g_j}{\tau}\right)}, \quad k = 1, \dots, K.
+			\hat{c}_k = \frac{\exp \left(\frac{\log q(k | \bx, \bphi) + g_k}{\tau}\right)}{\sum_{j=1}^K \exp \left(\frac{\log q(j | \bx, \bphi) + g_j}{\tau}\right)}, \quad k = 1, \dots, K, \quad \sum_{k=1}^K \hat{c}_k = 1.
 		\]
 		\vspace{-0.4cm} \\
-		Here $\tau$ is a temperature parameter. Now we have differentiable operation, but the gradient estimate is biased now.
+		Here $\tau$ is a temperature parameter. Now we have differentiable operation, but the gradient estimator is biased now.
  	\end{block}
 	\myfootnote{
 	\href{https://arxiv.org/abs/1611.00712}{Maddison C. J., Mnih A., Teh Y. W. The Concrete distribution: A continuous relaxation of discrete random variables, 2016} \\
@@ -421,10 +430,6 @@
 		\includegraphics[width=\linewidth]{figs/dalle}
 	\end{figure}
 	\myfootnotewithlink{https://arxiv.org/abs/2102.1209}{Ramesh A. et al. Zero-shot text-to-image generation, 2021}
-\end{frame}
-%=======
-\begin{frame}{Outline}
-	\tableofcontents
 \end{frame}
 %=======
 \section{ELBO surgery}
