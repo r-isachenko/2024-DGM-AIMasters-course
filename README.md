@@ -36,7 +36,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 5 | March, 6 | <b>Lecture 5:</b> Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). NF as VAE model. | [slides](lectures/lecture5/Lecture5.pdf) |
 |  |  | <b>Seminar 5:</b> Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm. Variational EM algorithm for GMM. | [slides](seminars/seminar5/seminar5.ipynb) |
 | 6 | March, 13 | <b>Lecture 6:</b> Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). ELBO surgery and optimal VAE prior. NF-based VAE prior. | [slides](lectures/lecture6/Lecture6.pdf) |
-|  |  | <b>Seminar 6:</b> TBA. |  |
+|  |  | <b>Seminar 6:</b>  VAE: Implementation hints. Vanilla 2D VAE coding. VAE on Binarized MNIST visualization. | [slides](seminars/seminar6/seminar6.ipynb) |
 <!---
 | 7 | March, 20 | <b>Lecture 7:</b> Likelihood-free learning. GAN optimality theorem.  |  |
 |  |  | <b>Seminar 7:</b> Glow. |  |
