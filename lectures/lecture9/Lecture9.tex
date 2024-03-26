@@ -9,6 +9,55 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\begin{block}{Main problems of standard GAN}
+		\begin{itemize}
+			\item Vanishing gradients (solution: non-saturating GAN);
+			\item Mode collapse (caused by Jensen-Shannon divergence).
+		\end{itemize}
+	\end{block}
+	\begin{block}{Standard GAN}
+		\vspace{-0.2cm}
+		\[
+		\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D_{\bphi}(\bx) + \bbE_{p(\bz)} \log (1 - D_{\bphi}(\bG_{\btheta}(\bz))) \right]
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\vspace{-0.1cm}
+	\begin{block}{Informal theoretical results}
+		The real images distribution $\pi(\bx)$ and the generated images distribution $p(\bx | \btheta)$ are low-dimensional and have disjoint supports. In this case
+		\vspace{-0.3cm}
+		\[
+		KL(\pi || p) = KL(p || \pi) = \infty, \quad JSD(\pi || p) = \log 2.
+		\]
+	\end{block}
+	\myfootnote{\href{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014} \\
+		\href{https://arxiv.org/abs/1701.04862}{Arjovsky M., Bottou L. Towards Principled Methods for Training Generative Adversarial Networks, 2017}}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
+	\begin{block}{Wasserstein distance}
+		\vspace{-0.5cm}
+		\[
+		W(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{\gamma \in \Gamma(\pi, p)} \int \| \bx - \by \| \gamma (\bx, \by) d \bx d \by
+		\]
+		\vspace{-0.5cm}
+		\begin{itemize}
+			\item $\gamma(\bx, \by)$ -- transportation plan (the amount of "dirt" that should be transported from point $\bx$ to point $\by$).
+			\item $\Gamma(\pi, p)$ -- the set of all joint distributions $\gamma (\bx, \by)$ with marginals $\pi$ and $p$ ($\int \gamma(\bx, \by) d \bx = p(\by)$, $\int \gamma(\bx, \by) d \by = \pi(\bx)$).
+			\item $\gamma(\bx, \by)$ -- the amount, $\|\bx - \by \|$-- the distance.
+		\end{itemize}
+	\end{block}
+	\begin{block}{Theorem (Kantorovich-Rubinstein duality)}
+		\vspace{-0.2cm}
+		\[
+		W(\pi || p) = \frac{1}{K} \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right],
+		\]
+		where $\| f \|_L \leq K$ are $K-$Lipschitz continuous functions ($f: \cX \rightarrow \bbR$).
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
 	\begin{block}{WGAN objective}
 		\vspace{-0.5cm}
 		\[
@@ -76,10 +125,32 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1606.00709}{Nowozin S., Cseke B., Tomioka R. f-GAN: Training Generative Neural Samplers using Variational Divergence Minimization, 2016}
 \end{frame}
 %=======
-\begin{frame}{Recap of previous lecture}
-	How to evaluate likelihood-free models?
-	
-	$p(y | \bx)$ -- pretrained image classification model (e.g. ImageNet classifier).
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Evaluation of likelihood-free models}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+	How to evaluate generative models?
+	\begin{block}{Likelihood-based models}
+		\begin{itemize}
+			\item Split data to train/val/test.
+			\item Fit model on the train part.
+			\item Tune hyperparameters on the validation part.
+			\item Evaluate generalization by reporting likelihoods on the test set.
+		\end{itemize}
+	\end{block}
+	\begin{block}{Not all models have tractable likelihoods}
+		\begin{itemize}
+			\item VAE: compare ELBO values.
+			\item GAN: ???
+		\end{itemize}
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Evaluation of likelihood-free models}
+	Let take some pretrained image classification model to get the conditional label distribution $p(y | \bx)$ (e.g. ImageNet classifier).
 	\begin{block}{What do we want from samples?}
 		\begin{itemize}
 			\item \textbf{Sharpness}
@@ -87,23 +158,66 @@
 				\centering
 				\includegraphics[width=0.9\linewidth]{figs/sharpness}
 			\end{figure}
-			$p(y | \bx)$ has low entropy (each image $\bx$ should have distinctly recognizable object).
+			The conditional distribution $p(y | \bx)$ should have low entropy (each image $\bx$ should have distinctly recognizable object).
 			\item \textbf{Diversity}
 			\begin{figure}
 				\centering
 				\includegraphics[width=0.9\linewidth]{figs/diversity}
 			\end{figure}
-			$p(y) = \int p(y | \bx) p(\bx) d \bx$ has high entropy (there should be as many classes generated as possible).
+			The marginal distribution $p(y) = \int p(y | \bx) p(\bx) d \bx$ should have high entropy (there should be as many classes generated as possible).
 		\end{itemize}
 	\end{block}
 	\myfootnotewithlink{https://deepgenerativemodels.github.io}{image credit: https://deepgenerativemodels.github.io}
 \end{frame}
 %=======
-\begin{frame}{Outline}
-	\tableofcontents
+\subsection{Frechet Inception Distance (FID)}
+%=======
+\begin{frame}{Frechet Inception Distance (FID)}
+	\begin{block}{Wasserstein metric}
+		\vspace{-0.2cm}
+		\[
+		W_s(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \left(\bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \|^s\right)^{1/s}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Theorem}
+		If $\pi(\bx) = \cN(\bmu_\pi, \bSigma_\pi)$, $p(\by) = \cN(\bmu_p, \bSigma_p)$, then
+		\vspace{-0.3cm}
+		\[
+		W_2^2(\pi, p) =  \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	\begin{block}{Frechet Inception Distance}
+		\vspace{-0.5cm}
+		\[
+		\text{FID} (\pi, p) =  \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	Representations are the outputs of the intermediate layer from the pretrained classification model.
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017}
 \end{frame}
 %=======
-\section{Evaluation of likelihood-free models}
+\begin{frame}{Frechet Inception Distance (FID)}
+	\vspace{-0.4cm}
+	\[
+	\text{FID} (\pi, p) =  \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
+	\]
+	\vspace{-0.3cm}
+	\begin{itemize}
+		\item Needs a large sample size for evaluation.
+		\item Calculation of FID is slow.
+		\item High dependence on the pretrained classification model.
+		\item Uses the normality assumption!
+	\end{itemize}
+	\begin{figure}
+		\includegraphics[width=0.95\linewidth]{figs/fid_normal}
+	\end{figure}
+	
+	\myfootnotewithlink{https://arxiv.org/abs/2401.09603}{Jayasumana S. et al. Rethinking FID: Towards a Better Evaluation Metric for Image Generation, 2024}
+\end{frame}
 %=======
 \subsection{Maximum Mean Discrepancy (MMD)}
 %=======
@@ -234,6 +348,10 @@
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
+		\item We need measure of quality for implicit models like GANs. One way is to analyze sharpness and diversity of samples.
+		\vfill 
+		\item Frechet Inception Distance is the most popular metric for GAN evaluation. 
+		\vfill
 		\item Maximum Mean Discrepancy tries to fix some of the FID drawbacks.
 		\vfill
 		\item Precision-recall allow to select model that compromises the sample quality and the sample diversity.	

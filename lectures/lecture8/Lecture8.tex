@@ -9,6 +9,35 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\begin{itemize}
+		\item Standard Gaussian $p(\bz) = \mathcal{N}(0, \bI)$ $\Rightarrow$ over-regularization;
+		\item $p(\bz) = q_{\text{agg}}(\bz) = \frac{1}{n}\sum_{i=1}^n q(\bz | \bx_i)$ $\Rightarrow$ overfitting and highly expensive.
+	\end{itemize}
+	\begin{block}{ELBO revisiting}
+		\vspace{-0.4cm}
+		\[
+		\frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz) || {\color{violet}p(\bz | \blambda)})
+		\]
+		It is Forward KL with respect to $p(\bz | \blambda)$.
+	\end{block}
+	\begin{block}{ELBO with flow-based VAE prior}
+		\vspace{-0.6cm}
+		{\small
+			\begin{multline*}
+				\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + {\color{violet}\log p(\bz | \blambda)} - \log q(\bz | \bx, \bphi) \right] \\
+				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(f_{\blambda}(\bz)) + \log \left| \det (\bJ_\bff) \right|} \Bigr) }_{\text{flow-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
+			\end{multline*}
+		}
+		\vspace{-0.5cm}
+		\[
+		\bz = \bff^{-1}_{\blambda}(\bz^*) = \bg_{\blambda}(\bz^*), \quad \bz^* \sim p(\bz^*) = \cN(0, \bI)
+		\]
+	\end{block}
+	\vspace{-0.5cm}
+	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
 	\begin{block}{Likelihood-free learning}
 		\begin{itemize}
 			\item Likelihood is not a perfect quality measure for generative model.
@@ -73,53 +102,156 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014}
 \end{frame}
 %=======
-\begin{frame}{Recap of previous lecture}
-	\begin{block}{Main problems of standard GAN}
-		\begin{itemize}
-			\item Vanishing gradients (solution: non-saturating GAN);
-			\item Mode collapse (caused by Jensen-Shannon divergence).
-		\end{itemize}
-	\end{block}
-	\begin{block}{Standard GAN}
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Wasserstein distance}
+%=======
+\begin{frame}{Informal theoretical results}
+	\vspace{-0.3cm}
+	\begin{itemize}
+		\footnotesize
+		\item Since $\bz$ usually has lower dimensionality compared to $\bx$, manifold $\bG_{\btheta}(\bz)$ has a measure 0 in $\bx$ space. Hence, support of $p(\bx | \btheta)$ lies on low-dimensional manifold.
+		\item Distribution of real images $\pi(\bx)$ is also concentrated on a low dimensional manifold.
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.5\linewidth]{figs/low_dim_manifold}
+		\end{figure}
+		\item If $\pi(\bx)$ and $p(\bx | \btheta)$ have disjoint supports, then there is a smooth optimal discriminator. We are not able to learn anything by backproping through it.
+		\item For such low-dimensional disjoint manifolds
 		\vspace{-0.2cm}
 		\[
-			\min_{\btheta} \max_{\bphi} \left[ \bbE_{\pi(\bx)} \log D_{\bphi}(\bx) + \bbE_{p(\bz)} \log (1 - D_{\bphi}(\bG_{\btheta}(\bz))) \right]
+		KL(\pi || p) = KL(p || \pi) = \infty, \quad JSD(\pi || p) = \log 2
 		\]
-		\vspace{-0.4cm}
-	\end{block}
-	\vspace{-0.1cm}
-	\begin{block}{Informal theoretical results}
-		The real images distribution $\pi(\bx)$ and the generated images distribution $p(\bx | \btheta)$ are low-dimensional and have disjoint supports. In this case
-		\vspace{-0.3cm}
-		\[
-			KL(\pi || p) = KL(p || \pi) = \infty, \quad JSD(\pi || p) = \log 2.
-		\]
-		\end{block}
-		\myfootnote{\href{https://arxiv.org/abs/1406.2661}{Goodfellow I. J. et al. Generative Adversarial Networks, 2014} \\
+		\vspace{-0.7cm}
+		\item Adding continuous noise to the inputs of the discriminator smoothes the distributions of the probability mass.
+	\end{itemize}
+	\myfootnote{\href{https://arxiv.org/abs/1904.08994}{Weng L. From GAN to WGAN, 2019} \\ 
 		\href{https://arxiv.org/abs/1701.04862}{Arjovsky M., Bottou L. Towards Principled Methods for Training Generative Adversarial Networks, 2017}}
 \end{frame}
 %=======
-\begin{frame}{Recap of previous lecture}
-		\begin{block}{Wasserstein distance}
-			\vspace{-0.5cm}
-			\[
-				W(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{\gamma \in \Gamma(\pi, p)} \int \| \bx - \by \| \gamma (\bx, \by) d \bx d \by
-			\]
-			\vspace{-0.5cm}
-			\begin{itemize}
-				\item $\gamma(\bx, \by)$ -- transportation plan (the amount of "dirt" that should be transported from point $\bx$ to point $\by$).
-				\item $\Gamma(\pi, p)$ -- the set of all joint distributions $\gamma (\bx, \by)$ with marginals $\pi$ and $p$ ($\int \gamma(\bx, \by) d \bx = p(\by)$, $\int \gamma(\bx, \by) d \by = \pi(\bx)$).
-				\item $\gamma(\bx, \by)$ -- the amount, $\|\bx - \by \|$-- the distance.
-			\end{itemize}
-		\end{block}
-		\begin{block}{Theorem (Kantorovich-Rubinstein duality)}
-			\vspace{-0.2cm}
-			\[
-				W(\pi || p) = \frac{1}{K} \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right],
-			\]
-			where $\| f \|_L \leq K$ are $K-$Lipschitz continuous functions ($f: \cX \rightarrow \bbR$).
-		\end{block}
-		\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\begin{frame}{Wasserstein distance (discrete)}
+	A.k.a. \textbf{Earth Mover's distance}.
+	\begin{block}{Optimal transport formulation}
+		The minimum cost of moving and transforming a pile of dirt in the shape of one probability distribution to the shape of the other distribution.
+	\end{block}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{figs/discrete_wasserstein}
+	\end{figure}
+	\myfootnotewithlink{https://udlbook.github.io/udlbook/}{Simon J.D. Prince. Understanding Deep Learning, 2023}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein distance (continuous)}
+	\vspace{-0.7cm}
+	\[
+	W(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{{\color{olive}\gamma}\in {\color{teal}\Gamma(\pi, p)}} \int {\color{violet} \| \bx - \by \|} {\color{olive}\gamma (\bx, \by)} d \bx d \by
+	\]
+	\vspace{-0.4cm}
+	\begin{itemize}
+		\item ${\color{olive}\gamma (\bx, \by)}$ -- transportation plan (the amount of "dirt" that should be transported from point $\bx$ to point $\by$)
+		\vspace{-0.2cm}
+		\[
+		\int \gamma(\bx, \by) d \bx = p(\by); \quad \int \gamma(\bx, \by) d \by = \pi(\bx).
+		\]
+		\vspace{-0.6cm}
+		\item ${\color{teal}\Gamma(\pi, p)}$ -- the set of all joint distributions $\gamma (\bx, \by)$ with marginals $\pi$ and $p$.
+		\item ${\color{olive}\gamma(\bx, \by)}$ -- the amount, ${\color{violet} \| \bx - \by \|}$-- the distance.
+	\end{itemize}
+	\begin{block}{Wasserstein metric}
+		\vspace{-0.2cm}
+		\[
+		W_s(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \left(\bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \|^s\right)^{1/s}
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	Here we will use $W(\pi, p) = W_1(\pi, p)$ that corresponds to the optimal transport formulation.
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein distance vs KL vs JSD}
+	
+	\begin{minipage}[t]{0.48\columnwidth}
+		\vspace{0.1cm}
+		Consider 2d distributions
+		\[
+		\pi(x, y) = (0, U[0,1])
+		\]	
+		\[
+		p(x, y | \theta) = (\theta, U[0, 1])
+		\]
+	\end{minipage}%
+	\begin{minipage}[t]{0.52\columnwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.8\linewidth]{figs/w_kl_jsd}
+		\end{figure}
+	\end{minipage}
+	\begin{itemize}
+		\footnotesize
+		\item $\theta = 0$.
+		Distributions are the same 
+		\[
+		KL(\pi || p) = KL(p || \pi) = JSD(p || \pi) = W(\pi, p) = 0
+		\]
+		\item $\theta \neq 0$
+		\[
+		KL(\pi || p) = \int_{U[0, 1]} 1 \log \frac{1}{0} d y = \infty = KL(p || \pi)
+		\]
+		\[
+		JSD(\pi || p) = \frac{1}{2}\left( \int_{U[0, 1]}1 \log \frac{1}{1/2} dy + \int_{U[0, 1]}1 \log \frac{1}{1/2} dy \right) = \log 2
+		\]
+		\[
+		W(\pi, p) = |\theta|
+		\]
+	\end{itemize}
+	
+	\myfootnote{\href{https://arxiv.org/abs/1904.08994}{Weng L. From GAN to WGAN, 2019} \\ 
+		\href{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein distance vs KL vs JSD}
+	\begin{block}{Theorem 1}
+		Let $\bG_{\btheta}(\bz)$ be (almost) any feedforward neural network, and $p(\bz)$ a prior over $\bz$ such that $\bbE_{p(\bz)} \|\bz\| < \infty$. Then therefore $W(\pi, p)$ is continuous everywhere and differentiable almost everywhere.
+	\end{block}
+	\begin{block}{Theorem 2}
+		Let $\pi$ be a distribution on a compact space $\cX$ and $\{p_t\}_{t=1}^\infty$ be a sequence of distributions on $\cX$. 
+		\begin{align}
+			KL(\pi || p_t) &\rightarrow 0 \, (\text{or }KL (p_t || \pi) \rightarrow 0) \\
+			JSD(\pi || p_t) &\rightarrow 0 \\
+			W(\pi || p_t) &\rightarrow 0
+		\end{align}
+		
+		Then, considering limits as $t \rightarrow \infty$, (1) implies (2), (2) implies (3).
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
+\end{frame}
+%=======
+\begin{frame}{Wasserstein GAN}
+	\begin{block}{Wasserstein distance}
+		\vspace{-0.5cm}
+		\[
+		W(\pi || p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \| =  \inf_{\gamma \in \Gamma(\pi, p)} \int \| \bx - \by \| \gamma (\bx, \by) d \bx d \by
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	The infimum across all possible joint distributions in $\Gamma(\pi, p)$ is intractable.
+	\begin{block}{Theorem (Kantorovich-Rubinstein duality)}
+		\vspace{-0.3cm}
+		\[
+		W(\pi || p) = \frac{1}{K} \max_{\| f \|_L \leq K} \left[ \bbE_{\pi(\bx)} f(\bx)  - \bbE_{p(\bx)} f(\bx)\right],
+		\]
+		where $f : \bbR^n \rightarrow \bbR$, $\| f \|_L \leq K$ are $K-$Lipschitz continuous functions ($f: \cX \rightarrow \bbR$)
+		\vspace{-0.2cm}
+		\[
+		|f(\bx_1) - f(\bx_2)| \leq K \| \bx_1 - \bx_2 \|, \quad \text{for all } \bx_1, \bx_2 \in \cX.
+		\]
+		\vspace{-0.6cm}
+	\end{block}
+	Now we need only samples to get Monte Carlo estimate for $W(\pi || p)$.
+	
+	\myfootnotewithlink{https://arxiv.org/abs/1701.07875}{Arjovsky M., Chintala S., Bottou L. Wasserstein GAN, 2017}
 \end{frame}
 %=======
 \section{Lipschitzness of Wasserstein GAN critic}
@@ -256,10 +388,6 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1704.00028}{Gulrajani I. et al. Improved Training of Wasserstein GANs, 2017}
 \end{frame}
 %=======
-\begin{frame}{Outline}
-	\tableofcontents
-\end{frame}
-%=======
 \section{f-divergence minimization}
 %=======
 \begin{frame}{Divergences}
@@ -388,107 +516,19 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1606.00709}{Nowozin S., Cseke B., Tomioka R. f-GAN: Training Generative Neural Samplers using Variational Divergence Minimization, 2016}
 \end{frame}
 %=======
-\section{Evaluation of likelihood-free models}
-%=======
-\begin{frame}{Evaluation of likelihood-free models}
-	How to evaluate generative models?
-	\begin{block}{Likelihood-based models}
-		\begin{itemize}
-			\item Split data to train/val/test.
-			\item Fit model on the train part.
-			\item Tune hyperparameters on the validation part.
-			\item Evaluate generalization by reporting likelihoods on the test set.
-		\end{itemize}
-	\end{block}
-	\begin{block}{Not all models have tractable likelihoods}
-		\begin{itemize}
-			\item VAE: compare ELBO values.
-			\item GAN: ???
-		\end{itemize}
-	\end{block}
-\end{frame}
-%=======
-\begin{frame}{Evaluation of likelihood-free models}
-	Let take some pretrained image classification model to get the conditional label distribution $p(y | \bx)$ (e.g. ImageNet classifier).
-	\begin{block}{What do we want from samples?}
-		\begin{itemize}
-			\item \textbf{Sharpness}
-			\begin{figure}
-				\centering
-				\includegraphics[width=0.9\linewidth]{figs/sharpness}
-			\end{figure}
-			The conditional distribution $p(y | \bx)$ should have low entropy (each image $\bx$ should have distinctly recognizable object).
-			\item \textbf{Diversity}
-			\begin{figure}
-				\centering
-				\includegraphics[width=0.9\linewidth]{figs/diversity}
-			\end{figure}
-			The marginal distribution $p(y) = \int p(y | \bx) p(\bx) d \bx$ should have high entropy (there should be as many classes generated as possible).
-		\end{itemize}
-	\end{block}
-	\myfootnotewithlink{https://deepgenerativemodels.github.io}{image credit: https://deepgenerativemodels.github.io}
-\end{frame}
-%=======
-\subsection{Frechet Inception Distance (FID)}
-%=======
-\begin{frame}{Frechet Inception Distance (FID)}
-	\begin{block}{Wasserstein metric}
-		\vspace{-0.2cm}
-		\[
-			W_s(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \left(\bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \|^s\right)^{1/s}
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	\begin{block}{Theorem}
-		If $\pi(\bx) = \cN(\bmu_\pi, \bSigma_\pi)$, $p(\by) = \cN(\bmu_p, \bSigma_p)$, then
-		\vspace{-0.3cm}
-		\[
-			W_2^2(\pi, p) =  \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
-		\]
-		\vspace{-0.6cm}
-	\end{block}
-	\begin{block}{Frechet Inception Distance}
-		\vspace{-0.5cm}
-		\[
-			\text{FID} (\pi, p) =  \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	Representations are the outputs of the intermediate layer from the pretrained classification model.
-
-	\myfootnotewithlink{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017}
-\end{frame}
-%=======
-\begin{frame}{Frechet Inception Distance (FID)}
-	\vspace{-0.4cm}
-	\[
-		\text{FID} (\pi, p) =  \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
-	\]
-	\vspace{-0.3cm}
-	\begin{itemize}
-		\item Needs a large sample size for evaluation.
-		\item Calculation of FID is slow.
-		\item High dependence on the pretrained classification model.
-		\item Uses the normality assumption!
-	\end{itemize}
-	\begin{figure}
-		\includegraphics[width=0.95\linewidth]{figs/fid_normal}
-	\end{figure}
-
-	\myfootnotewithlink{https://arxiv.org/abs/2401.09603}{Jayasumana S. et al. Rethinking FID: Towards a Better Evaluation Metric for Image Generation, 2024}
-\end{frame}
-%=======
 \begin{frame}{Summary}
 	\begin{itemize}
+		\item KL and JS divergences work poorly as model objective in the case of disjoint supports.
+		\vfill
+		\item Earth-Mover distance is a more appropriate objective function for distribution matching problem.	
+		\vfill
+		\item Kantorovich-Rubinstein duality gives the way to calculate the EM distance using only samples.
+		\vfill
 		\item Wasserstein GAN uses Kantorovich-Rubinstein duality for getting Earth Mover distance as model objective.
 		\vfill
 		\item Weight clipping is a terrible way to enforce Lipschitzness. Gradient Penalty adds regularizer to loss that uses neccessary conditions for optimal critic. 	
 		\vfill
 		\item f-divergence family is a unified framework for divergence minimization, which uses variational approximation. Standard GAN is a special case of it.
-		\vfill
-		\item We need measure of quality for implicit models like GANs. One way is to analyze sharpness and diversity of samples.
-		\vfill 
-		\item Frechet Inception Distance is the most popular metric for GAN evaluation. 
 	\end{itemize}
 \end{frame}
 %=======

@@ -150,29 +150,6 @@
 	\tableofcontents
 \end{frame}
 %=======
-\begin{frame}{Recap of previous lecture}
-	\begin{block}{Likelihood-free learning}
-		\begin{itemize}
-			\item Likelihood is not a perfect quality measure for generative model.
-			\item Likelihood could be intractable.
-		\end{itemize}
-	\end{block}
-	Imagine we have two sets of samples 
-	\begin{itemize}
-		\item $\cS_1 = \{\bx_i\}_{i=1}^{n_1} \sim \pi(\bx)$ -- real samples;
-		\item $\cS_2 = \{\bx_i\}_{i=1}^{n_2} \sim p(\bx | \btheta)$ -- generated (or fake) samples.
-	\end{itemize}
-	Let define discriminative model (classifier):
-	\[
-		p(y = 1 | \bx) = P\bigl(\{\bx \sim \pi(\bx)\}\bigr); \quad p(y = 0 | \bx) = P\bigl(\{\bx \sim p(\bx | \btheta)\}\bigr)
-	\]
-	\vspace{-0.5cm}
-	\begin{block}{Assumption}
-		Generative distribution $p(\bx | \btheta)$ equals to the true distribution $\pi(\bx)$ if we can not distinguish them using discriminative model $p(y | \bx)$. \\
-		It means that $p(y = 1 | \bx) = 0.5$ for each sample $\bx$.
-	\end{block}
-\end{frame}
-%=======
 \section{Discrete VAE latent representations}
 %=======
 \begin{frame}{Discrete VAE latents}
@@ -394,12 +371,11 @@
 	
 	\begin{block}{Gumbel-softmax relaxation}
 		{\color{violet}Con}{\color{teal}crete} distribution = {\color{violet}\textbf{con}tinuous} + {\color{teal}dis\textbf{crete}}
-		\vspace{-0.2cm}
 		\[
-			\hat{c}_k = \frac{\exp \left(\frac{\log q(k | \bx, \bphi) + g_k}{\tau}\right)}{\sum_{j=1}^K \exp \left(\frac{\log q(j | \bx, \bphi) + g_j}{\tau}\right)}, \quad k = 1, \dots, K, \quad \sum_{k=1}^K \hat{c}_k = 1.
+			\hat{\bc} = \text{Softmax}\left(\frac{\log q(\bc | \bx, \bphi) + \bg}{\color{olive}\tau}\right)
 		\]
 		\vspace{-0.4cm} \\
-		Here $\tau$ is a temperature parameter. Now we have differentiable operation, but the gradient estimator is biased now.
+		Here ${\color{olive}\tau}$ is a temperature parameter. Now we have differentiable operation, but the gradient estimator is biased now.
  	\end{block}
 	\myfootnote{
 	\href{https://arxiv.org/abs/1611.00712}{Maddison C. J., Mnih A., Teh Y. W. The Concrete distribution: A continuous relaxation of discrete random variables, 2016} \\
@@ -407,18 +383,20 @@
 	}
 \end{frame}
 %=======
-\begin{frame}{Gumbel-softmax trick}
-	 \vspace{-0.3cm}
-	\begin{block}{Concrete distribution}
-	 	\begin{figure}
-	 		\includegraphics[width=0.8\linewidth]{figs/gumbel_softmax}
-	 	\end{figure}
-	 	\vspace{-0.7cm}
-	 	\begin{figure}
-	 		\includegraphics[width=0.8\linewidth]{figs/simplex}
-	 	\end{figure} 
-	 	\vspace{-0.5cm}
-	 \end{block}
+\begin{frame}{Gumbel-softmax trick}	
+	\vspace{-0.5cm}
+	\[
+		\hat{\bc} = \text{Softmax}\left(\frac{\log q(\bc | \bx, \bphi) + \bg}{\color{olive}\tau}\right)
+	\]
+	\vspace{-0.5cm}
+ 	\begin{figure}
+ 		\includegraphics[width=0.8\linewidth]{figs/gumbel_softmax}
+ 	\end{figure}
+ 	\vspace{-0.7cm}
+ 	\begin{figure}
+ 		\includegraphics[width=0.8\linewidth]{figs/simplex}
+ 	\end{figure} 
+ 	\vspace{-0.5cm}
 	\begin{block}{Reparametrization trick}
 		\vspace{-0.4cm}
 		\[
@@ -470,7 +448,7 @@
 		\]
 		\vspace{-0.5cm}
 		\begin{itemize}
-			\item $q_{\text{agg}}(\bz | \bphi) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx_i, \bphi)$ -- \textbf{aggregated} posterior distribution.
+			\item $q_{\text{agg}}(\bz | \bphi) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx_i, \bphi)$ -- \textbf{aggregated} variational posterior distribution.
 			\item $\bbI_{q} [\bx, \bz]$ -- mutual information between $\bx$ and $\bz$ under empirical data distribution and distribution $q(\bz | \bx, \bphi)$.
 			\item  {\color{violet} First term} pushes $q_{\text{agg}}(\bz | \bphi)$ towards the prior $p(\bz)$.
 			\item {\color{teal}Second term} reduces the amount of	information about $\bx$ stored in $\bz$. 
@@ -480,7 +458,7 @@
 \end{frame}
 %=======
 \begin{frame}{ELBO surgery}
-		\vspace{-0.3cm}
+		\vspace{-0.4cm}
 		\[
 		    \frac{1}{n} \sum_{i=1}^n KL(q(\bz | \bx_i, \bphi) || p(\bz)) = KL(q_{\text{agg}}(\bz | \bphi) || p(\bz)) + \bbI_q [\bx, \bz].
 		\]
@@ -523,14 +501,13 @@
 	  		KL(q_{\text{agg}}(\bz | \bphi) || p(\bz)) = 0 \quad \Leftrightarrow \quad p (\bz) = q_{\text{agg}}(\bz | \bphi) = \frac{1}{n} \sum_{i=1}^n q(\bz | \bx_i, \bphi).
 		\]
 		\vspace{-0.4cm} \\
-		The optimal prior $p(\bz)$ is the aggregated posterior $q_{\text{agg}}(\bz | \bphi)$!
+		The optimal prior $p(\bz)$ is the aggregated variational posterior distribution $q_{\text{agg}}(\bz | \bphi)$!
 	\end{block}
 	
 	\myfootnotewithlink{http://approximateinference.org/accepted/HoffmanJohnson2016.pdf}{Hoffman M. D., Johnson M. J. ELBO surgery: yet another way to carve up the variational evidence lower bound, 2016}
 \end{frame}
 %=======
 \begin{frame}{Variational posterior}
-	\vspace{-0.3cm}
 	\begin{block}{ELBO decomposition}
 		\vspace{-0.3cm}
 		\[
@@ -540,92 +517,25 @@
 	\end{block}
 	\begin{itemize}
 		\item $q(\bz | \bx, \bphi) = \mathcal{N}(\bmu_{\bphi}(\bx), \bsigma^2_{\bphi}(\bx))$ is a unimodal distribution. 
-		\item The optimal prior $p(\bz)$ is the aggregated posterior $q_{\text{agg}}(\bz | \bphi)$.
+		\item It is widely believed that \textbf{mismatch between} $p(\bz)$  \textbf{and} $q_{\text{agg}}(\bz | \bphi)$  \textbf{is the main reason of blurry images of VAE}.
 	\end{itemize}
-	
-	\vspace{-0.3cm}
 	\begin{figure}
-		\includegraphics[width=0.65\linewidth]{figs/agg_posterior}
+		\includegraphics[width=0.8\linewidth]{figs/agg_posterior}
 	\end{figure}
-	\vspace{-0.3cm}
-	It is widely believed that \textbf{mismatch between} $p(\bz)$  \textbf{and} $q_{\text{agg}}(\bz | \bphi)$  \textbf{is the main reason of blurry images of VAE}.
 	\myfootnotewithlink{https://arxiv.org/abs/1505.05770}{Rezende D. J., Mohamed S. Variational Inference with Normalizing Flows, 2015} 
-\end{frame}
-%=======
-\section{Learnable VAE prior}
-%=======
-\begin{frame}{Optimal VAE prior}
-	\begin{itemize}
-		\item Standard Gaussian $p(\bz) = \mathcal{N}(0, \bI)$ $\Rightarrow$ over-regularization;
-		\item $p(\bz) = q_{\text{agg}}(\bz | \bphi) = \frac{1}{n}\sum_{i=1}^n q(\bz | \bx_i, \bphi)$ $\Rightarrow$ overfitting and highly expensive.
-	\end{itemize}
-	\vspace{-0.5cm}
-	\begin{minipage}[t]{0.5\columnwidth}
-		\begin{block}{Non learnable prior $p(\bz)$}
-			\begin{figure}[h]
-				\centering
-				\includegraphics[width=0.6\linewidth]{figs/non_learnable_prior}
-			\end{figure}
-		\end{block}
-	\end{minipage}%
-	\begin{minipage}[t]{0.5\columnwidth}
-		\begin{block}{Learnable prior $p(\bz | \blambda)$}
-			\begin{figure}[h]
-				\centering
-				\includegraphics[width=0.6\linewidth]{figs/learnable_prior}
-			\end{figure}
-		\end{block}
-	\end{minipage}
-	\vspace{-0.4cm}
-	\begin{block}{ELBO revisiting}
-		\vspace{-0.3cm}
-		\[
-			\frac{1}{n}\sum_{i=1}^n \cL_i(\bphi, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz | \bphi) || {\color{teal}p(\bz | \blambda)})
-		\]
-		It is Forward KL with respect to $p(\bz | \blambda)$.
-	\end{block}
-	\myfootnotewithlink{https://jmtomczak.github.io/blog/7/7\_priors.html}{image credit: https://jmtomczak.github.io/blog/7/7\_priors.html}
-\end{frame}
-%=======
-\begin{frame}{NF-based VAE prior}
-	\begin{block}{NF model in latent space}
-		\vspace{-0.5cm}
-		\[
-			\log p(\bz | \blambda) = \log p(\bz^*) + \log  \left | \det \left(\frac{d \bz^*}{d\bz}\right)\right| = \log p(\bff_{\blambda}(\bz)) + \log \left | \det (\bJ_\bff)\right| 
-		\]
-		\vspace{-0.3cm}
-		\[
-			\bz = \bg_{\blambda}(\bz^*) = \bff^{-1}_{\blambda}(\bz^*)
-		\]
-	\end{block}
-	\vspace{-0.3cm}
-	\begin{itemize}
-		\item RealNVP with coupling layers.
-		\item Autoregressive NF (fast $\bff_{\blambda}(\bz)$, slow $\bg_{\blambda}(\bz^*)$).
-	\end{itemize}
-	\begin{block}{ELBO with NF-based VAE prior}
-		\vspace{-0.5cm}
-		{\small
-		\begin{multline*}
-			\mathcal{L}(\bphi, \btheta) = \mathbb{E}_{q(\bz | \bx, \bphi)} \left[ \log p(\bx | \bz, \btheta) + {\color{violet}\log p(\bz | \blambda)} - \log q(\bz | \bx, \bphi) \right] \\
-				= \mathbb{E}_{q(\bz | \bx, \bphi)} \Bigl[ \log p(\bx | \bz, \btheta) + \underbrace{ \Bigl({\color{violet} \log p(\bff_{\blambda}(\bz)) + \log \left| \det (\bJ_\bff) \right|} \Bigr) }_{\text{NF-based prior}} - \log q(\bz | \bx, \bphi) \Bigr] 
-		\end{multline*}
-		}
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/1611.02731}{Chen X. et al. Variational Lossy Autoencoder, 2016}
 \end{frame}
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
-		\item The ELBO surgery reveals insights about a prior distribution in VAE. The optimal prior is the aggregated posterior. It is widely believed that mismatch between $p(\bz)$ and $q_{\text{agg}}(\bz | \bphi)$ is the main reason of blurry images of VAE.
-		\vfill
-		\item We could use NF-based prior in VAE (even autoregressive).
-		\vfill	
 		\item Vector Quantization is the way to create VAE with discrete latent space and deterministic variational posterior. 
 		\vfill
 		\item Straight-through gradient ignores quantize operation in backprop.			
 		\vfill
 		\item Gumbel-softmax trick relaxes discrete problem to continuous one using Gumbel-max reparametrization trick.
+		\vfill	
+		\item The ELBO surgery reveals insights about a prior distribution in VAE. The optimal prior is the aggregated variational posterior distribution. 
+		\vfill
+		\item It is widely believed that mismatch between $p(\bz)$ and $q_{\text{agg}}(\bz | \bphi)$ is the main reason of blurry images of VAE.
 	\end{itemize}
 \end{frame}
 
