@@ -12,13 +12,19 @@ def train_epoch(
     optimizer: object,
     use_cuda: bool,
     loss_key: str = "total",
+    device: str = None,
 ) -> defaultdict:
     model.train()
 
     stats = defaultdict(list)
-    for x in train_loader:
+    if device is None:
         if use_cuda:
-            x = x.cuda()
+            device = "cuda"
+        else:
+            device = "cpu"
+
+    for x in train_loader:
+        x = x.to(device)
         losses = model.loss(x)
         optimizer.zero_grad()
         losses[loss_key].backward()
@@ -30,13 +36,19 @@ def train_epoch(
     return stats
 
 
-def eval_model(model: object, data_loader: object, use_cuda: bool) -> defaultdict:
+def eval_model(model: object, data_loader: object, 
+               use_cuda: bool, device: str = None) -> defaultdict:
     model.eval()
     stats = defaultdict(float)
+    if device is None:
+        if use_cuda:
+            device = "cuda"
+        else:
+            device = "cpu"
+
     with torch.no_grad():
         for x in data_loader:
-            if use_cuda:
-                x = x.cuda()
+            x = x.to(device)
             losses = model.loss(x)
             for k, v in losses.items():
                 stats[k] += v.item() * x.shape[0]
@@ -55,19 +67,24 @@ def train_model(
     use_tqdm: bool = False,
     use_cuda: bool = False,
     loss_key: str = "total_loss",
+    device: str = None,
 ) -> Tuple[dict, dict]:
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     train_losses = defaultdict(list)
     test_losses = defaultdict(list)
     forrange = tqdm(range(epochs)) if use_tqdm else range(epochs)
-    if use_cuda:
-        model = model.cuda()
+    if device is None:
+        if use_cuda:
+            device = "cuda"
+        else:
+            device = "cpu"
+    model = model.to(device)
 
     for epoch in forrange:
         model.train()
-        train_loss = train_epoch(model, train_loader, optimizer, use_cuda, loss_key)
-        test_loss = eval_model(model, test_loader, use_cuda)
+        train_loss = train_epoch(model, train_loader, optimizer, use_cuda, loss_key, device=device)
+        test_loss = eval_model(model, test_loader, use_cuda, device=device)
 
         for k in train_loss.keys():
             train_losses[k].extend(train_loss[k])
