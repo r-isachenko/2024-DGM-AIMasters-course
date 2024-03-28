@@ -35,14 +35,14 @@ The course is accompanied by practical tasks that allow you to understand the pr
 |  |  | <b>Seminar 4:</b> RealNVP. | [slides](seminars/seminar4/real_nvp_notes.ipynb) |
 | 5 | March, 6 | <b>Lecture 5:</b> Variational EM-algorithm. Amortized inference, ELBO gradients, reparametrization trick. Variational Autoencoder (VAE). NF as VAE model. | [slides](lectures/lecture5/Lecture5.pdf) |
 |  |  | <b>Seminar 5:</b> Gaussian Mixture Model (GMM). GMM and MLE. ELBO and EM-algorithm. GMM via EM-algorithm. Variational EM algorithm for GMM. | [slides](seminars/seminar5/seminar5.ipynb) |
-| 6 | March, 20 | <b>Lecture 6:</b> Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). ELBO surgery and optimal VAE prior. NF-based VAE prior. | [slides](lectures/lecture6/Lecture6.pdf) |
+| 6 | March, 20 | <b>Lecture 6:</b> Discrete VAE latent representations. Vector quantization, straight-through gradient estimation (VQ-VAE). Gumbel-softmax trick (DALL-E). ELBO surgery and optimal VAE prior.  | [slides](lectures/lecture6/Lecture6.pdf) |
 |  |  | <b>Seminar 6:</b>  VAE: Implementation hints. Vanilla 2D VAE coding. VAE on Binarized MNIST visualization. | [slides](seminars/seminar6/seminar6.ipynb) |
-<!---
-| 7 | March, 27 | <b>Lecture 7:</b> Likelihood-free learning. GAN optimality theorem.  |  |
+| 7 | March, 27 | <b>Lecture 7:</b> NF-based VAE prior. Likelihood-free learning. GAN optimality theorem.  | [slides](lectures/lecture7/Lecture7.pdf) |
 |  |  | <b>Seminar 7:</b> Glow. |  |
-| 8 | April, 3 | <b>Lecture 8:</b> Wasserstein distance. Wasserstein GAN (WGAN). WGAN with gradient penalty (WGAN-GP). Spectral Normalization GAN (SNGAN). |  |
+| 8 | April, 3 | <b>Lecture 8:</b> Wasserstein distance. Wasserstein GAN (WGAN). WGAN with gradient penalty (WGAN-GP). f-divergence minimization. | [slides](lectures/lecture8/Lecture8.pdf) |
 |  |  | <b>Seminar 8:</b> Vanilla GAN in 1D coding. KL vs JS divergences. Mode collapse. Non-saturating GAN. |  |
-| 9 | April, 10 | <b>Lecture 9:</b> f-divergence minimization. GAN evaluation. Inception score, FID, Precision-Recall, truncation trick. |  |
+<!---
+| 9 | April, 10 | <b>Lecture 9:</b> GAN evaluation. Inception score, FID, Precision-Recall, truncation trick. |  |
 |  |  | <b>Seminar 9:</b> WGANs on multimodal 2D data. GANs zoo and evolution of GANs. StyleGAN coding. |  |
 | 10 | April, 17 | <b>Lecture 10:</b>  |  |
 |  |  | <b>Seminar 10:</b> StyleGAN: end discussions. Energy-Based models. |  |
@@ -62,8 +62,8 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 1 | February, 14 | February, 28 | <ol><li>Theory (Kernel density estimation, alpha-divergences, curse of dimensionality).</li><li>PixelCNN (receptive field, autocomplete) on MNIST.</li><li>ImageGPT on MNIST.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw1.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2024-DGM-AIMasters-course/blob/main/homeworks/hw1.ipynb) |
 | 2 | February, 28 | March, 13 | <ol><li>Theory (Sylvester flows, NF expressivity, Neural ODE Pontryagin theorem).</li><li>RealNVP on 2D data.</li><li>RealNVP on CIFAR10.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw2.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2024-DGM-AIMasters-course/blob/main/homeworks/hw2.ipynb) |
 | 3 | March, 13 | March, 27 | <ol><li>Theory (IWAE theory, MI in ELBO surgery, Gumbel-Max trick).</li><li>ResNetVAE on CIFAR10.</li><li>VQ-VAE with PixelCNN prior.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw3.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2024-DGM-AIMasters-course/blob/main/homeworks/hw3.ipynb) |
-<!---
 | 4 | March, 27 | April, 10 | <ol><li>Theory (Least Squares GAN, Conjugate functions, FID for Normal distributions).</li><li>WGAN/WGAN-GP on CIFAR10.</li><li>Inception Score and FID.</li></ol> | [![Open In Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=Open%20in%20Github&color=lightgrey)](homeworks/hw4.ipynb)<br>[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/r-isachenko/2024-DGM-AIMasters-course/blob/main/homeworks/hw4.ipynb) |
+<!---
 | 5 | April, 10 | April, 24 |  |  |
 | 6 | April, 24 | May, 15 |  |  |
 -->

@@ -11,12 +11,12 @@
 \begin{frame}{Recap of previous lecture}
 	\begin{itemize}
 		\item Standard Gaussian $p(\bz) = \mathcal{N}(0, \bI)$ $\Rightarrow$ over-regularization;
-		\item $p(\bz) = q_{\text{agg}}(\bz) = \frac{1}{n}\sum_{i=1}^n q(\bz | \bx_i)$ $\Rightarrow$ overfitting and highly expensive.
+		\item $p(\bz) = q_{\text{agg}}(\bz | \bphi) = \frac{1}{n}\sum_{i=1}^n q(\bz | \bx_i, \bphi)$ $\Rightarrow$ overfitting and highly expensive.
 	\end{itemize}
 	\begin{block}{ELBO revisiting}
 		\vspace{-0.4cm}
 		\[
-		\frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz) || {\color{violet}p(\bz | \blambda)})
+		\frac{1}{n}\sum_{i=1}^n \cL_i(q, \btheta) = \text{RL} - \text{MI} -  KL(q_{\text{agg}}(\bz | \bphi) || {\color{violet}p(\bz | \blambda)})
 		\]
 		It is Forward KL with respect to $p(\bz | \blambda)$.
 	\end{block}
@@ -111,21 +111,18 @@
 \begin{frame}{Informal theoretical results}
 	\vspace{-0.3cm}
 	\begin{itemize}
-		\footnotesize
-		\item Since $\bz$ usually has lower dimensionality compared to $\bx$, manifold $\bG_{\btheta}(\bz)$ has a measure 0 in $\bx$ space. Hence, support of $p(\bx | \btheta)$ lies on low-dimensional manifold.
+		\item The dimensionality of $\bz$ is lower than the dimensionality of $\bx$. Hence, support of $p(\bx | \btheta)$ with $\bx = \bG_{\btheta}(\bz)$ lies on low-dimensional manifold.
 		\item Distribution of real images $\pi(\bx)$ is also concentrated on a low dimensional manifold.
 		\begin{figure}
 			\centering
-			\includegraphics[width=0.5\linewidth]{figs/low_dim_manifold}
+			\includegraphics[width=0.55\linewidth]{figs/low_dim_manifold}
 		\end{figure}
-		\item If $\pi(\bx)$ and $p(\bx | \btheta)$ have disjoint supports, then there is a smooth optimal discriminator. We are not able to learn anything by backproping through it.
+		\item If $\pi(\bx)$ and $p(\bx | \btheta)$ have disjoint supports, then there is a smooth optimal discriminator.
 		\item For such low-dimensional disjoint manifolds
 		\vspace{-0.2cm}
 		\[
 		KL(\pi || p) = KL(p || \pi) = \infty, \quad JSD(\pi || p) = \log 2
 		\]
-		\vspace{-0.7cm}
-		\item Adding continuous noise to the inputs of the discriminator smoothes the distributions of the probability mass.
 	\end{itemize}
 	\myfootnote{\href{https://arxiv.org/abs/1904.08994}{Weng L. From GAN to WGAN, 2019} \\ 
 		\href{https://arxiv.org/abs/1701.04862}{Arjovsky M., Bottou L. Towards Principled Methods for Training Generative Adversarial Networks, 2017}}
@@ -381,7 +378,7 @@
 		\vspace{-0.3cm}
 	\end{block}
 	\begin{itemize}
-		\item Samples $\hat{\bx}_t = t \cdot \by + (1 - t) \cdot \bz$ with $t \in [0, 1]$ are uniformly sampled along straight lines between pairs of points: $\by$ from the data distribution $\pi(\bx)$ and $\bz$ from the generator distribution $p(\bx | \btheta)$.
+		\item Samples $\hat{\bx}_t = t \cdot \by + (1 - t) \cdot \bz$ with $t \in [0, 1]$ are uniformly sampled along straight lines between pairs of points: $\by \sim \pi(\bx)$ and $\bz \sim p(\bx | \btheta)$.
 		\item Enforcing the unit gradient norm constraint everywhere is intractable, it turns out to be sifficient to enforce it only along these straight lines.
 	\end{itemize}
 
