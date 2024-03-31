@@ -67,7 +67,7 @@
 	\begin{block}{NCSN objective}
 		\vspace{-0.2cm}
 		\[
-			{\color{olive}\bbE_{p(\bx' | \bx, \sigma_l)}}\bigl\| {\color{teal}\bs_{\btheta}(\bx', \sigma_l)} - {\color{violet}\nabla_{\bx'} \log p(\bx' | \bx, \sigma_l)} \bigr\|^2_2 \rightarrow \min_{\btheta}
+			{\color{olive}\bbE_{p(\bx' | \bx, \sigma_t)}}\bigl\| {\color{teal}\bs_{\btheta}(\bx', \sigma_t)} - {\color{violet}\nabla_{\bx'} \log p(\bx' | \bx, \sigma_t)} \bigr\|^2_2 \rightarrow \min_{\btheta}
 		\]
 	\end{block}
 	\vspace{-0.3cm}
@@ -79,7 +79,7 @@
 		\vspace{-0.7cm}
 	\end{block}
 	\begin{align*}
-		q(\bx_t | \bx_0) &= \cN(\bx_t | \sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI) \\
+		q(\bx_t | \bx_0) &= \cN(\sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI) \\
 		{\color{violet}\nabla_{\bx_t} \log q(\bx_t | \bx_0)} &= - \frac{\bx_t - \sqrt{\bar{\alpha}_t} \cdot \bx_0}{1 - \bar{\alpha}_t} = - \frac{\bepsilon}{\sqrt{1 - \bar{\alpha}_t}}.
 	\end{align*}
 		Let reparametrize our model: 
@@ -393,14 +393,14 @@
 	\begin{block}{Discretized Langevin SDE}
 		\vspace{-0.3cm}
 		\[
-			\bx_{t + 1} - \bx_t = \eta \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
+			\bx_{t + 1} - \bx_t = \frac{\eta}{2} \cdot \frac{\partial}{\partial \bx} \log p(\bx, t) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
 		\]
 		\vspace{-0.4cm}
 	\end{block}
 	\begin{block}{Langevin dynamic}
 		\vspace{-0.3cm}
 		\[
-			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx} \log p(\bx | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
+			\bx_{t + 1} = \bx_t + \frac{\eta}{2} \cdot \nabla_{\bx} \log p(\bx | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \eta \approx dt.
 		\]
 		\vspace{-0.3cm}
 	\end{block}
@@ -412,13 +412,13 @@
 	\begin{block}{Denoising score matching}
 		\vspace{-0.7cm}
 		\begin{align*}
-			\bx_l &= \bx + \sigma_l \cdot \bepsilon_l, \quad p(\bx_l | \bx, \sigma_l) = \cN(\bx_l | \bx, \sigma_l^2 \bI) \\
-			\bx_{l-1} &= \bx + \sigma_{l-1} \cdot \bepsilon_{l-1}, \quad p(\bx_{l-1} | \bx, \sigma_{l-1}) = \cN(\bx_{l-1} | \bx, \sigma_{l-1}^2 \bI)
+			\bx_l &= \bx + \sigma_l \cdot \bepsilon_l, \quad p(\bx_l | \bx, \sigma_l) = \cN(\bx, \sigma_l^2 \bI) \\
+			\bx_{l-1} &= \bx + \sigma_{l-1} \cdot \bepsilon_{l-1}, \quad p(\bx_{l-1} | \bx, \sigma_{l-1}) = \cN(\bx, \sigma_{l-1}^2 \bI)
 		\end{align*}
 	\end{block}
 	\vspace{-0.7cm}
 	\[
-		\bx_l = \bx_{l - 1} + \sqrt{\sigma^2_l - \sigma^2_{l-1}} \cdot \bepsilon, \quad p(\bx_l | \bx_{l-1}, \sigma_l) = \cN(\bx_l | \bx_{l-1}, (\sigma_l^2 - \sigma_{l-1}^2) \cdot \bI)
+		\bx_l = \bx_{l - 1} + \sqrt{\sigma^2_l - \sigma^2_{l-1}} \cdot \bepsilon, \quad p(\bx_l | \bx_{l-1}, \sigma_l) = \cN(\bx_{l-1}, (\sigma_l^2 - \sigma_{l-1}^2) \cdot \bI)
 	\]
 	Let turn this Markov chain to the continuous stochastic process~$\bx(t)$ taking $L \rightarrow \infty$:
 	\[
@@ -438,7 +438,7 @@
 	\begin{block}{Denoising Diffusion}
 		\vspace{-0.5cm}
 		\[
-			\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon, \quad q(\bx_t | \bx_{t-1}) = \cN(\bx_t | \sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI)
+			\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon, \quad q(\bx_t | \bx_{t-1}) = \cN(\sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI)
 		\]
 		\vspace{-0.5cm}
 	\end{block}

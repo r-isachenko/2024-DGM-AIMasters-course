@@ -178,25 +178,27 @@
 		\[
 		W_s(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \left(\bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \|^s\right)^{1/s}
 		\]
-		\vspace{-0.5cm}
+		\vspace{-0.6cm}
 	\end{block}
 	\begin{block}{Theorem}
 		If $\pi(\bx) = \cN(\bmu_\pi, \bSigma_\pi)$, $p(\by) = \cN(\bmu_p, \bSigma_p)$, then
 		\vspace{-0.3cm}
 		\[
-		W_2^2(\pi, p) =  \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
+		W_2^2(\pi, p) = \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Frechet Inception Distance}
+		\vspace{-0.3cm}
+		\[
+			\text{FID} (\pi, p) =  W_2^2(\pi, p)
 		\]
 		\vspace{-0.6cm}
 	\end{block}
-	\begin{block}{Frechet Inception Distance}
-		\vspace{-0.5cm}
-		\[
-		\text{FID} (\pi, p) =  \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	Representations are the outputs of the intermediate layer from the pretrained classification model.
-	
+	\begin{itemize}
+		\item Representations are the outputs of the intermediate layer from the pretrained classification model.
+		\item $\bmu_{\pi}$, $\bSigma_{\pi}$ and $\bmu_{p}$, $\bSigma_p$ are the statistics of the feature representations for the samples from $\pi(\bx)$ and $p(\bx | \btheta)$.
+	\end{itemize}
 	\myfootnotewithlink{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017}
 \end{frame}
 %=======
@@ -249,7 +251,7 @@
 \begin{frame}{Maximum Mean Discrepancy (MMD)}
 		\vspace{-0.6cm}
 		\[
-			\text{MMD}^2(\pi, p) = \bbE_{(\bx, \bx')} k(\bx, \bx') + \bbE_{(\by, \by')} k(\by, \by') - 2 \bbE_{(\bx, \by)} k(\bx, \by),
+			\text{MMD}^2(\pi, p) = \bbE_{(\bx, \bx')} k(\bx, \bx') + \bbE_{(\by, \by')} k(\by, \by') - 2 \bbE_{(\bx, \by)} k(\bx, \by)
 		\]
 		\vspace{-0.3cm}
 	\begin{figure}

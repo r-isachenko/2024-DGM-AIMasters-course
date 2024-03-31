@@ -13,30 +13,39 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\begin{block}{Langevin dynamic}
+		\vspace{-0.3cm}
+		\[
+			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot \nabla_{\bx_l} \log p(\bx_l | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Fisher divergence}
+		\vspace{-0.3cm}
+		\[
+			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Score function}
+		\vspace{-0.5cm}
+		 \[
+			 \bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)
+		 \]
+	 \vspace{-0.8cm}
+	\end{block}
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.75\linewidth]{figs/smld}
 	\end{figure}
-	\vspace{-0.3cm} 
-	\begin{block}{Theorem (implicit score matching)}
-		\vspace{-0.6cm}
-		\[
-		{\color{violet}\frac{1}{2} \bbE_{\pi}\bigl\| \bs_{\btheta}(\bx) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2} = {\color{teal}\bbE_{\pi}\Bigr[ \frac{1}{2}\| \bs_{\btheta}(\bx) \|_2^2 + \text{tr}\bigl(\nabla_{\bx} \bs_{\btheta}(\bx)\bigr) \Bigr]} + \text{const}
-		\]
-	\end{block}
-	\vspace{-0.5cm}
-	\begin{enumerate}
-		\item {\color{violet}The left hand side} is intractable due to unknown $\pi(\bx)$ -- \textbf{denoising score matching}. 
-		\item {\color{teal}The right hand side} is complex due to Hessian matrix -- \textbf{sliced score matching (Hutchinson's trace estimation)}.
-	\end{enumerate}
 	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	Let perturb original data by normal noise $p(\bx' | \bx, \sigma) = \cN(\bx' | \bx, \sigma^2 \bI)$
+	Let perturb original data by normal noise $q(\bx' | \bx, \sigma) = \cN(\bx, \sigma^2 \bI)$
 	\vspace{-0.3cm}
 	\[
-	\pi(\bx' | \sigma) = \int \pi(\bx) p(\bx' | \bx, \sigma) d\bx.
+	\pi(\bx' | \sigma) = \int \pi(\bx) q(\bx' | \bx, \sigma) d\bx.
 	\]
 	\vspace{-0.6cm} \\
 	Then the solution of 
@@ -49,11 +58,11 @@
 	\begin{block}{Theorem (denoising score matching)}
 		\vspace{-0.8cm}
 		\begin{multline*}
-			\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log p(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+			\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
 		\end{multline*}
 		\vspace{-0.8cm}
 	\end{block}
-	Here $\nabla_{\bx'} \log p(\bx' | \bx, \sigma) = - \frac{\bx' - \bx}{\sigma^2}$.
+	Here $\nabla_{\bx'} \log q(\bx' | \bx, \sigma) = - \frac{\bx' - \bx}{\sigma^2}$.
 	\begin{itemize}
 		\item The RHS does not need to compute $\nabla_{\bx'} \log \pi(\bx' | \sigma)$ and even more $\nabla_{\bx'} \log \pi(\bx')$.
 		\item $\bs_{\btheta}(\bx', \sigma)$ tries to \textbf{denoise} a corrupted sample.
@@ -65,14 +74,14 @@
 \begin{frame}{Recap of previous lecture}
 	\begin{block}{Noise conditioned score network}
 		\begin{itemize}
-			\item Define the sequence of noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_L$.
+			\item Define the sequence of noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_T$.
 			\item Train denoised score function $\bs_{\btheta}(\bx', \sigma)$ for each noise level:
 			\vspace{-0.3cm}
 			\[
-				\sum_{l=1}^L {\color{violet}\sigma_l^2} \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma_l)}\bigl\| \bs_{\btheta}(\bx', \sigma_l) - \nabla_\bx' \log p(\bx' | \bx, \sigma_l) \bigr\|^2_2 \rightarrow \min_{\btheta}
+				\sum_{t=1}^T {\color{violet}\sigma_t^2} \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma_t)}\bigl\| \bs_{\btheta}(\bx', \sigma_t) - \nabla_\bx' \log q(\bx' | \bx, \sigma_t) \bigr\|^2_2 \rightarrow \min_{\btheta}
 			\]
 			\vspace{-0.5cm}
-			\item Sample from \textbf{annealed} Langevin dynamics (for $l=1, \dots, L$).
+			\item Sample from \textbf{annealed} Langevin dynamics (for $t=1, \dots, T$).
 		\end{itemize}
 	\end{block}
 	\begin{figure}
@@ -88,9 +97,9 @@
 	\begin{block}{NCSN training}
 		\begin{enumerate}
 			\item Get the sample $\bx_0 \sim \pi(\bx)$.
-			\item Sample noise level $l \sim U[1, L]$ and the noise $\bepsilon \sim \cN(0, \bI)$.
-			\item Get noisy image $\bx' = \bx_0 + \sigma_l \cdot \bepsilon$.
-			\item Compute loss $ \cL = \| \bs_{\btheta}(\bx', \sigma_l) + \frac{\bepsilon}{\sigma_l} \|^2 $.
+			\item Sample noise level $t \sim U[1, T]$ and the noise $\bepsilon \sim \cN(0, \bI)$.
+			\item Get noisy image $\bx' = \bx_0 + \sigma_t \cdot \bepsilon$.
+			\item Compute loss $ \cL = \| \bs_{\btheta}(\bx', \sigma_t) + \frac{\bepsilon}{\sigma_t} \|^2 $.
 		\end{enumerate}
 	\end{block}
 	\begin{block}{NCSN sampling (annealed Langevin dynamics)}
@@ -99,10 +108,10 @@
 			\item Apply $T$ steps of Langevin dynamic
 			\vspace{-0.2cm}
 			\[
-				\bx_t = \bx_{t-1} + \frac{1}{2}\eta_l \bs_{\btheta}(\bx_{t - 1}, \sigma_l) + \sqrt{\eta_l} \bepsilon_t.
+				\bx_l = \bx_{l-1} + \frac{\eta_t}{2} \cdot \bs_{\btheta}(\bx_{l - 1}, \sigma_t) + \sqrt{\eta_t} \cdot \bepsilon_l.
 			\] 
 			\vspace{-0.5cm}
-			\item Update $\bx_0 := \bx_T$ and choose the next $\sigma_l$.
+			\item Update $\bx_0 := \bx_L$ and choose the next $\sigma_t$.
 		\end{itemize}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/2006.09011}{Song Y. et al. Improved Techniques for Training Score-Based Generative Models, 2020}
@@ -122,23 +131,25 @@
 		\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon, \quad \text{where }\bepsilon \sim \cN(0, \bI);
 	\]
 	\[
-		q(\bx_t | \bx_{t-1}) = \cN(\bx_t | \sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI).
+		q(\bx_t | \bx_{t-1}) = \cN(\sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI).
 	\]
 	\vspace{-0.5cm}
 	\begin{block}{Statement 1}
 		Let denote $\alpha_t = 1 - \beta_t$ and $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$. Then
-		\vspace{-0.2cm}
-		\begin{multline*}
-			\bx_t = \sqrt{\alpha_t} {\color{teal}\bx_{t-1}} + \sqrt{1 - \alpha_t} \boldsymbol{\epsilon}_t = \\
-			= \sqrt{\alpha_t} ({\color{teal} \sqrt{\alpha_{t-1}} \bx_{t-2} + \sqrt{1 - \alpha_{t-1}} \boldsymbol{\epsilon}_{t-1}}) + \sqrt{1 - \alpha_t} \boldsymbol{\epsilon}_t = \\
-			= \sqrt{\alpha_t \alpha_{t-1}} \bx_{t-2} + ( \sqrt{\alpha_t (1 - \alpha_{t-1})}  \boldsymbol{\epsilon}_{t-1} + \sqrt{1 - \alpha_t} \boldsymbol{\epsilon}_t) = \\
-			= \sqrt{\bar{\alpha}_t} \cdot \bx_{0} + \sqrt{1 - \bar{\alpha}_t} \cdot \bepsilon, \quad \text{where } \bepsilon \sim \cN(0, \bI).
-		\end{multline*}
-		\vspace{-0.4cm}
 		\[
-			q(\bx_t | \bx_0) = \cN(\bx_t | \sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI).
+			q(\bx_t | \bx_0) = \cN(\sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI)
 		\]
-		We could sample from any timestamp using only $\bx_0$!
+		We are able to sample from any timestamp using only $\bx_0$!
+		\vspace{-0.2cm}
+		{\small
+		\begin{multline*}
+			\bx_t = \sqrt{\alpha_t} \cdot {\color{teal}\bx_{t-1}} + \sqrt{1 - \alpha_t} \cdot \boldsymbol{\epsilon}_t = \\
+			= \sqrt{\alpha_t} ({\color{teal} \cdot \sqrt{\alpha_{t-1}} \bx_{t-2} + \sqrt{1 - \alpha_{t-1}} \cdot  \boldsymbol{\epsilon}_{t-1}}) + \sqrt{1 - \alpha_t} \cdot \boldsymbol{\epsilon}_t = \\
+			= \sqrt{\alpha_t \alpha_{t-1}} \cdot \bx_{t-2} + ( {\color{violet}\sqrt{\alpha_t (1 - \alpha_{t-1})} \cdot  \boldsymbol{\epsilon}_{t-1} + \sqrt{1 - \alpha_t} \cdot \boldsymbol{\epsilon}_t}) = \\
+			= \sqrt{\alpha_t \alpha_{t-1}} \cdot \bx_{t-2} + {\color{violet}\sqrt{1 - \alpha_{t-1} \alpha_t} \cdot \boldsymbol{\epsilon}'_t} = \\
+			 = \dots = \sqrt{\bar{\alpha}_t} \cdot \bx_{0} + \sqrt{1 - \bar{\alpha}_t} \cdot \bepsilon, \quad \text{where } \bepsilon \sim \cN(0, \bI).
+		\end{multline*}
+		}
 	\end{block}
 	\myfootnotewithlink{http://proceedings.mlr.press/v37/sohl-dickstein15.pdf}{Sohl-Dickstein J. Deep Unsupervised Learning using Nonequilibrium Thermodynamics, 2015}
  \end{frame}
@@ -146,8 +157,8 @@
 \begin{frame}{Forward gaussian diffusion process}
 	\vspace{-0.5cm}
 	\begin{align*}
-		q(\bx_t | \bx_{t-1}) &= \cN(\bx_t | \sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI); \\
-		q(\bx_t | \bx_0) &= \cN(\bx_t | \sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI).
+		q(\bx_t | \bx_{t-1}) &= \cN\left(\sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI\right); \\
+		q(\bx_t | \bx_0) &= \cN\left(\sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI\right).
 	\end{align*}
 	At each step we
 	\begin{itemize}
@@ -155,7 +166,7 @@
 		\item add noise with variance $\beta_t$.
 	\end{itemize}
 	\begin{block}{Statement 2}
-		Applying the Markov chain to samples from any $\pi(\bx)$ we will get $\bx_{\infty} \sim p_{\infty}(\bx) = \cN(0, 1)$. Here $p_{\infty}(\bx)$ is a \textbf{stationary} and \textbf{limiting} distribution:
+		Applying the Markov chain to samples from any $\pi(\bx)$ we will get $\bx_{\infty} \sim p_{\infty}(\bx) = \cN(0, \bI)$. Here $p_{\infty}(\bx)$ is a \textbf{stationary} and \textbf{limiting} distribution:
 		\vspace{-0.2cm}
 		\[
 			p_{\infty}(\bx) = \int q(\bx | \bx') p_{\infty}(\bx') d \bx'. 
@@ -177,12 +188,50 @@
 	\vspace{-0.6cm}
 	\begin{enumerate}
 		\item $\bx_0 = \bx \sim \pi(\bx)$;
-		\item $\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon$, where $\bepsilon \sim \cN(0, 1)$, $t \geq 1$;
-		\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, 1)$, where $T >> 1$.
+		\item $\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon$, where $\bepsilon \sim \cN(0, \bI)$, $t \geq 1$;
+		\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$, where $T >> 1$.
 	\end{enumerate}
 	If we are able to invert this process, we will get the way to sample $\bx \sim \pi(\bx)$ using noise samples $p_{\infty}(\bx) = \cN(0, \mathbf{I})$. \\ 
 	Now our goal is to revert this process.
 	\myfootnotewithlink{https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html}{Das A. An introduction to Diffusion Probabilistic Models, blog post, 2021}
+\end{frame}
+%=======
+\subsection{Denoising score matching}
+%=======
+\begin{frame}{Denoising score matching}
+	\begin{block}{NCSN} 
+		\[
+			\quad q(\bx_t | \bx_0) = \cN(\bx, \sigma_t^2 \bI)
+		\]
+		\[
+			\pi(\bx' | \sigma_1) \approx \cN(0, \sigma_1^2 \bI), \quad \pi(\bx' | \sigma_T) \approx \pi(\bx).
+		\]
+	\end{block}
+	\begin{block}{Gaussian diffussion}
+	\[
+		q(\bx_t | \bx_0) = \cN(\sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI).
+	\]
+	\[
+		q(\bx_1) \approx \pi(\bx), \quad q(\bx_T) \approx \cN(0, \bI).
+	\]
+	\end{block}
+	\vspace{-0.4cm} 
+	\begin{block}{Theorem}
+	\vspace{-0.5cm}
+	\begin{multline*}
+		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\
+		= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+	\end{multline*}
+	\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Gradient of the noise kernel}
+		\vspace{-0.4cm}
+		\[
+			\nabla_{\bx'} \log q(\bx' | \bx, \sigma) = \nabla_{\bx'} \log \cN(\bx, \sigma^2 \bI) = - \frac{\bx' - \bx}{\sigma^2}
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
 \end{frame}
 %=======
 \subsection{Reverse gaussian diffusion process}
@@ -195,7 +244,7 @@
 	\begin{block}{Forward process}
 		\vspace{-0.3cm}
 		\[
-			q(\bx_t | \bx_{t-1}) = \cN(\bx_t | \sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI).
+			q(\bx_t | \bx_{t-1}) = \cN\left(\sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI\right).
 		\]
 		\vspace{-0.5cm}
 	\end{block}
@@ -240,7 +289,7 @@
 	Let define the reverse process
 	\vspace{-0.2cm}
 	\[
-		q(\bx_{t-1}|\bx_{t}) \approx p(\bx_{t - 1} | \bx_t, \btheta) = \cN \bigl(\bx_{t - 1} | \bmu_{\btheta}(\bx_t, t), \bsigma_{\btheta}^2(\bx_t, t)\bigr)
+		q(\bx_{t-1}|\bx_{t}) \approx p(\bx_{t - 1} | \bx_t, \btheta) = \cN \left(\bmu_{\btheta}(\bx_t, t), \bsigma_{\btheta}^2(\bx_t, t)\right)
 	\]
 	\vspace{-0.7cm}
 	\begin{minipage}{0.5\linewidth}

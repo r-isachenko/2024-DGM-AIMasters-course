@@ -36,32 +36,25 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	Let take some pretrained image classification model to get the conditional label distribution $p(y | \bx)$ (e.g. ImageNet classifier).
-	\begin{block}{Evaluation of likelihood-free models}
-		\begin{itemize}
-			\item Sharpness $\Rightarrow$ low $H(y | \bx) = - \sum_{y} \int_{\bx} p(y, \bx) \log p(y | \bx) d\bx$.
-			\item Diversity $\Rightarrow$ high $H(y)  = - \sum_{y} p(y) \log p(y)$.
-		\end{itemize}
-	\end{block}
 	\vspace{-0.3cm}
-	\begin{block}{Inception Score}
-		\vspace{-0.2cm}
-		\[
-			IS = \exp(H(y) - H(y | \bx)) = \exp \left( \bbE_{\bx} KL(p(y | \bx) || p(y)) \right)
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	\begin{block}{Frechet Inception Distance}
+	\begin{block}{Frechet Inception Distance (FID)}
+		In case of Normal distributions $\pi(\bx) = \cN(\bmu_\pi, \bSigma_\pi)$, $p(\by) = \cN(\bmu_p, \bSigma_p)$:
 		\vspace{-0.3cm}
+		\begin{multline*}
+			\text{FID} (\pi, p) =  W_2^2(\pi, p) = \inf_{\gamma \in \Gamma(\pi, p)} \bbE_{(\bx, \by) \sim \gamma} \| \bx - \by \|^2 \\
+			= \| \bmu_{\pi} - \bmu_{p}\|_2^2 + \text{tr} \left[ \bSigma_{\pi} + \bSigma_p - 2 \left(\bSigma_{\pi}^{1/2} \bSigma_p \bSigma_{\pi}^{1/2} \right)^{1/2} \right]
+		\end{multline*}
+		\vspace{-0.6cm}
+	\end{block}		
+	\begin{block}{Maximum Mean Discrepancy (MMD)}
+		$\pi(\bx) = p(\by)$ if and only if $\bbE_{\pi(\bx)} f(\bx) = \bbE_{p(\by)} f(\by)$ for any bounded and continuous $f$
 		\[
-			D^2 (\pi, p) = \| \mathbf{m}_{\pi} - \mathbf{m}_{p}\|_2^2 + \text{Tr} \left( \bSigma_{\pi} + \bSigma_p - 2 \sqrt{\bSigma_{\pi} \bSigma_p} \right).
+			\text{MMD}^2(\pi, p) = \bbE_{(\bx, \bx')} k(\bx, \bx') + \bbE_{(\by, \by')} k(\by, \by') - 2 \bbE_{(\bx, \by)} k(\bx, \by).
 		\]
-		\vspace{-0.5cm}
-	\end{block}
-	FID is related to moment matching.
+	\end{block}		
 	
-	\myfootnote{\href{https://arxiv.org/abs/1606.03498}{Salimans T. et al. Improved Techniques for Training GANs, 2016} \\
-	\href{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017} }
+	\myfootnote{\href{https://arxiv.org/abs/1706.08500}{Heusel M. et al. GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, 2017} \\
+	\href{https://arxiv.org/abs/2401.09603}{Jayasumana S. et al. Rethinking FID: Towards a Better Evaluation Metric for Image Generation, 2024} }
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
@@ -103,9 +96,9 @@
 		Let $\bx_0$ be a random vector. Then samples from the following dynamics
 		\vspace{-0.3cm}
 		\[
-			\bx_{t + 1} = \bx_t + \eta \frac{1}{2} \nabla_{\bx_t} \log p(\bx_t | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
+			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot \nabla_{\bx_l} \log p(\bx_l | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
 		\]
-		will come from $p(\bx | \btheta)$ under mild regularity conditions for small enough $\eta$ and large enough $t$.
+		will come from $p(\bx | \btheta)$ (under mild regularity conditions, for small enough $\eta$ and large enough $l$).
 	\end{block}
 	\begin{minipage}{0.55\linewidth}
 		\begin{itemize}
@@ -124,15 +117,19 @@
 	\end{frame}
 %=======
 \begin{frame}{Energy-based models}
-	\begin{itemize}
-		\item We could sample from the model using Langevin dynamics if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
-		\item Where is it helpful?
-	\end{itemize}
+	\begin{block}{Langevin dynamic}
+		\vspace{-0.3cm}
+		\[
+			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot \nabla_{\bx_l} \log p(\bx_l | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
+		\]
+		We are able to sample from the model using Langevin dynamics if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
+	\end{block}
 	\begin{block}{Unnormalized density}
 		\vspace{-0.2cm}
 		\[
 			p(\bx | \btheta) = \frac{\hat{p}(\bx | \btheta)}{Z_{\btheta}}, \quad \text{where } Z_{\btheta} = \int \hat{p}(\bx | \btheta) d \bx
 		\]
+		\vspace{-0.3cm}
 		\begin{itemize}
 			\item $\hat{p}(\bx | \btheta)$ is any non-negative function. \\
 			\item If we use the reparametrization $\hat{p}(\bx | \btheta) = \exp(-f_{\btheta}(\bx))$, we remove the non-negativite constraint.
@@ -145,22 +142,30 @@
 \end{frame}
 %=======
 \begin{frame}{Score matching}
-	We could sample from the model using Langevin dynamics if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
+	\vspace{-0.2cm}
 	\begin{block}{Fisher divergence}
-		\vspace{-0.3cm}
+		\vspace{-0.4cm}
 		\[
 		D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
 		\]
-		\vspace{-0.5cm}
+		\vspace{-0.7cm}
 	\end{block}
-	Let introduce \textbf{score function} $\bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)$. 
-	\vspace{-0.2cm}
+	\begin{block}{Score function}
+		\vspace{-0.5cm}
+		 \[
+			 \bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)
+		 \]
+		 \vspace{-0.8cm}
+	\end{block}
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.75\linewidth]{figs/smld}
 	\end{figure}
 	\vspace{-0.3cm} 
-	\textbf{Problem:} we do not know $\nabla_\bx \log \pi(\bx)$.
+	\begin{itemize}
+		\item If we find the score function $\bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)$ we will be able to sample from the model using Langevin dynamic. 
+		\item \textbf{We do not know $\nabla_\bx \log \pi(\bx)$}.
+	\end{itemize}
 	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
 \end{frame}
 %=======
@@ -169,11 +174,11 @@
 \begin{frame}{Denoising score matching}
 	Let perturb original data $\bx \sim \pi(\bx)$ by random normal noise 
 	\[
-		\bx' = \bx + \sigma \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI), \quad p(\bx' | \bx, \sigma) = \cN(\bx' | \bx, \sigma^2 \bI)
+		\bx' = \bx + \sigma \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI), \quad q(\bx' | \bx, \sigma) = \cN(\bx, \sigma^2 \bI)
 	\]
 	\vspace{-0.4cm}
 	\[
-		\pi(\bx' | \sigma) = \int p(\bx' | \bx, \sigma) \pi(\bx) d\bx.
+		\pi(\bx' | \sigma) = \int q(\bx' | \bx, \sigma) \pi(\bx) d\bx.
 	\]
 	\vspace{-0.4cm} 
 	\begin{block}{Assumption}
@@ -196,7 +201,7 @@
 	\vspace{-0.5cm}
 	\begin{multline*}
 		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\
-		= \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log p(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+		= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
 	\end{multline*}
 	\vspace{-0.5cm}
 	\end{block}
@@ -210,7 +215,7 @@
 		\vspace{-0.7cm}
 		\begin{multline*}
 			\bbE_{\pi(\bx' | \sigma)} {\color{olive} \| \bs_{\btheta}(\bx', \sigma) \|^2} = \int {\color{violet}\pi(\bx' | \sigma)} \| \bs_{\btheta}(\bx', \sigma) \|^2 d\bx' = \\
-			= \int \left({\color{violet}\int p(\bx' | \bx, \sigma) \pi(\bx) d\bx}\right) \| \bs_{\btheta}(\bx', \sigma) \|^2 d\bx' =  \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)}  \| \bs_{\btheta}(\bx', \sigma) \|^2 d\bx'
+			= \int \left({\color{violet}\int q(\bx' | \bx, \sigma) \pi(\bx) d\bx}\right) \| \bs_{\btheta}(\bx', \sigma) \|^2 d\bx' =  \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}  \| \bs_{\btheta}(\bx', \sigma) \|^2 d\bx'
 		\end{multline*}
 		}
 	\end{block}
@@ -222,7 +227,7 @@
 	\vspace{-0.5cm}
 	\begin{multline*}
 		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\
-		= \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log p(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+		= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
 	\end{multline*}
 	\vspace{-0.5cm}
 	\end{block}
@@ -231,10 +236,10 @@
 		{\small
 		\begin{multline*}
 			\bbE_{\pi(\bx' | \sigma)} \left[{\color{teal}\bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'} \log \pi(\bx' | \sigma)} \right] = \int \pi(\bx' | \sigma) \left[\bs_{\btheta}^T(\bx', \sigma) \frac{\nabla_{\bx'} {\color{violet}\pi(\bx' | \sigma)}}{\pi(\bx' | \sigma)} \right] d \bx' = \\
-			= \int \left[\bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'}\left({\color{violet}\int p(\bx' | \bx, \sigma) \pi(\bx) d\bx}\right) \right] d \bx' = \\
-			=  \int \int \pi(\bx) \left[\bs_{\btheta}^T(\bx', \sigma) {\color{olive}\nabla_{\bx'}p(\bx' | \bx, \sigma)} \right] d \bx' d\bx = \\
-			= \int \int \pi(\bx) {\color{olive} p(\bx' | \bx, \sigma)} \left[\bs_{\btheta}^T(\bx', \sigma) {\color{olive}\nabla_{\bx'} \log p(\bx' | \bx, \sigma)} \right] d \bx' d\bx = \\
-			= \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)} \left[{\color{teal}\bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'} \log p(\bx' | \bx, \sigma)} \right]
+			= \int \left[\bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'}\left({\color{violet}\int q(\bx' | \bx, \sigma) \pi(\bx) d\bx}\right) \right] d \bx' = \\
+			=  \int \int \pi(\bx) \left[\bs_{\btheta}^T(\bx', \sigma) {\color{olive}\nabla_{\bx'}q(\bx' | \bx, \sigma)} \right] d \bx' d\bx = \\
+			= \int \int \pi(\bx) {\color{olive} q(\bx' | \bx, \sigma)} \left[\bs_{\btheta}^T(\bx', \sigma) {\color{olive}\nabla_{\bx'} \log q(\bx' | \bx, \sigma)} \right] d \bx' d\bx = \\
+			= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)} \left[{\color{teal}\bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'} \log q(\bx' | \bx, \sigma)} \right]
 		\end{multline*}
 		}
 	\end{block}
@@ -246,7 +251,7 @@
 	\vspace{-0.7cm}
 	\begin{multline*}
 		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\
-		= \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log p(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+		= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
 	\end{multline*}
 	\vspace{-0.9cm}
 	\end{block}
@@ -256,7 +261,7 @@
 		\begin{multline*}
 			\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\ 
 			= {\color{olive}\bbE_{\pi(\bx' | \sigma)}} \Bigl[\| \bs_{\btheta}(\bx', \sigma) \|^2 - 2 \bs_{\btheta}^T(\bx', \sigma) {\color{teal}\nabla_{\bx'} \log \pi(\bx' | \sigma)} \Bigr] + \text{const}(\btheta) = \\
-			= {\color{olive}\bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma)}}\Bigl[\| \bs_{\btheta}(\bx', \sigma) \|^2 - 2 \bs_{\btheta}^T(\bx', \sigma) {\color{teal}\nabla_{\bx'} \log p(\bx' | \bx, \sigma)} \Bigr] + \text{const}(\btheta)
+			= {\color{olive}\bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}}\Bigl[\| \bs_{\btheta}(\bx', \sigma) \|^2 - 2 \bs_{\btheta}^T(\bx', \sigma) {\color{teal}\nabla_{\bx'} \log q(\bx' | \bx, \sigma)} \Bigr] + \text{const}(\btheta)
 		\end{multline*}
 		}
 		\vspace{-0.8cm}
@@ -264,7 +269,7 @@
 	\begin{block}{Gradient of the noise kernel}
 	\vspace{-0.4cm}
 	\[
-		\nabla_{\bx'} \log p(\bx' | \bx, \sigma) = \nabla_{\bx'} \log \cN(\bx' | \bx, \sigma^2 \bI) = - \frac{\bx' - \bx}{\sigma^2}
+		\nabla_{\bx'} \log q(\bx' | \bx, \sigma) = \nabla_{\bx'} \log \cN(\bx, \sigma^2 \bI) = - \frac{\bx' - \bx}{\sigma^2}
 	\]
 	\vspace{-0.5cm}
 	\end{block}
@@ -290,11 +295,11 @@
 %=======
 \begin{frame}{Noise Conditioned Score Network (NCSN)}
 	\begin{itemize}
-		\item Define the sequence of the noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_L$.
-		\item Perturb the original data with the different noise levels to obtain $\pi(\bx' | \sigma_1), \dots, \pi(\bx' | \sigma_L)$.
-		\item Choose $\sigma_1, \sigma_L$ such that:
+		\item Define the sequence of the noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_T$.
+		\item Perturb the original data with the different noise levels to obtain $\pi(\bx' | \sigma_1), \dots, \pi(\bx' | \sigma_T)$.
+		\item Choose $\sigma_1, \sigma_T$ such that:
 		\[
-			\pi(\bx' | \sigma_1) \approx \cN(0, \sigma_1^2 \bI), \quad \pi(\bx' | \sigma_L) \approx \pi(\bx).
+			\pi(\bx' | \sigma_1) \approx \cN(0, \sigma_1^2 \bI), \quad \pi(\bx' | \sigma_T) \approx \pi(\bx).
 		\]
 	\end{itemize}
 	\begin{figure}
@@ -310,15 +315,15 @@
 	Train the denoising score function $\bs_{\btheta}(\bx', \sigma)$ for each noise level using unified weighted objective:
 	\vspace{-0.2cm}
 	\[
-		\sum_{l=1}^L {\color{violet}\sigma_l^2} \bbE_{\pi(\bx)} \bbE_{p(\bx' | \bx, \sigma_l)}\bigl\| \bs_{\btheta}(\bx', \sigma_l) - \nabla_{\bx'} \log p(\bx' | \bx, \sigma_l) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\sum_{t=1}^T {\color{violet}\sigma_t^2} \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma_t)}\bigl\| \bs_{\btheta}(\bx', \sigma_t) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma_t) \bigr\|^2_2 \rightarrow \min_{\btheta}
 	\]
-	Here $\nabla_{\bx'} \log p(\bx' | \bx, \sigma_l) = - \frac{\bx' - \bx}{\sigma_l^2} = - \frac{\bepsilon}{\sigma_l}$.
+	Here $\nabla_{\bx'} \log q(\bx' | \bx, \sigma_t) = - \frac{\bx' - \bx}{\sigma_t^2} = - \frac{\bepsilon}{\sigma_t}$.
 	\begin{block}{Training}
 		\begin{enumerate}
 			\item Get the sample $\bx_0 \sim \pi(\bx)$.
-			\item Sample noise level $l \sim U[1, L]$ and the noise $\bepsilon \sim \cN(0, \bI)$.
-			\item Get noisy image $\bx' = \bx_0 + \sigma_l \cdot \bepsilon$.
-			\item Compute loss $ \cL = \| \bs_{\btheta}(\bx', \sigma_l) + \frac{\bepsilon}{\sigma_l} \|^2 $.
+			\item Sample noise level $t \sim U[1, T]$ and the noise $\bepsilon \sim \cN(0, \bI)$.
+			\item Get noisy image $\bx' = \bx_0 + \sigma_t \cdot \bepsilon$.
+			\item Compute loss $ \cL = \| \bs_{\btheta}(\bx', \sigma_t) + \frac{\bepsilon}{\sigma_t} \|^2 $.
 		\end{enumerate}
 	\end{block}
 	How to sample from this model?
@@ -329,13 +334,13 @@
 	\begin{block}{Sampling (annealed Langevin dynamics)}
 		\begin{itemize}
 			\item Sample $\bx_0 \sim \cN(0, \sigma_1 \bI) \approx \pi(\bx | \sigma_1)$.
-			\item Apply $T$ steps of Langevin dynamic
+			\item Apply $L$ steps of Langevin dynamic
 			\vspace{-0.2cm}
 			\[
-				\bx_t = \bx_{t-1} + \frac{1}{2}\eta_l \bs_{\btheta}(\bx_{t - 1}, \sigma_l) + \sqrt{\eta_l} \bepsilon_t.
+				\bx_l = \bx_{l-1} + \frac{\eta_t}{2} \cdot \bs_{\btheta}(\bx_{l - 1}, \sigma_t) + \sqrt{\eta_t} \cdot \bepsilon_l.
 			\] 
 			\vspace{-0.5cm}
-			\item Update $\bx_0 := \bx_T$ and choose the next $\sigma_l$.
+			\item Update $\bx_0 := \bx_L$ and choose the next $\sigma_t$.
 		\end{itemize}
 	\end{block}
 	\begin{figure}
