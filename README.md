@@ -1,4 +1,4 @@
-# Deep Generative Models course, AIMasters, 2023
+# Deep Generative Models course, AIMasters, 2024
 
 ## Description
 The course is devoted to modern generative models (mostly in the application to computer vision).
