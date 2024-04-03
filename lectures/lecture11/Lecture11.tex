@@ -155,19 +155,19 @@
  \end{frame}
 %=======
 \begin{frame}{Forward gaussian diffusion process}
+	\vspace{-0.7cm}
+	{\small
+	\[
+		q(\bx_t | \bx_{t-1}) = \cN\left(\sqrt{1 - \beta_t} \bx_{t-1}, \beta_t \bI\right); \quad q(\bx_t | \bx_0) = \cN\left(\sqrt{\bar{\alpha}_t} \bx_0, (1 - \bar{\alpha}_t) \bI\right).
+	\]
+	}
+	\vspace{-0.8cm}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{figs/conditional_diffusion}
+	\end{figure}
 	\vspace{-0.5cm}
-	\begin{align*}
-		q(\bx_t | \bx_{t-1}) &= \cN\left(\sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI\right); \\
-		q(\bx_t | \bx_0) &= \cN\left(\sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI\right).
-	\end{align*}
-	At each step we
-	\begin{itemize}
-		\item scale magnitude of the signal at rate $\sqrt{1 - \beta_t}$;
-		\item add noise with variance $\beta_t$.
-	\end{itemize}
 	\begin{block}{Statement 2}
 		Applying the Markov chain to samples from any $\pi(\bx)$ we will get $\bx_{\infty} \sim p_{\infty}(\bx) = \cN(0, \bI)$. Here $p_{\infty}(\bx)$ is a \textbf{stationary} and \textbf{limiting} distribution:
-		\vspace{-0.2cm}
 		\[
 			p_{\infty}(\bx) = \int q(\bx | \bx') p_{\infty}(\bx') d \bx'. 
 		\]
@@ -176,7 +176,8 @@
 		\]
 		\vspace{-0.8cm}
 	\end{block}
-	\myfootnotewithlink{http://proceedings.mlr.press/v37/sohl-dickstein15.pdf}{Sohl-Dickstein J. Deep Unsupervised Learning using Nonequilibrium Thermodynamics, 2015}
+		%
+	\myfootnote{\href{https://arxiv.org/abs/2403.18103}{Chan S. Tutorial on Diffusion Models for Imaging and Vision, 2024} \\ \href{http://proceedings.mlr.press/v37/sohl-dickstein15.pdf}{Sohl-Dickstein J. Deep Unsupervised Learning using Nonequilibrium Thermodynamics, 2015}}
  \end{frame}
 %=======
 \begin{frame}{Forward gaussian diffusion process}
