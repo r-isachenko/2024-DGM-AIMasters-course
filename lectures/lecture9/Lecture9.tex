@@ -59,11 +59,11 @@
 %=======
 \begin{frame}{Recap of previous lecture}
 	\begin{block}{WGAN objective}
-		\vspace{-0.5cm}
+		\vspace{-0.3cm}
 		\[
 		\min_{\btheta} W(\pi || p) = \min_{\btheta} \max_{\bphi \in \boldsymbol{\Phi}} \left[ \bbE_{\pi(\bx)} f_{\bphi}(\bx)  - \bbE_{p(\bz)} f_{\bphi}(\bG_{\btheta}(\bz))\right].
 		\]
-		\vspace{-0.5cm}
+		\vspace{-0.3cm}
 	\end{block}
 	\begin{itemize}
 		\item Function~$f$ in WGAN is usually called $\textit{critic}$.
@@ -348,17 +348,102 @@
 	\href{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A Style-Based Generator Architecture for Generative Adversarial Networks, 2018}}
 \end{frame}
 %=======
+\section{Langevin dynamic and score matching}
+%=======
+\begin{frame}{Langevin dynamic}
+	\vspace{-0.4cm}
+	\begin{block}{Statement}
+		Let $\bx_0$ be a random vector. Then samples from the following dynamics
+		\vspace{-0.3cm}
+		\[
+			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot \nabla_{\bx_l} \log p(\bx_l | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
+		\]
+		will come from $p(\bx | \btheta)$ (under mild regularity conditions, for small enough $\eta$ and large enough $l$).
+	\end{block}
+	\begin{minipage}{0.55\linewidth}
+		\begin{itemize}
+			\item Here we assume that we already have some generative model $p(\bx | \btheta)$.
+			\item The density $p(\bx | \btheta)$ is a \textbf{stationary} distribution for this SDE. \\
+			\item What do we get if $\bepsilon = \boldsymbol{0}$?
+		\end{itemize}
+	\end{minipage}%
+	\begin{minipage}{0.4\linewidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.9\linewidth]{figs/langevin_dynamic}
+		\end{figure}
+	\end{minipage}
+	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021} 
+	\end{frame}
+%=======
+\begin{frame}{Energy-based models}
+	\begin{block}{Langevin dynamic}
+		\vspace{-0.3cm}
+		\[
+			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot \nabla_{\bx_l} \log p(\bx_l | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
+		\]
+		We are able to sample from the model using Langevin dynamics if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
+	\end{block}
+	\begin{block}{Unnormalized density}
+		\vspace{-0.2cm}
+		\[
+			p(\bx | \btheta) = \frac{\hat{p}(\bx | \btheta)}{Z_{\btheta}}, \quad \text{where } Z_{\btheta} = \int \hat{p}(\bx | \btheta) d \bx
+		\]
+		\vspace{-0.3cm}
+		\begin{itemize}
+			\item $\hat{p}(\bx | \btheta)$ is any non-negative function. \\
+			\item If we use the reparametrization $\hat{p}(\bx | \btheta) = \exp(-f_{\btheta}(\bx))$, we remove the non-negativite constraint.
+		\end{itemize}
+		\[
+			\nabla_{\bx} \log p(\bx | \btheta) = \nabla_{\bx} \log \hat{p}(\bx | \btheta) - \nabla_{\bx} \log Z_{\btheta} = \nabla_{\bx} \log \hat{p}(\bx | \btheta)
+		\]
+		The gradient of the normalized density equals to the gradient of the unnormalized density.
+	\end{block}
+\end{frame}
+%=======
+\begin{frame}{Score matching}
+	\vspace{-0.2cm}
+	\begin{block}{Fisher divergence}
+		\vspace{-0.4cm}
+		\[
+		D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Score function}
+		\vspace{-0.7cm}
+		 \[
+			 \bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)
+		 \]
+		 \vspace{-0.9cm}
+	\end{block}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.75\linewidth]{figs/smld}
+	\end{figure}
+	\vspace{-0.3cm} 
+	\begin{itemize}
+		\item If we find the score function $\bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)$ we will be able to sample from the model using Langevin dynamic. 
+		\item \textbf{We do not know $\nabla_\bx \log \pi(\bx)$}.
+	\end{itemize}
+	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
+\end{frame}
+%=======
 \begin{frame}{Summary}
 	\begin{itemize}
-		\item We need measure of quality for implicit models like GANs. One way is to analyze sharpness and diversity of samples.
+		\item We need a measure of quality for the implicit models (like GANs). 
 		\vfill 
-		\item Frechet Inception Distance is the most popular metric for GAN evaluation. 
+		\item Frechet Inception Distance is the most popular metric for the implicit models evaluation. 
 		\vfill
 		\item Maximum Mean Discrepancy tries to fix some of the FID drawbacks.
 		\vfill
 		\item Precision-recall allow to select model that compromises the sample quality and the sample diversity.	
 		\vfill 
-		\item Truncation tricks help to select model with compromised samples: diverse and sharp.
+		\item Truncation tricks help to select model with the compromised samples: diverse and sharp.
+		\vfill
+		\item Langevin dynamic allows to sample from the generative model using the gradient of the log-likelihood.	
+		\vfill
+		\item Score matching proposes to minimize the Fisher divergence to get the score function.
 	\end{itemize}
 \end{frame}
 %=======

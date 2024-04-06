@@ -13,35 +13,6 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	\begin{block}{Langevin dynamic}
-		\vspace{-0.3cm}
-		\[
-			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot \nabla_{\bx_l} \log p(\bx_l | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
-		\]
-		\vspace{-0.7cm}
-	\end{block}
-	\begin{block}{Fisher divergence}
-		\vspace{-0.3cm}
-		\[
-			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
-		\]
-		\vspace{-0.7cm}
-	\end{block}
-	\begin{block}{Score function}
-		\vspace{-0.5cm}
-		 \[
-			 \bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)
-		 \]
-	 \vspace{-0.8cm}
-	\end{block}
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.75\linewidth]{figs/smld}
-	\end{figure}
-	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
-\end{frame}
-%=======
-\begin{frame}{Recap of previous lecture}
 	Let perturb original data by normal noise $q(\bx' | \bx, \sigma) = \cN(\bx, \sigma^2 \bI)$
 	\vspace{-0.3cm}
 	\[

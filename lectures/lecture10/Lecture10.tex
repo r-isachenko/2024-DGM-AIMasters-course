@@ -84,69 +84,18 @@
 		\myfootnotewithlink{https://arxiv.org/abs/1904.06991}{Kynkäänniemi T. et al. Improved precision and recall metric for assessing generative models, 2019}
 \end{frame}
 %=======
-\begin{frame}{Outline}
-	\tableofcontents
-\end{frame}
-%=======
-\section{Langevin dynamic}
-%=======
-\begin{frame}{Langevin dynamic}
-	\vspace{-0.4cm}
-	\begin{block}{Statement}
-		Let $\bx_0$ be a random vector. Then samples from the following dynamics
-		\vspace{-0.3cm}
-		\[
-			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot \nabla_{\bx_l} \log p(\bx_l | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
-		\]
-		will come from $p(\bx | \btheta)$ (under mild regularity conditions, for small enough $\eta$ and large enough $l$).
-	\end{block}
-	\begin{minipage}{0.55\linewidth}
-		\begin{itemize}
-			\item Here we assume that we already have some generative model $p(\bx | \btheta)$.
-			\item The density $p(\bx | \btheta)$ is a \textbf{stationary} distribution for this SDE. \\
-			\item What do we get if $\bepsilon = \boldsymbol{0}$?
-		\end{itemize}
-	\end{minipage}%
-	\begin{minipage}{0.4\linewidth}
-		\begin{figure}
-			\centering
-			\includegraphics[width=0.9\linewidth]{figs/langevin_dynamic}
-		\end{figure}
-	\end{minipage}
-	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021} 
-	\end{frame}
-%=======
-\begin{frame}{Energy-based models}
+\begin{frame}{Recap of previous lecture}
 	\begin{block}{Langevin dynamic}
 		\vspace{-0.3cm}
 		\[
 			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot \nabla_{\bx_l} \log p(\bx_l | \btheta) + \sqrt{\eta} \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI).
 		\]
-		We are able to sample from the model using Langevin dynamics if we have $\nabla_{\bx}\log p(\bx| \btheta)$.
+		\vspace{-0.7cm}
 	\end{block}
-	\begin{block}{Unnormalized density}
-		\vspace{-0.2cm}
-		\[
-			p(\bx | \btheta) = \frac{\hat{p}(\bx | \btheta)}{Z_{\btheta}}, \quad \text{where } Z_{\btheta} = \int \hat{p}(\bx | \btheta) d \bx
-		\]
-		\vspace{-0.3cm}
-		\begin{itemize}
-			\item $\hat{p}(\bx | \btheta)$ is any non-negative function. \\
-			\item If we use the reparametrization $\hat{p}(\bx | \btheta) = \exp(-f_{\btheta}(\bx))$, we remove the non-negativite constraint.
-		\end{itemize}
-		\[
-			\nabla_{\bx} \log p(\bx | \btheta) = \nabla_{\bx} \log \hat{p}(\bx | \btheta) - \nabla_{\bx} \log Z_{\btheta} = \nabla_{\bx} \log \hat{p}(\bx | \btheta)
-		\]
-		The gradient of the normalized density equals to the gradient of the unnormalized density.
-	\end{block}
-\end{frame}
-%=======
-\begin{frame}{Score matching}
-	\vspace{-0.2cm}
 	\begin{block}{Fisher divergence}
-		\vspace{-0.4cm}
+		\vspace{-0.3cm}
 		\[
-		D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
 		\]
 		\vspace{-0.7cm}
 	\end{block}
@@ -155,18 +104,17 @@
 		 \[
 			 \bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)
 		 \]
-		 \vspace{-0.8cm}
+	 \vspace{-0.8cm}
 	\end{block}
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.75\linewidth]{figs/smld}
 	\end{figure}
-	\vspace{-0.3cm} 
-	\begin{itemize}
-		\item If we find the score function $\bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)$ we will be able to sample from the model using Langevin dynamic. 
-		\item \textbf{We do not know $\nabla_\bx \log \pi(\bx)$}.
-	\end{itemize}
 	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Outline}
+	\tableofcontents
 \end{frame}
 %=======
 \section{Denoising score matching}
@@ -351,10 +299,6 @@
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
-		\item Langevin dynamics allows to sample from the generative model using the gradient of the log-likelihood.	
-		\vfill
-		\item Score matching proposes to minimize Fisher divergence to get the score function.
-		\vfill
 		\item Denoising score matching minimizes Fisher divergence on noisy samples. It allows to estimate Fisher divergence using samples.
 		\vfill
 		\item Noise conditioned score network uses multiple noise levels and annealed Langevin dynamics to fit score function and sample from the model.
