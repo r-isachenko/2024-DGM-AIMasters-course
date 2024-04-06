@@ -41,18 +41,18 @@ The course is accompanied by practical tasks that allow you to understand the pr
 |  |  | <b>Seminar 7:</b> Posterior collapse. Beta VAE on MNIST. | [slides](seminars/seminar7/seminar7.ipynb) |
 | 8 | April, 3 | <b>Lecture 8:</b> Wasserstein distance. Wasserstein GAN (WGAN). WGAN with gradient penalty (WGAN-GP). f-divergence minimization. | [slides](lectures/lecture8/Lecture8.pdf) |
 |  |  | <b>Seminar 8:</b> KL vs JS divergences. Vanilla GAN in 1D coding. Mode collapse and vanishing gradients. Non-saturating GAN. | [slides](seminars/seminar8/seminar8.ipynb) |
-| 9 | April, 10 | <b>Lecture 9:</b> GAN evaluation. FID, MMD, Precision-Recall, truncation trick. Langevin dynamic and score matching. | [slides](lectures/lecture9/Lecture9.pdf) |
+| 9 | April, 10 | <b>Lecture 9:</b> GAN evaluation. FID, MMD, Precision-Recall, truncation trick. Langevin dynamic. Score matching. | [slides](lectures/lecture9/Lecture9.pdf) |
 |  |  | <b>Seminar 9:</b> TBA |  |
 <!---
-| 10 | April, 17 | <b>Lecture 10:</b>  |  |
+| 10 | April, 17 | <b>Lecture 10:</b> Denoising score matching. Noise Conditioned Score Network (NCSN). Gaussian diffusion process: forward + reverse. |  |
 |  |  | <b>Seminar 10:</b> StyleGAN: end discussions. Energy-Based models. |  |
-| 11 | April, 24 | <b>Lecture 11:</b> Gaussian diffusion process. Gaussian diffusion model as VAE, derivation of ELBO. |  |
+| 11 | April, 24 | <b>Lecture 11:</b> Gaussian diffusion model as VAE, derivation of ELBO. Denoising diffusion probabilistic model (DDPM): reparametrization and overview. |  |
 |  |  | <b>Seminar 11:</b> Gaussian diffusion process basics. |
-| 12 | May, 8 | <b>Lecture 12:</b> Denoising diffusion probabilistic model (DDPM): reparametrization and overview. Kolmogorov-Fokker-Planck equation. SDE basics. |  |
+| 12 | May, 8 | <b>Lecture 12:</b> DDPM vs NCSN. Model guidance: classifier guidance, classfier-free guidance. Kolmogorov-Fokker-Planck equation. SDE basics. |  |
 |  |  | <b>Seminar 12:</b> Fast samplers: iDDPM and DDIM |  |
-| 13 | May, 15 | <b>Lecture 13:</b> Score matching: implicit/sliced score matching, denoising score matching. Noise Conditioned Score Network (NCSN). DDPM vs NCSN. |  |
+| 13 | May, 15 | <b>Lecture 13:</b> Variance Preserving and Variance Exploding SDEs. |  |
 |  |  | <b>Seminar 13:</b> Noise Conditioned Score Network |  |
-| 14 | May, 22 | <b>Lecture 14:</b> Variance Preserving and Variance Exploding SDEs. Model guidance: classifier guidance, classfier-free guidance. |  |
+| 14 | May, 22 | <b>Lecture 14:</b>  |  |
 |  |  | <b>Seminar 14:</b> TBA |  |
 -->
 
