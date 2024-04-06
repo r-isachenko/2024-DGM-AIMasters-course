@@ -41,7 +41,7 @@ The course is accompanied by practical tasks that allow you to understand the pr
 |  |  | <b>Seminar 7:</b> Posterior collapse. Beta VAE on MNIST. | [slides](seminars/seminar7/seminar7.ipynb) |
 | 8 | April, 3 | <b>Lecture 8:</b> Wasserstein distance. Wasserstein GAN (WGAN). WGAN with gradient penalty (WGAN-GP). f-divergence minimization. | [slides](lectures/lecture8/Lecture8.pdf) |
 |  |  | <b>Seminar 8:</b> KL vs JS divergences. Vanilla GAN in 1D coding. Mode collapse and vanishing gradients. Non-saturating GAN. | [slides](seminars/seminar8/seminar8.ipynb) |
-| 9 | April, 10 | <b>Lecture 9:</b> GAN evaluation. FID, MMD, Precision-Recall, truncation trick. Langevin dynamic and score matching | [slides](lectures/lecture9/Lecture9.pdf) |
+| 9 | April, 10 | <b>Lecture 9:</b> GAN evaluation. FID, MMD, Precision-Recall, truncation trick. Langevin dynamic and score matching. | [slides](lectures/lecture9/Lecture9.pdf) |
 |  |  | <b>Seminar 9:</b> TBA |  |
 <!---
 | 10 | April, 17 | <b>Lecture 10:</b>  |  |

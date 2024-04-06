@@ -122,24 +122,25 @@
 \begin{frame}{Denoising score matching}
 	Let perturb original data $\bx \sim \pi(\bx)$ by random normal noise 
 	\[
-		\bx' = \bx + \sigma \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI), \quad q(\bx' | \bx, \sigma) = \cN(\bx, \sigma^2 \bI)
+		\bx_{\sigma} = \bx + \sigma \cdot \bepsilon, \quad \bepsilon \sim \cN(0, \bI), \quad q(\bx_{\sigma} | \bx) = \cN(\bx, \sigma^2 \cdot \bI)
 	\]
 	\vspace{-0.4cm}
 	\[
-		\pi(\bx' | \sigma) = \int q(\bx' | \bx, \sigma) \pi(\bx) d\bx.
+		q(\bx_{\sigma}) = \int q(\bx_{\sigma} | \bx) \pi(\bx) d\bx.
 	\]
 	\vspace{-0.4cm} 
 	\begin{block}{Assumption}
 		The solution of 
 		\[
-			\frac{1}{2} \bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 \rightarrow \min_{\btheta}
+			\frac{1}{2} \bbE_{\pi(\bx_{\sigma} | \sigma)}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 \rightarrow \min_{\btheta}
 		\]
 		\vspace{-0.3cm} \\
-		satisfies $\bs_{\btheta}(\bx', \sigma) \approx \bs_{\btheta}(\bx', 0) = \bs_{\btheta}(\bx)$ if $\sigma$ is small enough.
+		satisfies $\bs_{\btheta, \sigma}(\bx_{\sigma}) \approx \bs_{\btheta, 0}(\bx_0) = \bs_{\btheta}(\bx)$ if $\sigma$ is small enough.
 	\end{block}
 	\begin{itemize}
-		\item $\bs_{\btheta}(\bx', \sigma)$ tries to \textbf{denoise} a corrupted sample $\bx'$.
-		\item Score function $\bs_{\btheta}(\bx', \sigma)$ parametrized by $\sigma$. 
+		\item $\bs_{\btheta, \sigma}(\bx_{\sigma})$ tries to \textbf{denoise} a corrupted sample $\bx_{\sigma}$.
+		\item Score function $\bs_{\btheta, \sigma}(\bx_{\sigma})$ parametrized by $\sigma$. 
+		\item \textbf{Problem:} We don't know $q(\bx_{\sigma})$, just like $\pi(\bx)$.
 	\end{itemize}
 	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
 \end{frame}
@@ -148,8 +149,8 @@
 	\begin{block}{Theorem}
 	\vspace{-0.5cm}
 	\begin{multline*}
-		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\
-		= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+		\bbE_{q(\bx_{\sigma})}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 = \\
+		= \bbE_{\pi(\bx)} \bbE_{q(\bx_{\sigma} | \bx)}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) \bigr\|^2_2 + \text{const}(\btheta)
 	\end{multline*}
 	\vspace{-0.5cm}
 	\end{block}
@@ -157,13 +158,13 @@
 		\vspace{-0.7cm}
 		{\small
 		\begin{multline*}
-			\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\ 
-			= \bbE_{\pi(\bx' | \sigma)} \Bigl[\| {\color{olive}\bs_{\btheta}(\bx', \sigma) \|^2} + \underbrace{\| \nabla_{\bx'} \log \pi(\bx' | \sigma) \|^2_2}_{\text{const}(\btheta)} - 2 \bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'} \log \pi(\bx' | \sigma) \Bigr]
+			\bbE_{q(\bx_{\sigma})}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 = \\ 
+			= \bbE_{q(\bx_{\sigma})} \Bigl[\| {\color{olive}\bs_{\btheta, \sigma}(\bx_{\sigma}) \|^2} + \underbrace{\| \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \|^2_2}_{\text{const}(\btheta)} - 2 \bs_{\btheta, \sigma}^T(\bx_{\sigma}) \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \Bigr]
 		\end{multline*}
 		\vspace{-0.7cm}
 		\begin{multline*}
-			\bbE_{\pi(\bx' | \sigma)} {\color{olive} \| \bs_{\btheta}(\bx', \sigma) \|^2} = \int {\color{violet}\pi(\bx' | \sigma)} \| \bs_{\btheta}(\bx', \sigma) \|^2 d\bx' = \\
-			= \int \left({\color{violet}\int q(\bx' | \bx, \sigma) \pi(\bx) d\bx}\right) \| \bs_{\btheta}(\bx', \sigma) \|^2 d\bx' =  \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}  \| \bs_{\btheta}(\bx', \sigma) \|^2 d\bx'
+			\bbE_{q(\bx_{\sigma})} {\color{olive} \| \bs_{\btheta, \sigma}(\bx_{\sigma}) \|^2} = \int {\color{violet}q(\bx_{\sigma})} \| \bs_{\btheta, \sigma}(\bx_{\sigma}) \|^2 d\bx_{\sigma} = \\
+			= \int \left({\color{violet}\int q(\bx_{\sigma} | \bx) \pi(\bx) d\bx}\right) \| \bs_{\btheta, \sigma}(\bx_{\sigma}) \|^2 d\bx_{\sigma} =  \bbE_{\pi(\bx)} \bbE_{q(\bx_{\sigma} | \bx)}  \| \bs_{\btheta, \sigma}(\bx_{\sigma}) \|^2 d\bx_{\sigma}
 		\end{multline*}
 		}
 	\end{block}
@@ -174,8 +175,8 @@
 	\begin{block}{Theorem}
 	\vspace{-0.5cm}
 	\begin{multline*}
-		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\
-		= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+		\bbE_{q(\bx_{\sigma})}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 = \\
+		= \bbE_{\pi(\bx)} \bbE_{q(\bx_{\sigma} | \bx)}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) \bigr\|^2_2 + \text{const}(\btheta)
 	\end{multline*}
 	\vspace{-0.5cm}
 	\end{block}
@@ -183,11 +184,11 @@
 		\vspace{-0.7cm}
 		{\small
 		\begin{multline*}
-			\bbE_{\pi(\bx' | \sigma)} \left[{\color{teal}\bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'} \log \pi(\bx' | \sigma)} \right] = \int \pi(\bx' | \sigma) \left[\bs_{\btheta}^T(\bx', \sigma) \frac{\nabla_{\bx'} {\color{violet}\pi(\bx' | \sigma)}}{\pi(\bx' | \sigma)} \right] d \bx' = \\
-			= \int \left[\bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'}\left({\color{violet}\int q(\bx' | \bx, \sigma) \pi(\bx) d\bx}\right) \right] d \bx' = \\
-			=  \int \int \pi(\bx) \left[\bs_{\btheta}^T(\bx', \sigma) {\color{olive}\nabla_{\bx'}q(\bx' | \bx, \sigma)} \right] d \bx' d\bx = \\
-			= \int \int \pi(\bx) {\color{olive} q(\bx' | \bx, \sigma)} \left[\bs_{\btheta}^T(\bx', \sigma) {\color{olive}\nabla_{\bx'} \log q(\bx' | \bx, \sigma)} \right] d \bx' d\bx = \\
-			= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)} \left[{\color{teal}\bs_{\btheta}^T(\bx', \sigma) \nabla_{\bx'} \log q(\bx' | \bx, \sigma)} \right]
+			\bbE_{q(\bx_{\sigma})} \left[{\color{teal}\bs_{\btheta, \sigma}^T(\bx_{\sigma}) \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma})} \right] = \int q(\bx_{\sigma}) \left[\bs_{\btheta, \sigma}^T(\bx_{\sigma}) \frac{\nabla_{\bx_{\sigma}} {\color{violet}q(\bx_{\sigma})}}{q(\bx_{\sigma})} \right] d\bx_{\sigma} = \\
+			= \int \left[\bs_{\btheta, \sigma}^T(\bx_{\sigma}) \nabla_{\bx_{\sigma}}\left({\color{violet}\int q(\bx_{\sigma} | \bx) \pi(\bx) d\bx}\right) \right] d\bx_{\sigma} = \\
+			=  \int \int \pi(\bx) \left[\bs_{\btheta, \sigma}^T(\bx_{\sigma}) {\color{olive}\nabla_{\bx_{\sigma}}q(\bx_{\sigma} | \bx)} \right] d\bx_{\sigma} d\bx = \\
+			= \int \int \pi(\bx) {\color{olive} q(\bx_{\sigma} | \bx)} \left[\bs_{\btheta, \sigma}^T(\bx_{\sigma}) {\color{olive}\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx)} \right] d\bx_{\sigma} d\bx = \\
+			= \bbE_{\pi(\bx)} \bbE_{q(\bx_{\sigma} | \bx)} \left[{\color{teal}\bs_{\btheta, \sigma}^T(\bx_{\sigma}) \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx)} \right]
 		\end{multline*}
 		}
 	\end{block}
@@ -198,8 +199,8 @@
 	\begin{block}{Theorem}
 	\vspace{-0.7cm}
 	\begin{multline*}
-		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\
-		= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+		\bbE_{q(\bx_{\sigma})}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 = \\
+		= \bbE_{\pi(\bx)} \bbE_{q(\bx_{\sigma} | \bx)}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) \bigr\|^2_2 + \text{const}(\btheta)
 	\end{multline*}
 	\vspace{-0.9cm}
 	\end{block}
@@ -207,9 +208,9 @@
 		\vspace{-0.7cm}
 		{\small
 		\begin{multline*}
-			\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\ 
-			= {\color{olive}\bbE_{\pi(\bx' | \sigma)}} \Bigl[\| \bs_{\btheta}(\bx', \sigma) \|^2 - 2 \bs_{\btheta}^T(\bx', \sigma) {\color{teal}\nabla_{\bx'} \log \pi(\bx' | \sigma)} \Bigr] + \text{const}(\btheta) = \\
-			= {\color{olive}\bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}}\Bigl[\| \bs_{\btheta}(\bx', \sigma) \|^2 - 2 \bs_{\btheta}^T(\bx', \sigma) {\color{teal}\nabla_{\bx'} \log q(\bx' | \bx, \sigma)} \Bigr] + \text{const}(\btheta)
+			\bbE_{q(\bx_{\sigma})}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 = \\ 
+			= {\color{olive}\bbE_{q(\bx_{\sigma})}} \Bigl[\| \bs_{\btheta, \sigma}(\bx_{\sigma}) \|^2 - 2 \bs_{\btheta, \sigma}^T(\bx_{\sigma}) {\color{teal}\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma})} \Bigr] + \text{const}(\btheta) = \\
+			= {\color{olive}\bbE_{\pi(\bx)} \bbE_{q(\bx_{\sigma} | \bx)}}\Bigl[\| \bs_{\btheta, \sigma}(\bx_{\sigma}) \|^2 - 2 \bs_{\btheta, \sigma}^T(\bx_{\sigma}) {\color{teal}\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx)} \Bigr] + \text{const}(\btheta)
 		\end{multline*}
 		}
 		\vspace{-0.8cm}
@@ -217,11 +218,11 @@
 	\begin{block}{Gradient of the noise kernel}
 	\vspace{-0.4cm}
 	\[
-		\nabla_{\bx'} \log q(\bx' | \bx, \sigma) = \nabla_{\bx'} \log \cN(\bx, \sigma^2 \bI) = - \frac{\bx' - \bx}{\sigma^2}
+		\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) = \nabla_{\bx_{\sigma}} \log \cN(\bx, \sigma^2 \bI) = - \frac{\bx_{\sigma} - \bx}{\sigma^2}
 	\]
 	\vspace{-0.5cm}
 	\end{block}
-	The RHS does not need to compute $\nabla_{\bx'} \log \pi(\bx' | \sigma)$ and even $\nabla_{\bx'} \log \pi(\bx')$.
+	The RHS does not need to compute $\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma})$ and even $\nabla_{\bx_{\sigma}} \log \pi(\bx_{\sigma})$.
 	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
 \end{frame}
 %=======
@@ -243,11 +244,11 @@
 %=======
 \begin{frame}{Noise Conditioned Score Network (NCSN)}
 	\begin{itemize}
-		\item Define the sequence of the noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_T$.
-		\item Perturb the original data with the different noise levels to obtain $\pi(\bx' | \sigma_1), \dots, \pi(\bx' | \sigma_T)$.
+		\item Define the sequence of the noise levels: $\sigma_1 < \sigma_2 < \dots < \sigma_T$.
+		\item Perturb the original data with the different noise levels to obtain $\bx_t = \bx + \sigma_t \cdot \bepsilon$, $\bx_t \sim q(\bx_t)$. 
 		\item Choose $\sigma_1, \sigma_T$ such that:
 		\[
-			\pi(\bx' | \sigma_1) \approx \cN(0, \sigma_1^2 \bI), \quad \pi(\bx' | \sigma_T) \approx \pi(\bx).
+			q(\bx_1) \approx \pi(\bx), \quad q(\bx_T) \approx \cN(0, \sigma_T^2 \cdot \bI).
 		\]
 	\end{itemize}
 	\begin{figure}
@@ -260,18 +261,18 @@
 \end{frame}
 %=======
 \begin{frame}{Noise Conditioned Score Network (NCSN)}
-	Train the denoising score function $\bs_{\btheta}(\bx', \sigma)$ for each noise level using unified weighted objective:
+	Train the denoising score function $\bs_{\btheta, \sigma_t}(\bx_t)$ for each noise level using unified weighted objective:
 	\vspace{-0.2cm}
 	\[
-		\sum_{t=1}^T {\color{violet}\sigma_t^2} \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma_t)}\bigl\| \bs_{\btheta}(\bx', \sigma_t) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma_t) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\sum_{t=1}^T {\color{violet}\sigma_t^2} \bbE_{\pi(\bx)} \bbE_{q(\bx_t | \bx)}\bigl\| \bs_{\btheta, \sigma_t}(\bx_t) - \nabla_{\bx_{\sigma}} \log q(\bx_t | \bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
 	\]
-	Here $\nabla_{\bx'} \log q(\bx' | \bx, \sigma_t) = - \frac{\bx' - \bx}{\sigma_t^2} = - \frac{\bepsilon}{\sigma_t}$.
+	Here $\nabla_{\bx_t} \log q(\bx_t | \bx) = - \frac{\bx_t - \bx}{\sigma_t^2} = - \frac{\bepsilon}{\sigma_t}$.
 	\begin{block}{Training}
 		\begin{enumerate}
 			\item Get the sample $\bx_0 \sim \pi(\bx)$.
 			\item Sample noise level $t \sim U[1, T]$ and the noise $\bepsilon \sim \cN(0, \bI)$.
-			\item Get noisy image $\bx' = \bx_0 + \sigma_t \cdot \bepsilon$.
-			\item Compute loss $ \cL = \| \bs_{\btheta}(\bx', \sigma_t) + \frac{\bepsilon}{\sigma_t} \|^2 $.
+			\item Get noisy image $\bx_t = \bx_0 + \sigma_t \cdot \bepsilon$.
+			\item Compute loss $ \cL = \| \bs_{\btheta, \sigma_t}(\bx_t) + \frac{\bepsilon}{\sigma_t} \|^2 $.
 		\end{enumerate}
 	\end{block}
 	How to sample from this model?
@@ -281,11 +282,11 @@
 \begin{frame}{Noise Conditioned Score Network (NCSN)}
 	\begin{block}{Sampling (annealed Langevin dynamics)}
 		\begin{itemize}
-			\item Sample $\bx_0 \sim \cN(0, \sigma_1 \bI) \approx \pi(\bx | \sigma_1)$.
+			\item Sample $\bx_0 \sim \cN(0, \sigma_T^2 \cdot \bI) \approx q(\bx_T)$.
 			\item Apply $L$ steps of Langevin dynamic
 			\vspace{-0.2cm}
 			\[
-				\bx_l = \bx_{l-1} + \frac{\eta_t}{2} \cdot \bs_{\btheta}(\bx_{l - 1}, \sigma_t) + \sqrt{\eta_t} \cdot \bepsilon_l.
+				\bx_l = \bx_{l-1} + \frac{\eta_t}{2} \cdot \bs_{\btheta, \sigma_t}(\bx_{l - 1}) + \sqrt{\eta_t} \cdot \bepsilon_l.
 			\] 
 			\vspace{-0.5cm}
 			\item Update $\bx_0 := \bx_L$ and choose the next $\sigma_t$.

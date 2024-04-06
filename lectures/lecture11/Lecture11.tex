@@ -1,5 +1,5 @@
 \input{../utils/preamble}
-\createdgmtitle{12}
+\createdgmtitle{11}
 
 \usepackage{tikz}
 
@@ -13,31 +13,31 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	Let perturb original data by normal noise $q(\bx' | \bx, \sigma) = \cN(\bx, \sigma^2 \bI)$
+	Let perturb original data by normal noise $q(\bx_{\sigma} | \bx) = \cN(\bx, \sigma^2 \bI)$
 	\vspace{-0.3cm}
 	\[
-	\pi(\bx' | \sigma) = \int \pi(\bx) q(\bx' | \bx, \sigma) d\bx.
+	q(\bx_{\sigma}) = \int \pi(\bx) q(\bx_{\sigma} | \bx) d\bx.
 	\]
 	\vspace{-0.6cm} \\
 	Then the solution of 
 	\vspace{-0.2cm}
 	\[
-	\frac{1}{2} \bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 \rightarrow \min_{\btheta}
+	\frac{1}{2} \bbE_{q(\bx_{\sigma})}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 \rightarrow \min_{\btheta}
 	\]
 	\vspace{-0.5cm} \\
-	satisfies $\bs_{\btheta}(\bx', \sigma) \approx \bs_{\btheta}(\bx', 0) = \bs_{\btheta}(\bx')$ if $\sigma$ is small enough.
+	satisfies $\bs_{\btheta, \sigma}(\bx_{\sigma}) \approx \bs_{\btheta, 0}(\bx_0) = \bs_{\btheta}(\bx)$ if $\sigma$ is small enough.
 	\begin{block}{Theorem (denoising score matching)}
 		\vspace{-0.8cm}
 		\begin{multline*}
-			\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+			\bbE_{q(\bx_{\sigma})}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx)} \bbE_{q(\bx_{\sigma} | \bx)}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) \bigr\|^2_2 + \text{const}(\btheta)
 		\end{multline*}
 		\vspace{-0.8cm}
 	\end{block}
-	Here $\nabla_{\bx'} \log q(\bx' | \bx, \sigma) = - \frac{\bx' - \bx}{\sigma^2}$.
+	Here $\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) = - \frac{\bx_{\sigma} - \bx}{\sigma^2}$.
 	\begin{itemize}
-		\item The RHS does not need to compute $\nabla_{\bx'} \log \pi(\bx' | \sigma)$ and even more $\nabla_{\bx'} \log \pi(\bx')$.
-		\item $\bs_{\btheta}(\bx', \sigma)$ tries to \textbf{denoise} a corrupted sample.
-		\item Score function $\bs_{\btheta}(\bx', \sigma)$ parametrized by $\sigma$. 
+		\item We do not need to compute $\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma})$ at the RHS.
+		\item $\bs_{\btheta, \sigma}(\bx_{\sigma})$ tries to \textbf{denoise} a corrupted sample.
+		\item Score function $\bs_{\btheta, \sigma}(\bx_{\sigma})$ parametrized by $\sigma$. 
 	\end{itemize}
 	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
 \end{frame}
@@ -45,11 +45,11 @@
 \begin{frame}{Recap of previous lecture}
 	\begin{block}{Noise conditioned score network}
 		\begin{itemize}
-			\item Define the sequence of noise levels: $\sigma_1 > \sigma_2 > \dots > \sigma_T$.
-			\item Train denoised score function $\bs_{\btheta}(\bx', \sigma)$ for each noise level:
+			\item Define the sequence of noise levels: $\sigma_1 < \sigma_2 < \dots < \sigma_T$.
+			\item Train denoised score function $\bs_{\btheta, \sigma}(\bx_{\sigma})$ for each noise level:
 			\vspace{-0.3cm}
 			\[
-				\sum_{t=1}^T {\color{violet}\sigma_t^2} \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma_t)}\bigl\| \bs_{\btheta}(\bx', \sigma_t) - \nabla_\bx' \log q(\bx' | \bx, \sigma_t) \bigr\|^2_2 \rightarrow \min_{\btheta}
+				\sum_{t=1}^T {\color{violet}\sigma_t^2} \bbE_{\pi(\bx)} \bbE_{q(\bx_t | \bx)}\bigl\| \bs_{\btheta, \sigma_t}(\bx_t) - \nabla_{\bx_{\sigma}} \log q(\bx_t | \bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
 			\]
 			\vspace{-0.5cm}
 			\item Sample from \textbf{annealed} Langevin dynamics (for $t=1, \dots, T$).
@@ -69,17 +69,17 @@
 		\begin{enumerate}
 			\item Get the sample $\bx_0 \sim \pi(\bx)$.
 			\item Sample noise level $t \sim U[1, T]$ and the noise $\bepsilon \sim \cN(0, \bI)$.
-			\item Get noisy image $\bx' = \bx_0 + \sigma_t \cdot \bepsilon$.
-			\item Compute loss $ \cL = \| \bs_{\btheta}(\bx', \sigma_t) + \frac{\bepsilon}{\sigma_t} \|^2 $.
+			\item Get noisy image $\bx_t = \bx_0 + \sigma_t \cdot \bepsilon$.
+			\item Compute loss $ \cL = \| \bs_{\btheta, \sigma_t}(\bx_t) + \frac{\bepsilon}{\sigma_t} \|^2 $.
 		\end{enumerate}
 	\end{block}
 	\begin{block}{NCSN sampling (annealed Langevin dynamics)}
 		\begin{itemize}
-			\item Sample $\bx_0 \sim \cN(0, \sigma_1 \bI) \approx \pi(\bx | \sigma_1)$.
-			\item Apply $T$ steps of Langevin dynamic
+			\item Sample $\bx_0 \sim \cN(0, \sigma_T^2 \cdot \bI) \approx q(\bx_T)$.
+			\item Apply $L$ steps of Langevin dynamic
 			\vspace{-0.2cm}
 			\[
-				\bx_l = \bx_{l-1} + \frac{\eta_t}{2} \cdot \bs_{\btheta}(\bx_{l - 1}, \sigma_t) + \sqrt{\eta_t} \cdot \bepsilon_l.
+				\bx_l = \bx_{l-1} + \frac{\eta_t}{2} \cdot \bs_{\btheta, \sigma_t}(\bx_{l - 1}) + \sqrt{\eta_t} \cdot \bepsilon_l.
 			\] 
 			\vspace{-0.5cm}
 			\item Update $\bx_0 := \bx_L$ and choose the next $\sigma_t$.
@@ -172,38 +172,33 @@
 %=======
 \begin{frame}{Denoising score matching}
 	\begin{block}{NCSN} 
+		\vspace{-0.5cm} 
 		\[
-			\quad q(\bx_t | \bx_0) = \cN(\bx, \sigma_t^2 \bI)
+			\quad q(\bx_t | \bx_0) = \cN(\bx, \sigma_t^2 \cdot \bI), \quad q(\bx_1) \approx \pi(\bx), \quad q(\bx_T) \approx \cN(0, \sigma_T^2 \cdot \bI).
 		\]
 		\[
-			\pi(\bx' | \sigma_1) \approx \cN(0, \sigma_1^2 \bI), \quad \pi(\bx' | \sigma_T) \approx \pi(\bx).
+			\nabla_{\bx_t} \log q(\bx_t | \bx) = - \frac{\bx_t - \bx}{\sigma_t^2}
 		\]
+		\vspace{-0.5cm} 
 	\end{block}
 	\begin{block}{Gaussian diffussion}
-	\[
-		q(\bx_t | \bx_0) = \cN(\sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI).
-	\]
-	\[
-		q(\bx_1) \approx \pi(\bx), \quad q(\bx_T) \approx \cN(0, \bI).
-	\]
+		\vspace{-0.5cm} 
+		\[
+			q(\bx_t | \bx_0) = \cN(\sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI), \quad q(\bx_1) \approx \pi(\bx), \quad q(\bx_T) \approx \cN(0, \bI)
+		\]
+		\[
+			\nabla_{\bx_t} \log q(\bx_t | \bx) = - \frac{\bx_t - \sqrt{\bar{\alpha}_t} \cdot \bx_0}{1 - \bar{\alpha}_t}
+		\]
+		\vspace{-0.5cm} 
 	\end{block}
-	\vspace{-0.4cm} 
-	\begin{block}{Theorem}
-	\vspace{-0.5cm}
+	\begin{block}{Theorem (denoising score matching)}
+	\vspace{-0.7cm}
 	\begin{multline*}
-		\bbE_{\pi(\bx' | \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log \pi(\bx' | \sigma) \bigr\|^2_2 = \\
-		= \bbE_{\pi(\bx)} \bbE_{q(\bx' | \bx, \sigma)}\bigl\| \bs_{\btheta}(\bx', \sigma) - \nabla_{\bx'} \log q(\bx' | \bx, \sigma) \bigr\|^2_2 + \text{const}(\btheta)
+		\bbE_{q(\bx_t)}\bigl\| \bs_{\btheta, t}(\bx_t) - \nabla_{\bx_t} \log q(\bx_t) \bigr\|^2_2 = \\
+		= \bbE_{\pi(\bx)} \bbE_{q(\bx_t | \bx)}\bigl\| \bs_{\btheta, t}(\bx_t) - \nabla_{\bx_t} \log q(\bx_t | \bx) \bigr\|^2_2 + \text{const}(\btheta)
 	\end{multline*}
 	\vspace{-0.5cm}
 	\end{block}
-	\begin{block}{Gradient of the noise kernel}
-		\vspace{-0.4cm}
-		\[
-			\nabla_{\bx'} \log q(\bx' | \bx, \sigma) = \nabla_{\bx'} \log \cN(\bx, \sigma^2 \bI) = - \frac{\bx' - \bx}{\sigma^2}
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
 \end{frame}
 %=======
 \subsection{Reverse gaussian diffusion process}

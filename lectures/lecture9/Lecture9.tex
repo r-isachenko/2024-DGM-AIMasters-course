@@ -348,7 +348,7 @@
 	\href{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A Style-Based Generator Architecture for Generative Adversarial Networks, 2018}}
 \end{frame}
 %=======
-\section{Langevin dynamic and score matching}
+\section{Langevin dynamic}
 %=======
 \begin{frame}{Langevin dynamic}
 	\vspace{-0.4cm}
@@ -401,31 +401,47 @@
 	\end{block}
 \end{frame}
 %=======
+\section{Score matching}
+%=======
 \begin{frame}{Score matching}
-	\vspace{-0.2cm}
-	\begin{block}{Fisher divergence}
-		\vspace{-0.4cm}
-		\[
-		D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
-		\]
-		\vspace{-0.7cm}
-	\end{block}
 	\begin{block}{Score function}
-		\vspace{-0.7cm}
+		\vspace{-0.3cm}
 		 \[
 			 \bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)
 		 \]
-		 \vspace{-0.9cm}
+		\vspace{-0.5cm} 
+	\end{block}
+	\begin{block}{Langevin dynamic}
+		If we find the score function $\bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)$ we will be able to sample from the model using Langevin dynamic. 
+		\[
+			\bx_{l + 1} = \bx_l + \frac{\eta}{2} \cdot {\color{violet}\nabla_{\bx_l} \log p(\bx_l | \btheta)} + \sqrt{\eta} \cdot \bepsilon = \bx_l + \frac{\eta}{2} \cdot  {\color{violet}\bs_{\btheta}(\bx_l)} + \sqrt{\eta} \cdot \bepsilon.
+		\] 
+		\vspace{-0.5cm} 
+	\end{block}
+	\begin{block}{Fisher divergence}
+		\vspace{-0.5cm}
+		\begin{multline*}
+			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 = \\ 
+			= \frac{1}{2}\bbE_{\pi}\bigl\| \bs_{\btheta}(\bx_l) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\end{multline*}
+		\vspace{-0.3cm}
+	\end{block}
+	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Score matching}
+	\begin{block}{Fisher divergence}
+		\vspace{-0.3cm}
+		\[
+			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \bs_{\btheta}(\bx_l) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\]
+		\vspace{-0.5cm}
 	\end{block}
 	\begin{figure}
 		\centering
-		\includegraphics[width=0.75\linewidth]{figs/smld}
-	\end{figure}
-	\vspace{-0.3cm} 
-	\begin{itemize}
-		\item If we find the score function $\bs_{\btheta}(\bx) = \nabla_{\bx}\log p(\bx| \btheta)$ we will be able to sample from the model using Langevin dynamic. 
-		\item \textbf{We do not know $\nabla_\bx \log \pi(\bx)$}.
-	\end{itemize}
+		\includegraphics[width=\linewidth]{figs/smld}
+	\end{figure} 
+	\textbf{Problem:} We do not know $\nabla_\bx \log \pi(\bx)$.
 	\myfootnotewithlink{https://yang-song.github.io/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}
 \end{frame}
 %=======
