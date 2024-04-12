@@ -49,7 +49,7 @@
 	\begin{block}{Maximum Mean Discrepancy (MMD)}
 		$\pi(\bx) = p(\by)$ if and only if $\bbE_{\pi(\bx)} f(\bx) = \bbE_{p(\by)} f(\by)$ for any bounded and continuous $f$
 		\[
-			\text{MMD}^2(\pi, p) = \bbE_{(\bx, \bx')} k(\bx, \bx') + \bbE_{(\by, \by')} k(\by, \by') - 2 \bbE_{(\bx, \by)} k(\bx, \by).
+			\text{MMD}^2(\pi, p) = \bbE_{\substack{\bx \sim\pi(\bx) \\ \bx' \sim\pi(\bx)}} k(\bx, \bx') + \bbE_{\substack{\by \sim p(\by) \\ \by' \sim p(\by)}} k(\by, \by') - 2 \bbE_{\substack{\bx \sim\pi(\bx) \\ \by \sim p(\by)}} k(\bx, \by)
 		\]
 	\end{block}		
 	

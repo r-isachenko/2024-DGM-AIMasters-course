@@ -235,9 +235,8 @@
 	\begin{block}{Theorem (Reproducing Kernel Hilbert Space)}
 		\vspace{-0.6cm}
 		\[
-			\text{MMD}^2(\pi, p) = \bbE_{(\bx, \bx')} k(\bx, \bx') + \bbE_{(\by, \by')} k(\by, \by') - 2 \bbE_{(\bx, \by)} k(\bx, \by),
+			\text{MMD}^2(\pi, p) = \bbE_{\substack{\bx \sim\pi(\bx) \\ \bx' \sim\pi(\bx)}} k(\bx, \bx') + \bbE_{\substack{\by \sim p(\by) \\ \by' \sim p(\by)}} k(\by, \by') - 2 \bbE_{\substack{\bx \sim\pi(\bx) \\ \by \sim p(\by)}} k(\bx, \by)
 		\]
-		Here 
 		\begin{itemize}
 			\item $k(\bx, \by)$ is a positive definite, symmetric kernel function (for example $k(\bx, \by) = \frac{\exp(\|\bx - \by\|^2)}{\sigma^2}$);
 			\item $f(\bx) = \langle f, \phi(\bx) \rangle_{\mathcal{H}}$;
@@ -251,7 +250,7 @@
 \begin{frame}{Maximum Mean Discrepancy (MMD)}
 		\vspace{-0.6cm}
 		\[
-			\text{MMD}^2(\pi, p) = \bbE_{(\bx, \bx')} k(\bx, \bx') + \bbE_{(\by, \by')} k(\by, \by') - 2 \bbE_{(\bx, \by)} k(\bx, \by)
+			\text{MMD}^2(\pi, p) = \bbE_{\substack{\bx \sim\pi(\bx) \\ \bx' \sim\pi(\bx)}} k(\bx, \bx') + \bbE_{\substack{\by \sim p(\by) \\ \by' \sim p(\by)}} k(\by, \by') - 2 \bbE_{\substack{\bx \sim\pi(\bx) \\ \by \sim p(\by)}} k(\bx, \by)
 		\]
 		\vspace{-0.3cm}
 	\begin{figure}
@@ -363,7 +362,7 @@
 	\begin{minipage}{0.55\linewidth}
 		\begin{itemize}
 			\item Here we assume that we already have some generative model $p(\bx | \btheta)$.
-			\item The density $p(\bx | \btheta)$ is a \textbf{stationary} distribution for this SDE. \\
+			\item The density $p(\bx | \btheta)$ is a \textbf{stationary} distribution for the Markov chain. \\
 			\item What do we get if $\bepsilon = \boldsymbol{0}$?
 		\end{itemize}
 	\end{minipage}%
@@ -422,7 +421,7 @@
 		\vspace{-0.5cm}
 		\begin{multline*}
 			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \nabla_{\bx}\log p(\bx| \btheta) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 = \\ 
-			= \frac{1}{2}\bbE_{\pi}\bigl\| \bs_{\btheta}(\bx_l) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+			= \frac{1}{2}\bbE_{\pi}\bigl\| \bs_{\btheta}(\bx) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
 		\end{multline*}
 		\vspace{-0.3cm}
 	\end{block}
@@ -433,7 +432,7 @@
 	\begin{block}{Fisher divergence}
 		\vspace{-0.3cm}
 		\[
-			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \bs_{\btheta}(\bx_l) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+			D_F(\pi, p) = \frac{1}{2}\bbE_{\pi}\bigl\| \bs_{\btheta}(\bx) - \nabla_\bx \log \pi(\bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
 		\]
 		\vspace{-0.5cm}
 	\end{block}
