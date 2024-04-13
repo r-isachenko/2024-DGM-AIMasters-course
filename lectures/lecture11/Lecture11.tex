@@ -13,7 +13,7 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
-	Let perturb original data by normal noise $q(\bx_{\sigma} | \bx) = \cN(\bx, \sigma^2 \bI)$
+	Let perturb original data by normal noise $q(\bx_{\sigma} | \bx) = \cN(\bx, \sigma^2 \cdot \bI)$
 	\vspace{-0.3cm}
 	\[
 	q(\bx_{\sigma}) = \int \pi(\bx) q(\bx_{\sigma} | \bx) d\bx.
@@ -31,13 +31,12 @@
 		\begin{multline*}
 			\bbE_{q(\bx_{\sigma})}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma}) \bigr\|^2_2 = \\ = \bbE_{\pi(\bx)} \bbE_{q(\bx_{\sigma} | \bx)}\bigl\| \bs_{\btheta, \sigma}(\bx_{\sigma}) - \nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) \bigr\|^2_2 + \text{const}(\btheta)
 		\end{multline*}
-		\vspace{-0.8cm}
+		\vspace{-0.7cm}
 	\end{block}
-	Here $\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) = - \frac{\bx_{\sigma} - \bx}{\sigma^2}$.
+	Here $\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma} | \bx) = - \frac{\bx_{\sigma} - \bx}{\sigma^2} = - \frac{\bepsilon}{\sigma}$.
 	\begin{itemize}
 		\item We do not need to compute $\nabla_{\bx_{\sigma}} \log q(\bx_{\sigma})$ at the RHS.
 		\item $\bs_{\btheta, \sigma}(\bx_{\sigma})$ tries to \textbf{denoise} a corrupted sample.
-		\item Score function $\bs_{\btheta, \sigma}(\bx_{\sigma})$ parametrized by $\sigma$. 
 	\end{itemize}
 	\myfootnotewithlink{http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf}{Vincent P. A Connection Between Score Matching and Denoising Autoencoders, 2010}
 \end{frame}
@@ -88,10 +87,6 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2006.09011}{Song Y. et al. Improved Techniques for Training Score-Based Generative Models, 2020}
 \end{frame}
 %=======
-\begin{frame}{Outline}
-	\tableofcontents
-\end{frame}
-%=======
 \begin{frame}{Recap of previous lecture}
 	\begin{block}{Forward gaussian diffusion process}
 		Let $\bx_0 = \bx \sim \pi(\bx)$, $\beta_t \in (0, 1)$, $\alpha_t = 1 - \beta_t$ and $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$. 
@@ -120,49 +115,25 @@
 		\includegraphics[width=0.8\linewidth]{figs/DDPM}
 	\end{figure}
 	\vspace{-0.5cm}
-	\begin{block}{Forward process}
-		\vspace{-0.3cm}
+	\begin{block}{Reverse process}
+		\vspace{-0.5cm}
+		{\small
 		\[
-			q(\bx_t | \bx_{t-1}) = \cN\left(\sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI\right).
+			q(\bx_{t-1}|\bx_{t}) = \frac{q(\bx_{t}|\bx_{t-1}) {\color{violet}q(\bx_{t-1})}}{{\color{violet}q(\bx_{t})}} \approx p(\bx_{t - 1} | \bx_t, \btheta) = \cN \left(\bmu_{\btheta}(\bx_t, t), \bsigma_{\btheta}^2(\bx_t, t)\right)
 		\]
+		}
 		\vspace{-0.5cm}
 	\end{block}
-	\begin{block}{Reverse process}
-		\vspace{-0.3cm}
-		\[
-			q(\bx_{t-1}|\bx_{t}) = \frac{q(\bx_{t}|\bx_{t-1}) {\color{violet}q(\bx_{t-1})}}{{\color{violet}q(\bx_{t})}} \approx p(\bx_{t - 1} | \bx_t, \btheta)
-		\]
-		\vspace{-0.3cm}
-		\begin{itemize}
-			\item ${\color{violet}q(\bx_{t-1})}$, ${\color{violet}q(\bx_{t})}$ are intractable.
-			\item If $\beta_t$ is small enough, $q(\bx_{t-1}|\bx_{t})$ will be Gaussian (Feller, 1949).
-		\end{itemize}
-	\end{block}
-	\myfootnotewithlink{}{Feller W. On the theory of stochastic processes, with particular reference to applications, 1949}
-	\end{frame}
-%=======
-\begin{frame}{Recap of previous lecture}
-	\vspace{-0.4cm}
-	\begin{align*}
-		q(\bx_{t-1}|\bx_{t}) &= \frac{q(\bx_{t}|\bx_{t-1}) {\color{violet}q(\bx_{t-1})}}{{\color{violet}q(\bx_{t})}} \\
-		q(\bx_{t-1}|\bx_{t}, {\color{olive}\bx_0}) &= \frac{q(\bx_{t}|\bx_{t-1}, {\color{olive}\bx_0}) q(\bx_{t-1} | {\color{olive}\bx_0}) }{q(\bx_{t}| {\color{olive}\bx_0})} = \cN(\tilde{\bmu}_t(\bx_t, \bx_0), \tilde{\beta}_t \bI)
-	\end{align*}
-	Let define the reverse process
-	\vspace{-0.2cm}
-	\[
-		q(\bx_{t-1}|\bx_{t}) \approx p(\bx_{t - 1} | \bx_t, \btheta) = \cN \left(\bmu_{\btheta}(\bx_t, t), \bsigma_{\btheta}^2(\bx_t, t)\right)
-	\]
-	\vspace{-0.7cm}
 	\begin{minipage}{0.5\linewidth}
 		\begin{block}{Forward process}
 			\begin{enumerate}
 				\item $\bx_0 = \bx \sim \pi(\bx)$;
-				\item $\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon$, where $\bepsilon \sim \cN(0, \bI)$, $t \geq 1$;
+				\item $\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon$;
 				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$.
 			\end{enumerate}
 		\end{block}
 	\end{minipage}%
-	\begin{minipage}{0.5\linewidth}
+	\begin{minipage}{0.55\linewidth}
 		\begin{block}{Reverse process}
 			\begin{enumerate}
 				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$;
@@ -175,34 +146,76 @@
 	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
 \end{frame}
 %=======
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
 \section{Gaussian diffusion model as VAE}
 %=======
 \begin{frame}{Gaussian diffusion model as VAE}
-	\vspace{-0.2cm}
-	\begin{figure}
-		\includegraphics[width=0.65\linewidth]{figs/diffusion_pgm}
-	\end{figure}
-	\begin{itemize}
-		\item Let treat $\bz = (\bx_1, \dots, \bx_T)$ as a latent variable (\textbf{note:} each $\bx_t$ has the same size).
-		\item Variational posterior distribution (\textbf{note:} there is no learnable parameters)
-		\vspace{-0.4cm}
-		\[
-			q(\bz | \bx) = q(\bx_1, \dots, \bx_T | \bx_0) = \prod_{t = 1}^T q(\bx_t | \bx_{t - 1}).
-		\]
-		\vspace{-0.5cm}
-		\item Probabilistic model
-		\vspace{-0.2cm}
+	Let treat $\bz = (\bx_1, \dots, \bx_T)$ as a latent variable (\textbf{note:} each $\bx_t$ has the same size). Probabilistic model is
 		\[
 			p(\bx, \bz | \btheta) = p(\bx | \bz, \btheta) p(\bz | \btheta)
-		\]
-		\item Generative distribution and prior
+		\]	
+		\vspace{-0.4cm}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{figs/diffusion_pgm_forward}
+	\end{figure}
+	\begin{block}{Forward diffusion}
+		\begin{itemize}
+			\item Variational posterior distribution (encoder)
+			\vspace{-0.4cm}
+			\[
+				q(\bz | \bx) = q(\bx_1, \dots, \bx_T | \bx_0) = \prod_{t = 1}^T q(\bx_t | \bx_{t - 1}).
+			\]
+			\item \textbf{Note:} there is no learnable parameters.
+		\end{itemize}
+		\vspace{-0.5cm}
+	\end{block}
+	\myfootnotewithlink{https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html}{Das A. An introduction to Diffusion Probabilistic Models, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Gaussian diffusion model as VAE}
+	Let treat $\bz = (\bx_1, \dots, \bx_T)$ as a latent variable (\textbf{note:} each $\bx_t$ has the same size). Probabilistic model is
+		\[
+			p(\bx, \bz | \btheta) = p(\bx | \bz, \btheta) p(\bz | \btheta)
+		\]	
+		\vspace{-0.4cm}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{figs/diffusion_pgm_reverse}
+	\end{figure}
+	\begin{block}{Reverse diffusion}
+
+	\begin{itemize}
+		\item Generative distribution (decoder)
 		\vspace{-0.3cm}
 		\[
-			p(\bx | \bz, \btheta) = p(\bx_0 | \bx_1, \btheta); \quad 
-			p(\bz | \btheta) = \prod_{t=2}^T p(\bx_{t - 1} | \bx_t, \btheta)  \cdot p(\bx_T)
+			p(\bx | \bz, \btheta) = p(\bx_0 | \bx_1, \btheta).
+		\]
+		\item Prior distribution
+		\vspace{-0.3cm}
+		\[
+			p(\bz | \btheta) = \prod_{t=2}^T p(\bx_{t - 1} | \bx_t, \btheta)  \cdot p(\bx_T).
 		\]
 	\end{itemize}
+	\end{block}
 	\myfootnotewithlink{https://ayandas.me/blog-tut/2021/12/04/diffusion-prob-models.html}{Das A. An introduction to Diffusion Probabilistic Models, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Conditioned reverse distribution}
+	\[
+		q(\bx_{t-1}|\bx_{t}) = \frac{q(\bx_{t}|\bx_{t-1}) {\color{violet}q(\bx_{t-1})}}{{\color{violet}q(\bx_{t})}} 
+	\]
+	\[
+		q(\bx_{t-1}|\bx_{t}, {\color{olive}\bx_0}) = \frac{q(\bx_{t}|\bx_{t-1}, {\color{olive}\bx_0}) q(\bx_{t-1} | {\color{olive}\bx_0}) }{q(\bx_{t}| {\color{olive}\bx_0})} = \cN(\tilde{\bmu}_t(\bx_t, \bx_0), \tilde{\beta}_t \bI)
+	\]
+	\begin{align*}
+		\tilde{\bmu}_t(\bx_t, \bx_0) &= \frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t} \bx_t + \frac{\sqrt{\bar{\alpha}_{t-1}}(1 - \alpha_t)}{1 - \bar{\alpha}_t} \bx_0; \\
+		\tilde{\beta}_t &= \frac{(1 - \alpha_t)(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t} = \text{const}.
+	\end{align*}
+	
+	$q(\bx_{t-1} | \bx_t, \bx_0)$ defines how to denoise a noisy image $\bx_t$ with access to what the final, completely denoised image $\bx_0$ should be.
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
 \end{frame}
 %=======
 \begin{frame}{ELBO for gaussian diffusion model}
@@ -223,9 +236,6 @@
 			& = \bbE_{q(\bx_{1:T} | \bx_0)} \log \frac{p(\bx_T) p(\bx_0 | \bx_1, \btheta) \prod_{t=2}^T p(\bx_{t-1} | \bx_t, \btheta) }{q(\bx_1 | \bx_0)\prod_{t=2}^T q(\bx_t | \bx_{t-1}, {\color{olive}\bx_0})} 
 		\end{align*}
 		}
-		\[
-			q(\bx_{t-1}|\bx_{t}, {\color{olive}\bx_0}) = \frac{q(\bx_{t}|\bx_{t-1}, {\color{olive}\bx_0}) q(\bx_{t-1} | {\color{olive}\bx_0}) }{q(\bx_{t}| {\color{olive}\bx_0})} = \cN(\tilde{\bmu}_t(\bx_t, \bx_0), \tilde{\beta}_t \bI)
-		\]
 	\end{block}
 	
 	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
