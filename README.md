@@ -43,9 +43,9 @@ The course is accompanied by practical tasks that allow you to understand the pr
 |  |  | <b>Seminar 8:</b> KL vs JS divergences. Vanilla GAN in 1D coding. Mode collapse and vanishing gradients. Non-saturating GAN. | [slides](seminars/seminar8/seminar8.ipynb) |
 | 9 | April, 10 | <b>Lecture 9:</b> GAN evaluation. FID, MMD, Precision-Recall, truncation trick. Langevin dynamic. Score matching. | [slides](lectures/lecture9/Lecture9.pdf) |
 |  |  | <b>Seminar 9:</b> TBA |  |
-<!---
-| 10 | April, 17 | <b>Lecture 10:</b> Denoising score matching. Noise Conditioned Score Network (NCSN). Gaussian diffusion process: forward + reverse. |  |
+| 10 | April, 17 | <b>Lecture 10:</b> Denoising score matching. Noise Conditioned Score Network (NCSN). Gaussian diffusion process: forward + reverse. | [slides](lectures/lecture10/Lecture10.pdf) |
 |  |  | <b>Seminar 10:</b> StyleGAN: end discussions. Energy-Based models. |  |
+<!---
 | 11 | April, 24 | <b>Lecture 11:</b> Gaussian diffusion model as VAE, derivation of ELBO. Denoising diffusion probabilistic model (DDPM): reparametrization and overview. |  |
 |  |  | <b>Seminar 11:</b> Gaussian diffusion process basics. |
 | 12 | May, 8 | <b>Lecture 12:</b> DDPM vs NCSN. Model guidance: classifier guidance, classfier-free guidance. Kolmogorov-Fokker-Planck equation. SDE basics. |  |
