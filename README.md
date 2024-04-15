@@ -42,9 +42,9 @@ The course is accompanied by practical tasks that allow you to understand the pr
 | 8 | April, 3 | <b>Lecture 8:</b> Wasserstein distance. Wasserstein GAN (WGAN). WGAN with gradient penalty (WGAN-GP). f-divergence minimization. | [slides](lectures/lecture8/Lecture8.pdf) |
 |  |  | <b>Seminar 8:</b> KL vs JS divergences. Vanilla GAN in 1D coding. Mode collapse and vanishing gradients. Non-saturating GAN. | [slides](seminars/seminar8/seminar8.ipynb) |
 | 9 | April, 10 | <b>Lecture 9:</b> GAN evaluation. FID, MMD, Precision-Recall, truncation trick. Langevin dynamic. Score matching. | [slides](lectures/lecture9/Lecture9.pdf) |
-|  |  | <b>Seminar 9:</b> TBA |  |
+|  |  | <b>Seminar 9:</b> WGAN and WGAN-GP on 1D data. | [slides](seminars/seminar9/seminar9.ipynb) |
 | 10 | April, 17 | <b>Lecture 10:</b> Denoising score matching. Noise Conditioned Score Network (NCSN). Gaussian diffusion process: forward + reverse. | [slides](lectures/lecture10/Lecture10.pdf) |
-|  |  | <b>Seminar 10:</b> StyleGAN: end discussions. Energy-Based models. |  |
+|  |  | <b>Seminar 10:</b> StyleGAN: end discussions. |  |
 <!---
 | 11 | April, 24 | <b>Lecture 11:</b> Gaussian diffusion model as VAE, derivation of ELBO. Denoising diffusion probabilistic model (DDPM): reparametrization and overview. |  |
 |  |  | <b>Seminar 11:</b> Gaussian diffusion process basics. |
