@@ -118,32 +118,52 @@
 	\tableofcontents
 \end{frame}
 %=======
-\section{DDPM vs NCSN}
+\section{Denosing diffusion as score-based generative model}
 %=======
-\begin{frame}{DDPM vs NCSN}
-	\begin{block}{NCSN objective}
-		\vspace{-0.2cm}
-		\[
-			{\color{olive}\bbE_{q(\bx_t | \bx)}}\bigl\| {\color{teal}\bs_{\btheta, \sigma_t}(\bx_t)} - {\color{violet}\nabla_{\bx_t} \log q(\bx_t | \bx)} \bigr\|^2_2 \rightarrow \min_{\btheta}
-		\]
-	\end{block}
-	\vspace{-0.3cm}
+\begin{frame}{Denosing diffusion as score-based generative model}
 	\begin{block}{DDPM objective}
-		\vspace{-0.2cm}
+		\vspace{-0.5cm}
 		\[
-			\cL_t = {\color{olive}\bbE_{\bepsilon \sim \cN(0, \bI)}} \left[ \frac{(1 - \alpha_t)^2}{2\tilde{\beta}_t \alpha_t} \left\| {\color{violet}\frac{\bepsilon}{\sqrt{1 - \bar{\alpha}_t}}} - {\color{teal}\frac{\bepsilon_{\btheta}(\bx_t, t)}{\sqrt{1 - \bar{\alpha}_t}}}\right\|^2 \right]
+			\cL_t = \bbE_{\bepsilon \sim \cN(0, \bI)} \left[ \frac{(1 - \alpha_t)^2}{2\tilde{\beta}_t \alpha_t  {\color{teal}(1 - \bar{\alpha}_t)}}  \Bigl\|  \bepsilon_{\btheta}\bigl( \sqrt{\bar{\alpha}_t} \bx_0 + \sqrt{1 - \bar{\alpha}_t} \bepsilon, t\bigr) {\color{teal} - \bepsilon}\Bigr\|_2^2  \right]
 		\]
 		\vspace{-0.7cm}
 	\end{block}
+	\vspace{-0.5cm}
 	\begin{align*}
 		q(\bx_t | \bx_0) &= \cN(\sqrt{\bar{\alpha}_t} \cdot \bx_0, (1 - \bar{\alpha}_t) \cdot \bI) \\
-		{\color{violet}\nabla_{\bx_t} \log q(\bx_t | \bx_0)} &= - \frac{\bx_t - \sqrt{\bar{\alpha}_t} \cdot \bx_0}{1 - \bar{\alpha}_t} = - \frac{\bepsilon}{\sqrt{1 - \bar{\alpha}_t}}.
+		\nabla_{\bx_t} \log q(\bx_t | \bx_0) &= - \frac{\bx_t - \sqrt{\bar{\alpha}_t} \cdot \bx_0}{1 - \bar{\alpha}_t} = {\color{teal}-  \frac{\bepsilon}{\sqrt{1 - \bar{\alpha}_t}}}.
 	\end{align*}
 		Let reparametrize our model: 
 		\vspace{-0.2cm}
 		\[
-			{\color{teal}\bs_{\btheta}(\bx_t, t)} = - \frac{\bepsilon_{\btheta}(\bx_t, t)}{\sqrt{1 - \bar{\alpha}_t}}.
+			\bs_{\btheta}(\bx_t, t) = - \frac{\bepsilon_{\btheta}(\bx_t, t)}{\sqrt{1 - \bar{\alpha}_t}}.
 		\]
+		\[
+			\cL_t = \bbE_{q(\bx_t | \bx_0)} \left[ \frac{(1 - \alpha_t)^2}{2\tilde{\beta}_t \alpha_t}  \Bigl\|  \bs_{\btheta} (\bx_t, t) - \nabla_{\bx_t} \log q(\bx_t | \bx_0) \Bigr\|_2^2  \right]
+		\]
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+	\end{frame}
+%=======
+\begin{frame}{Denosing diffusion as score-based generative model}
+	\begin{block}{DDPM objective}
+		\vspace{-0.5cm}
+		\[
+			\bbE_{\pi(\bx_0)} \bbE_{t \sim U\{1, T\}}\bbE_{q(\bx_t | \bx_0)} \left[ {\color{olive}\frac{(1 - \alpha_t)^2}{2\tilde{\beta}_t \alpha_t}} \Bigl\|  \bs_{\btheta} (\bx_t, t) - \nabla_{\bx_t} \log q(\bx_t | \bx_0) \Bigr\|_2^2  \right]
+		\]
+		In practice {\color{olive}the coefficient} is omitted.
+	\end{block}
+	\begin{block}{NCSN objective}
+		\vspace{-0.3cm}
+		\[
+			\bbE_{\pi(\bx_0)} \bbE_{t \sim U\{1, T\}} \bbE_{q(\bx_t | \bx_0)}\bigl\| \bs_{\btheta, \sigma_t}(\bx_t) - \nabla_{\bx_t} \log q(\bx_t | \bx_0) \bigr\|^2_2 
+		\]
+		\vspace{-0.3cm}
+	\end{block}
+	\textbf{Note:} The objective of DDPM and NCSN is almost identical. But the difference in sampling scheme:
+	\begin{itemize}
+		\item NCSN uses annealed Langevin dynamics;
+		\item DDPM uses ancestral sampling.
+	\end{itemize}
 	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
 	\end{frame}
 %=======
