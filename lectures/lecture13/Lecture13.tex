@@ -13,6 +13,29 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\begin{block}{Training of DDPM}
+		\begin{enumerate}
+			\item Get the sample $\bx_0 \sim \pi(\bx)$.
+			\item Sample timestamp $t \sim U\{1, T\}$ and the noise $\bepsilon \sim \cN(0, \bI)$.
+			\item Get noisy image $\bx_t = \sqrt{\bar{\alpha}_t} \cdot \bx_0 + \sqrt{1 - \bar{\alpha}_t} \cdot \bepsilon$.
+			\item Compute loss $ \cL_{\text{simple}} = \| \bepsilon - \bepsilon_{\btheta}(\bx_t , t) \|^2 $.
+		\end{enumerate}
+	\end{block}
+	\begin{block}{Sampling of DDPM}
+		\begin{enumerate}
+			\item Sample $\bx_T \sim \cN(0, \bI)$.
+			\item Compute mean of $p(\bx_{t-1} | \bx_t, \btheta) = \cN(\bmu_{\btheta}(\bx_t, t), \tilde{\beta}_t \bI)$:
+			\[
+				\bmu_{\btheta}(\bx_t, t) = \frac{1}{\sqrt{\alpha_t}} \cdot \bx_t - \frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}} \cdot \bepsilon_{\btheta}(\bx_t, t)
+			\]
+			\vspace{-0.3cm}
+			\item Get denoised image $\bx_{t - 1} = \bmu_{\btheta}(\bx_t, t) +  \sqrt{\tilde{\beta}_t} \cdot \bepsilon$, where $\bepsilon \sim \cN(0, \bI)$.
+		\end{enumerate}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
 	\begin{block}{NCSN objective}
 		\vspace{-0.2cm}
 		\[

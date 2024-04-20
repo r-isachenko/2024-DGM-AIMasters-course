@@ -13,6 +13,42 @@
 \end{frame}
 %=======
 \begin{frame}{Recap of previous lecture}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{figs/DDPM}
+	\end{figure}
+	\vspace{-0.5cm}
+	\begin{block}{Reverse process}
+		\vspace{-0.5cm}
+		{\small
+		\[
+			q(\bx_{t-1}|\bx_{t}) = \frac{q(\bx_{t}|\bx_{t-1}) {\color{violet}q(\bx_{t-1})}}{{\color{violet}q(\bx_{t})}} \approx p(\bx_{t - 1} | \bx_t, \btheta) = \cN \left(\bmu_{\btheta}(\bx_t, t), \bsigma_{\btheta}^2(\bx_t, t)\right)
+		\]
+		}
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{minipage}{0.5\linewidth}
+		\begin{block}{Forward process}
+			\begin{enumerate}
+				\item $\bx_0 = \bx \sim \pi(\bx)$;
+				\item $\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon$;
+				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$.
+			\end{enumerate}
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}{0.55\linewidth}
+		\begin{block}{Reverse process}
+			\begin{enumerate}
+				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$;
+				\item $\bx_{t - 1} = \bsigma_{\btheta}(\bx_t, t) \cdot \bepsilon + \bmu_{\btheta}(\bx_t, t)$;
+				\item $\bx_0 = \bx \sim \pi(\bx)$;
+			\end{enumerate}
+		\end{block}
+	\end{minipage}
+	\textbf{Note:} The forward process does not have any learnable parameters!
+	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
+\end{frame}
+%=======
+\begin{frame}{Recap of previous lecture}
 	\begin{itemize}
 		\item $\bz = (\bx_1, \dots, \bx_T)$ is a latent variable.
 		\item Variational posterior distribution
@@ -73,13 +109,13 @@
 		\vspace{-0.7cm}
 		\begin{align*}
 			\tilde{\bmu}_t(\bx_t, \bx_0) &= \frac{1}{\sqrt{\alpha_t}} \cdot \bx_t - \frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}} \cdot \bepsilon \\
-			\bmu_{\btheta}(\bx_t, t) &= \frac{1}{\sqrt{\alpha_t}} \cdot \bx_t - {\color{teal}\frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}}} \cdot \bepsilon_{\btheta}(\bx_t, t)
+			\bmu_{\btheta}(\bx_t, t) &= \frac{1}{\sqrt{\alpha_t}} \cdot \bx_t - \frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}} \cdot \bepsilon_{\btheta}({\color{teal}\bx_t}, t)
 		\end{align*}
 		\vspace{-0.7cm}
 	\end{block}
 	\vspace{-0.2cm}
 	\[
-		\cL_t  =	 \bbE_{\color{violet}\bepsilon \sim \cN(0, \bI)} \left[ \frac{(1 - \alpha_t)^2}{2\tilde{\beta}_t \alpha_t (1 - \bar{\alpha}_t)} \Bigl\| \bepsilon - \bepsilon_{\btheta}\bigl( {\color{violet}\sqrt{\bar{\alpha}_t} \bx_0 + \sqrt{1 - \bar{\alpha}_t} \bepsilon}, t\bigr) \Bigr\|^2 \right]
+		\cL_t  =	 \bbE_{\color{violet}\bepsilon \sim \cN(0, \bI)} \left[ \frac{(1 - \alpha_t)^2}{2\tilde{\beta}_t \alpha_t (1 - \bar{\alpha}_t)} \Bigl\| \bepsilon - \bepsilon_{\btheta}\bigl( {\color{teal}\sqrt{\bar{\alpha}_t} \bx_0 + \sqrt{1 - \bar{\alpha}_t} \bepsilon}, t\bigr) \Bigr\|^2 \right]
 	\]
 	At each step of reverse diffusion process we try to predict the noise~$\bepsilon$ that we used in the forward diffusion process!
 	\begin{block}{Simplified objective}
@@ -91,7 +127,90 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
 	\end{frame}
 %=======
-\begin{frame}{Recap of previous lecture}
+\begin{frame}{Outline}
+	\tableofcontents
+\end{frame}
+%=======
+\section{Denoising Diffusion Probabilistic Model (DDPM)}
+%=======
+\begin{frame}{Generative models zoo}
+	\begin{tikzpicture}[
+		basic/.style  = {draw, text width=2cm, drop shadow, rectangle},
+		root/.style   = {basic, rounded corners=2pt, thin, text height=1.1em, text width=7em, align=center, fill=blue!40},
+		level 1/.style={sibling distance=55mm},
+		level 2/.style = {basic, rounded corners=6pt, thin, align=center, fill=blue!20, text height=1.1em, text width=9em, sibling distance=38mm},
+		level 3/.style = {basic, rounded corners=6pt, thin,align=center, fill=blue!20, text width=8.5em},
+		level 4/.style = {basic, thin, align=left, fill=pink!30, text width=7em},
+		level 5/.style = {basic, thin, align=left, fill=pink!90, text width=7em},
+		edge from parent/.style={->,draw},
+		>=latex]
+		
+		% root of the the initial tree, level 1
+		\node[root] {\Large Generative models}
+		% The first level, as children of the initial tree
+		child {node[level 2] (c1) {Likelihood-based}
+			child {node[level 3] (c11) {Tractable density}}
+			child {node[level 3] (c12) {Approximate density}}
+		}
+		child {node[level 2] (c2) {Implicit density}};
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 4}]
+			\node [below of = c11, yshift=-5pt, xshift=10pt] (c111) {Autoregressive models};
+			\node [below of = c111, yshift=-5pt] (c112) {Normalizing Flows};
+			\node [below of = c12, xshift=10pt] (c121) {VAEs};
+			
+			\node [below of = c2, xshift=10pt] (c21) {GANs};
+		\end{scope}
+		
+		% The second level, relatively positioned nodes
+		\begin{scope}[every node/.style={level 5}]
+			\node [below of = c121] (c122) {\textbf{Diffusion \\ models}};
+		\end{scope}
+		
+		% lines from each level 1 node to every one of its "children"
+		\foreach \value in {1,2}
+		\draw[->] (c11.194) |- (c11\value.west);
+		
+		\foreach \value in {1,2}
+		\draw[->] (c12.194) |- (c12\value.west);
+		
+		\draw[->] (c2.194) |- (c21.west);
+		
+	\end{tikzpicture}
+\end{frame}
+%=======
+\begin{frame}{Denoising diffusion probabilistic model (DDPM)}
+	\begin{block}{DDPM is a VAE model}
+		\begin{itemize}
+			\item Encoder is a fixed Gaussian Markov chain $q(\bx_1, \dots, \bx_T | \bx_0)$.
+			\item Latent variable is a hierarchical (in each step the dim. of the latent equals to the dim of the input).
+			\item Decoder is a simple Gaussian model $p(\bx_0 | \bx_1, \btheta)$.
+			\item Prior distribution is given by parametric Gaussian Makov chain $p(\bx_{t-1} | \bx_t, \btheta)$.
+		\end{itemize}
+	\end{block}
+	\begin{minipage}{0.5\linewidth}
+		\begin{block}{Forward process}
+			\begin{enumerate}
+				\item $\bx_0 = \bx \sim \pi(\bx)$;
+				\item $\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon$;
+				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$.
+			\end{enumerate}
+		\end{block}
+	\end{minipage}%
+	\begin{minipage}{0.55\linewidth}
+		\begin{block}{Reverse process}
+			\begin{enumerate}
+				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$;
+				\item $\bx_{t - 1} = \bsigma_{\btheta}(\bx_t, t) \cdot \bepsilon + \bmu_{\btheta}(\bx_t, t)$;
+				\item $\bx_0 = \bx \sim \pi(\bx)$;
+			\end{enumerate}
+		\end{block}
+	\end{minipage}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
+\end{frame}
+%=======
+\begin{frame}{Denoising diffusion probabilistic model (DDPM)}
 	\begin{block}{Training}
 		\begin{enumerate}
 			\item Get the sample $\bx_0 \sim \pi(\bx)$.
@@ -114,8 +233,13 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
 \end{frame}
 %=======
-\begin{frame}{Outline}
-	\tableofcontents
+\begin{frame}{Denoising diffusion probabilistic model (DDPM)}
+	\begin{block}{Samples}
+		\begin{figure}
+			\includegraphics[width=\linewidth]{figs/ddpm_samples}
+		\end{figure}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
 \end{frame}
 %=======
 \section{Denosing diffusion as score-based generative model}
@@ -404,6 +528,8 @@
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
+		\item DDPM is a VAE model that tries to invert forward diffusion process using variational inference. DDPM is really slow, because we have to apply the model $T$ times.
+		\vfill
 		\item Objective of DDPM is closely related to the noise conditioned score network and score matching.	
 		\vfill
 		\item Conditional models use labels $\by$ as the additional input. Majority of the modern generative models are conditional.

@@ -237,7 +237,7 @@
 	Noised objective:
 	\vspace{-0.2cm}
 	\[
-		\bbE_{\pi}\bigl\| \bs_{\btheta, \sigma}(\bx) - \nabla_\bx \log q(\bx_{\sigma}) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\bbE_{\pi}\bigl\| \bs_{\btheta, \sigma}(\bx_\sigma) - \nabla_\bx \log q(\bx_{\sigma}) \bigr\|^2_2 \rightarrow \min_{\btheta}
 	\]
 	\vspace{-0.5cm} \\
 	This is equivalent to denoising task
@@ -298,7 +298,7 @@
 	Train the denoising score function $\bs_{\btheta, \sigma_t}(\bx_t)$ for each noise level using unified weighted objective:
 	\vspace{-0.2cm}
 	\[
-		\sum_{t=1}^T {\color{violet}\sigma_t^2} \bbE_{\pi(\bx)} \bbE_{q(\bx_t | \bx)}\bigl\| \bs_{\btheta, \sigma_t}(\bx_t) - \nabla_{\bx_t} \log q(\bx_t | \bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
+		\sum_{t=1}^T {\color{violet}\sigma_t^2} \cdot \bbE_{\pi(\bx)} \bbE_{q(\bx_t | \bx)}\bigl\| \bs_{\btheta, \sigma_t}(\bx_t) - \nabla_{\bx_t} \log q(\bx_t | \bx) \bigr\|^2_2 \rightarrow \min_{\btheta}
 	\]
 	Here $\nabla_{\bx_t} \log q(\bx_t | \bx) = - \frac{\bx_t - \bx}{\sigma_t^2} = - \frac{\bepsilon}{\sigma_t}$.
 	\begin{block}{Training}
@@ -306,7 +306,7 @@
 			\item Get the sample $\bx_0 \sim \pi(\bx)$.
 			\item Sample noise level $t \sim U\{1, T\}$ and the noise $\bepsilon \sim \cN(0, \bI)$.
 			\item Get noisy image $\bx_t = \bx_0 + \sigma_t \cdot \bepsilon$.
-			\item Compute loss $ \cL = \| \bs_{\btheta, \sigma_t}(\bx_t) + \frac{\bepsilon}{\sigma_t} \|^2 $.
+			\item Compute loss $ \cL = \sigma_t^2 \cdot \| \bs_{\btheta, \sigma_t}(\bx_t) + \frac{\bepsilon}{\sigma_t} \|^2 $.
 		\end{enumerate}
 	\end{block}
 	How to sample from this model?
@@ -339,7 +339,7 @@
 \begin{frame}{Forward gaussian diffusion process}
 	Let $\bx_0 = \bx \sim \pi(\bx)$, $\beta_t \in (0, 1)$. Define the Markov chain
 	\[
-		\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon, \quad \text{where }\bepsilon \sim \cN(0, \bI);
+		\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon_t, \quad \text{where }\bepsilon_t \sim \cN(0, \bI);
 	\]
 	\[
 		q(\bx_t | \bx_{t-1}) = \cN(\sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI).
@@ -355,7 +355,7 @@
 		{\small
 		\begin{multline*}
 			\bx_t = \sqrt{\alpha_t} \cdot {\color{teal}\bx_{t-1}} + \sqrt{1 - \alpha_t} \cdot \boldsymbol{\epsilon}_t = \\
-			= \sqrt{\alpha_t} ({\color{teal} \cdot \sqrt{\alpha_{t-1}} \bx_{t-2} + \sqrt{1 - \alpha_{t-1}} \cdot  \boldsymbol{\epsilon}_{t-1}}) + \sqrt{1 - \alpha_t} \cdot \boldsymbol{\epsilon}_t = \\
+			= \sqrt{\alpha_t} ({\color{teal} \sqrt{\alpha_{t-1}} \cdot \bx_{t-2} + \sqrt{1 - \alpha_{t-1}} \cdot  \boldsymbol{\epsilon}_{t-1}}) + \sqrt{1 - \alpha_t} \cdot \boldsymbol{\epsilon}_t = \\
 			= \sqrt{\alpha_t \alpha_{t-1}} \cdot \bx_{t-2} + ( {\color{violet}\sqrt{\alpha_t (1 - \alpha_{t-1})} \cdot  \boldsymbol{\epsilon}_{t-1} + \sqrt{1 - \alpha_t} \cdot \boldsymbol{\epsilon}_t}) = \\
 			= \sqrt{\alpha_t \alpha_{t-1}} \cdot \bx_{t-2} + {\color{violet}\sqrt{1 - \alpha_{t-1} \alpha_t} \cdot \boldsymbol{\epsilon}'_t} = \\
 			 = \dots = \sqrt{\bar{\alpha}_t} \cdot \bx_{0} + \sqrt{1 - \bar{\alpha}_t} \cdot \bepsilon, \quad \text{where } \bepsilon \sim \cN(0, \bI).
@@ -441,85 +441,6 @@
 	\textbf{Note:} We are able to apply NCSN approach with annealed Langevin dynamics to get diffusion denoising model.
 \end{frame}
 %=======
-\subsection{Reverse gaussian diffusion process}
-%=======
-\begin{frame}{Reverse gaussian diffusion process}
-	\begin{figure}
-		\includegraphics[width=0.8\linewidth]{figs/DDPM}
-	\end{figure}
-	\vspace{-0.5cm}
-	\begin{block}{Forward process}
-		\vspace{-0.3cm}
-		\[
-			q(\bx_t | \bx_{t-1}) = \cN\left(\sqrt{1 - \beta_t} \cdot \bx_{t-1}, \beta_t \cdot \bI\right).
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	\begin{block}{Reverse process}
-		\vspace{-0.3cm}
-		\[
-			q(\bx_{t-1}|\bx_{t}) = \frac{q(\bx_{t}|\bx_{t-1}) {\color{violet}q(\bx_{t-1})}}{{\color{violet}q(\bx_{t})}} \approx p(\bx_{t - 1} | \bx_t, \btheta)
-		\]
-		\vspace{-0.3cm}
-		${\color{violet}q(\bx_{t-1})}$, ${\color{violet}q(\bx_{t})}$ are intractable:		
-		\[
-			q(\bx_{t}) = \int q(\bx_{t} | \bx_0) \pi(\bx_0) d\bx_0
-		\]
-	\end{block}
-	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
-\end{frame}
-%=======
-\begin{frame}{Reverse gaussian diffusion process}
-		\vspace{-0.4cm}
-		\[
-			q(\bx_{t-1}|\bx_{t}) = \frac{q(\bx_{t}|\bx_{t-1}) {\color{violet}q(\bx_{t-1})}}{{\color{violet}q(\bx_{t})}} 
-		\]
-		\vspace{-0.4cm}
-		\begin{block}{Theorem (Feller, 1949)}
-			If $\beta_t$ is small enough, $q(\bx_{t-1}|\bx_{t})$ will be Gaussian {\color{gray}(that is why diffusion needs $T \approx 1000$ steps to converge)}.
-		\end{block}
-		\vspace{-0.3cm}
-		\begin{figure}
-			\includegraphics[width=0.7\linewidth]{figs/inverse_distr_1d}
-		\end{figure}
-	\myfootnote{\href{}{Feller W. On the theory of stochastic processes, with particular reference to applications, 1949} \\ 
-	\href{https://arxiv.org/abs/2112.07804}{Xiao Z., Kreis K., Vahdat A. Tackling the generative learning trilemma with denoising diffusion GANs, 2021}}
-	\end{frame} 
-%=======
-\begin{frame}{Reverse gaussian diffusion process}
-	\vspace{-0.3cm} 
-	\begin{figure}
-		\includegraphics[width=0.8\linewidth]{figs/DDPM}
-	\end{figure}
-	\vspace{-0.3cm} 
-	Let define the reverse process: 
-	\vspace{-0.2cm}
-	\[
-		q(\bx_{t-1}|\bx_{t}) \approx p(\bx_{t - 1} | \bx_t, \btheta) = \cN \left(\bmu_{\btheta}(\bx_t, t), \bsigma_{\btheta}^2(\bx_t, t)\right)
-	\]
-	{\color{gray}Feller theorem shows that it is a reasonable assumption.}
-	\begin{minipage}{0.5\linewidth}
-		\begin{block}{Forward process}
-			\begin{enumerate}
-				\item $\bx_0 = \bx \sim \pi(\bx)$;
-				\item $\bx_t = \sqrt{1 - \beta_t} \cdot \bx_{t - 1} + \sqrt{\beta_t} \cdot \bepsilon$;
-				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$.
-			\end{enumerate}
-		\end{block}
-	\end{minipage}%
-	\begin{minipage}{0.55\linewidth}
-		\begin{block}{Reverse process}
-			\begin{enumerate}
-				\item $\bx_T \sim p_{\infty}(\bx) = \cN(0, \bI)$;
-				\item $\bx_{t - 1} = \bsigma_{\btheta}(\bx_t, t) \cdot \bepsilon + \bmu_{\btheta}(\bx_t, t)$;
-				\item $\bx_0 = \bx \sim \pi(\bx)$;
-			\end{enumerate}
-		\end{block}
-	\end{minipage}
-	\textbf{Note:} The forward process does not have any learnable parameters!
-	\myfootnotewithlink{https://lilianweng.github.io/posts/2021-07-11-diffusion-models/}{Weng L. What are Diffusion Models?, blog post, 2021}
-\end{frame}
-%=======
 \begin{frame}{Summary}
 	\begin{itemize}
 		\item Denoising score matching minimizes Fisher divergence on noisy samples. It allows to estimate Fisher divergence using samples.
@@ -528,9 +449,8 @@
 		\vfill
 		\item Gaussian diffusion process is a Markov chain that injects special form of Gaussian noise to the samples.
 		\vfill
-		\item Reverse process allows to sample from the real distribution $\pi(\bx)$ using samples from noise, but it is intractable.
-		\vfill
-		\item We will use approximation to get the reverse process.
+		\item Denoising score matching is applicable to gaussian diffusion process.
 	\end{itemize}
 \end{frame}
+%=======
 \end{document} 
