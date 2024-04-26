@@ -18,18 +18,18 @@
 			\item Get the sample $\bx_0 \sim \pi(\bx)$.
 			\item Sample timestamp $t \sim U\{1, T\}$ and the noise $\bepsilon \sim \cN(0, \bI)$.
 			\item Get noisy image $\bx_t = \sqrt{\bar{\alpha}_t} \cdot \bx_0 + \sqrt{1 - \bar{\alpha}_t} \cdot \bepsilon$.
-			\item Compute loss $ \cL_{\text{simple}} = \| \bepsilon - \bepsilon_{\btheta}(\bx_t , t) \|^2 $.
+			\item Compute loss $ \cL_{\text{simple}} = \| \bepsilon - \bepsilon_{\btheta, t}(\bx_t) \|^2 $.
 		\end{enumerate}
 	\end{block}
 	\begin{block}{Sampling of DDPM}
 		\begin{enumerate}
 			\item Sample $\bx_T \sim \cN(0, \bI)$.
-			\item Compute mean of $p(\bx_{t-1} | \bx_t, \btheta) = \cN(\bmu_{\btheta}(\bx_t, t), \tilde{\beta}_t \bI)$:
+			\item Compute mean of $p(\bx_{t-1} | \bx_t, \btheta) = \cN(\bmu_{\btheta, t}(\bx_t), \sigma_t^2 \cdot \bI)$:
 			\[
-				\bmu_{\btheta}(\bx_t, t) = \frac{1}{\sqrt{\alpha_t}} \cdot \bx_t - \frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}} \cdot \bepsilon_{\btheta}(\bx_t, t)
+				\bmu_{\btheta, t}(\bx_t) = \frac{1}{\sqrt{\alpha_t}} \cdot \bx_t - \frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}} \cdot \bepsilon_{\btheta, t}(\bx_t)
 			\]
 			\vspace{-0.3cm}
-			\item Get denoised image $\bx_{t - 1} = \bmu_{\btheta}(\bx_t, t) +  \sqrt{\tilde{\beta}_t} \cdot \bepsilon$, where $\bepsilon \sim \cN(0, \bI)$.
+			\item Get denoised image $\bx_{t - 1} = \bmu_{\btheta, t}(\bx_t) +  \sigma_t \cdot \bepsilon$, where $\bepsilon \sim \cN(0, \bI)$.
 		\end{enumerate}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/2006.11239}{Ho J. Denoising Diffusion Probabilistic Models, 2020}
@@ -68,6 +68,53 @@
 %=======
 \section{SDE basics}
 %=======
+\begin{frame}{Ordinary differential equantion (ODE)}
+	\vspace{-0.5cm}
+	\begin{block}{Continuous-in-time Normalizing Flows}
+		\vspace{-0.5cm}
+		\begin{align*}
+  \frac{d \bz(t)}{dt} &= \bff_{\btheta}(\bz(t), t); \quad \text{with initial condition }\bz(t_0) = \bz_0
+		\end{align*}
+		\vspace{-0.8cm}
+	\end{block}
+	\begin{minipage}[t]{0.6\columnwidth}
+		\begin{itemize}
+			\item Let $\bz(t_0)$ will be a random variable with some density function $p(\bz(t_0))$.
+		 	\item Then $\bz(t_1)$ will be also a random variable with some other density function $p(\bz(t_1))$.
+			\item We could say that we have the joint density function $p(\bz(t), t)$.
+			\item What is the difference between $p(\bz(t), t)$ and $p(\bz, t)$?
+		\end{itemize}
+	\end{minipage}%
+	\begin{minipage}[t]{0.4\columnwidth}	
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth]{figs/cnf_flow.png}
+		\end{figure}
+	\end{minipage}
+	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018}  
+\end{frame}
+%=======
+\begin{frame}{Continuous-in-time Normalizing Flows}
+	\begin{block}{What do we need?}
+		\begin{itemize}
+			\item We need the way to compute $p(\bz, t)$ at any moment $t$.
+			\item We need the way to find the optimal parameters $\btheta$ of the dynamic $\bff_{\btheta}$.
+		\end{itemize}
+	\end{block}
+	\vspace{-0.3cm}
+	\begin{block}{Theorem (Kolmogorov-Fokker-Planck: special case)}
+		If $\bff$ is uniformly Lipschitz continuous in $\bz$ and continuous in $t$, then
+		\[
+			\frac{d \log p(\bz(t), t)}{d t} = - \text{tr} \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right).
+		\]
+		\[
+			\log p(\bz(t_1), t_1) = \log p(\bz(t_0), t_0) - \int_{t_0}^{t_1} \text{tr}  \left( \frac{\partial \bff_{\btheta}(\bz(t), t)}{\partial \bz(t)} \right) dt.
+		\]
+	\end{block}
+	It means that if we have the value $\bz_0 = \bz(t_0)$ then the solution of the ODE will give us the density at the moment $t_1$.
+	\myfootnotewithlink{https://arxiv.org/abs/1806.07366}{Chen R. T. Q. et al. Neural Ordinary Differential Equations, 2018}   
+\end{frame}
+%=======
 \begin{frame}{Stochastic differential equation (SDE)}
 	Let define stochastic process $\bx(t)$ with initial condition $\bx(0) \sim p_0(\bx)$:
 	\[
@@ -75,8 +122,8 @@
 	\]
 	\vspace{-0.6cm}
 	\begin{itemize}
-		 \item $\mathbf{f}(\bx, t)$ is the \textbf{drift} function of $\bx(t)$.
-		 \item $g(t)$ is the \textbf{diffusion} coefficient of $\bx(t)$.
+		 \item $\mathbf{f}(\bx, t): \bbR^m \rightarrow \bbR^m$ is the \textbf{drift} function of $\bx(t)$.
+		 \item $g(t): \bbR \rightarrow \bbR$ is the \textbf{diffusion} function of $\bx(t)$.
 		 \item If $g(t) = 0$ we get standard ODE.
 		 \item $\bw(t)$ is the standard Wiener process (Brownian motion):
 		 \begin{enumerate}
@@ -140,6 +187,9 @@
 		\]
 		\vspace{-0.3cm}
 	\end{block}
+\end{frame}
+%=======
+\begin{frame}{ODE and SDE discretization}
 \end{frame}
 %=======
 \section{Diffusion and Score matching SDEs}
@@ -212,6 +262,50 @@
 			d \bx = - \frac{1}{2} \beta(t) \bx(t) dt + \sqrt{\beta(t)} \cdot d \bw
 		\]
 	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\section{Probability flow ODE}
+%=======
+\begin{frame}{Probability flow ODE}
+	\begin{block}{Stochastic differential equation}
+		\[
+			d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
+		\] 	
+	\end{block}
+	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
+ 		\vspace{-0.2cm}
+ 		\[
+ 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
+ 		\]
+ 	\end{block}
+		\[
+			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt = \tilde{\mathbf{f}}(\bx, t) dt
+		\] 	
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Probability flow ODE}
+	\begin{block}{Kolmogorov-Fokker-Planck equation}
+ 		\vspace{-0.2cm}
+ 		\begin{multline*}
+ 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
+ 			=  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}\frac{\partial p(\bx, t)}{\partial \bx}} \right]  \right) = \\
+ 			 =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}p(\bx, t) \frac{\partial \log p(\bx, t)}{\partial \bx}} \right]  \right)= \\
+ 			  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( \mathbf{f}(\bx, t) + \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}\right) p(\bx, t) \right]  \right)\\
+ 			  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \tilde{\mathbf{f}}(\bx, t) p(\bx, t) \right]  \right)
+ 		\end{multline*}
+ 	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Probability flow ODE}
+	\[
+		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
+	\] 	
+	\[
+		d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+	\]
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======

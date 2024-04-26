@@ -1811,6 +1811,76 @@
 	\vspace{-0.1cm}
 	\myfootnotewithlink{https://arxiv.org/abs/1902.00275}{Ho J. et al. Flow++: Improving Flow-Based Generative Models with Variational Dequantization and Architecture Design, 2019}
 \end{frame}
+%=======
+\subsection{FFJORD}
+%=======
+\begin{frame}{Continuous Normalizing Flows}
+	\begin{block}{Forward transform + log-density}
+		\vspace{-0.8cm}
+		\[
+			\begin{bmatrix}
+				\bx \\
+				\log p(\bx | \btheta)
+			\end{bmatrix}
+			= 
+			\begin{bmatrix}
+				\bz \\
+				\log p(\bz)
+			\end{bmatrix} + 
+			\int_{t_0}^{t_1} 
+			\begin{bmatrix}
+				f(\bz(t), \btheta) \\
+				- \text{trace} \left( \frac{\partial f(\bz(t), \btheta)}{\partial \bz(t)} \right) 
+			\end{bmatrix} dt.
+		\]
+		\vspace{-0.4cm}
+	\end{block}
+	\begin{itemize}
+		\item Discrete-in-time normalizing flows need invertible $f$. It costs $O(d^3)$ to get determinant of Jacobian.
+		\item Continuous-in-time flows require only smoothness of $f$. It costs $O(d^2)$ to get trace of Jacobian.
+	\end{itemize}
+	It is possible to reduce cost from $O(d^2)$ to $O(d)$!
+	\begin{block}{Hutchinson's trace estimator}
+		\vspace{-0.3cm}
+		\[
+		    \text{trace}(A) = \mathbb{E}_{p(\bepsilon)} \left[ \bepsilon^T A \bepsilon \right]; \quad \mathbb{E} [\bepsilon] = 0; \quad \text{Cov} (\bepsilon) = I.
+		\]
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{FFJORD density estimation}
+		\vspace{-0.4cm}
+		\[
+		    \log p(\bz(t_1)) = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ \bepsilon^T \frac{\partial f}{\partial \bz} \bepsilon \right] dt.
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
+\end{frame}
+%=======
+\begin{frame}{FFJORD}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.75\linewidth]{figs/flow_comparison.png}
+	\end{figure}
+	\vspace{-0.4cm}
+	\begin{block}{Density estimation (forward KL)}
+		\vspace{-0.2cm}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.8\linewidth]{figs/ffjord_forward}
+		\end{figure}
+		\vspace{-0.5cm}
+	\end{block}
+	\begin{block}{Flows for variational inference (reverse KL)}
+		\vspace{-0.2cm}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.8\linewidth]{figs/ffjord_reverse}
+		\end{figure}
+	\end{block}
+
+	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
+\end{frame}
+%=======
 \section{ELBO surgery}
 %=======
 \begin{frame}{ELBO interpretations}
@@ -2091,8 +2161,6 @@ where $i$ is treated as random variable:
 %=======
 \section{Disentanglement}
 %=======
-\subsection{InfoGAN}
-%=======
 \begin{frame}{InfoGAN}
 	\begin{block}{GAN objective}
 		\vspace{-0.6cm}
@@ -2162,8 +2230,6 @@ where $i$ is treated as random variable:
 	
 	\myfootnotewithlink{https://arxiv.org/abs/1606.03657}{Chen X. et al. InfoGAN: Interpretable Representation Learning by Information Maximizing Generative Adversarial Nets, 2016}
 \end{frame}
-%=======
-\subsection{$\beta$-VAE}
 %=======
 \begin{frame}{Disentangled representations}
 	\vspace{-0.2cm}
@@ -2313,8 +2379,6 @@ where $i$ is treated as random variable:
 	\myfootnotewithlink{https://arxiv.org/abs/1804.03599}{Burgess C. P. et al. Understanding disentangling in $\beta$-VAE, 2018}
 \end{frame}
 %=======
-\subsection{DIP-VAE}
-%=======
 \begin{frame}{DIP-VAE: disentangled posterior}
 	\begin{block}{Disentangled aggregated variational posterior}
 		\vspace{-0.3cm}
@@ -2351,8 +2415,6 @@ where $i$ is treated as random variable:
 	
 	\myfootnotewithlink{https://arxiv.org/abs/1711.00848}{Kumar A., Sattigeri P., Balakrishnan A. Variational Inference of Disentangled Latent Concepts from Unlabeled Observations, 2017}
 \end{frame}
-%=======
-\subsection{FactorVAE}
 %=======
 \begin{frame}{FactorVAE}
 	\begin{block}{Disentangled aggregated variational posterior}
@@ -2447,8 +2509,6 @@ where $i$ is treated as random variable:
 
 	\myfootnotewithlink{https://arxiv.org/abs/1802.05983}{Kim H., Mnih A. Disentangling by Factorising, 2018}
 \end{frame}
-%=======
-\subsection{Challenging Disentanglement Assumptions}
 %=======
 \begin{frame}{Challenging disentanglement assumptions}
 	
@@ -3369,75 +3429,6 @@ where $i$ is treated as random variable:
 	\myfootnotewithlink{https://arxiv.org/abs/1812.04948}{Karras T., Laine S., Aila T. A Style-Based Generator Architecture for Generative Adversarial Networks, 2018}
 \end{frame}
 %=======
-\section{FFJORD}
-%=======
-\begin{frame}{Continuous Normalizing Flows}
-	\begin{block}{Forward transform + log-density}
-		\vspace{-0.8cm}
-		\[
-			\begin{bmatrix}
-				\bx \\
-				\log p(\bx | \btheta)
-			\end{bmatrix}
-			= 
-			\begin{bmatrix}
-				\bz \\
-				\log p(\bz)
-			\end{bmatrix} + 
-			\int_{t_0}^{t_1} 
-			\begin{bmatrix}
-				f(\bz(t), \btheta) \\
-				- \text{trace} \left( \frac{\partial f(\bz(t), \btheta)}{\partial \bz(t)} \right) 
-			\end{bmatrix} dt.
-		\]
-		\vspace{-0.4cm}
-	\end{block}
-	\begin{itemize}
-		\item Discrete-in-time normalizing flows need invertible $f$. It costs $O(d^3)$ to get determinant of Jacobian.
-		\item Continuous-in-time flows require only smoothness of $f$. It costs $O(d^2)$ to get trace of Jacobian.
-	\end{itemize}
-	It is possible to reduce cost from $O(d^2)$ to $O(d)$!
-	\begin{block}{Hutchinson's trace estimator}
-		\vspace{-0.3cm}
-		\[
-		    \text{trace}(A) = \mathbb{E}_{p(\bepsilon)} \left[ \bepsilon^T A \bepsilon \right]; \quad \mathbb{E} [\bepsilon] = 0; \quad \text{Cov} (\bepsilon) = I.
-		\]
-		\vspace{-0.5cm}
-	\end{block}
-	\begin{block}{FFJORD density estimation}
-		\vspace{-0.4cm}
-		\[
-		    \log p(\bz(t_1)) = \log p(\bz(t_0)) - \mathbb{E}_{p(\bepsilon)} \int_{t_0}^{t_1} \left[ \bepsilon^T \frac{\partial f}{\partial \bz} \bepsilon \right] dt.
-		\]
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
-\end{frame}
-%=======
-\begin{frame}{FFJORD}
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.75\linewidth]{figs/flow_comparison.png}
-	\end{figure}
-	\vspace{-0.4cm}
-	\begin{block}{Density estimation (forward KL)}
-		\vspace{-0.2cm}
-		\begin{figure}
-			\centering
-			\includegraphics[width=0.8\linewidth]{figs/ffjord_forward}
-		\end{figure}
-		\vspace{-0.5cm}
-	\end{block}
-	\begin{block}{Flows for variational inference (reverse KL)}
-		\vspace{-0.2cm}
-		\begin{figure}
-			\centering
-			\includegraphics[width=0.8\linewidth]{figs/ffjord_reverse}
-		\end{figure}
-	\end{block}
-
-	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018} 
-\end{frame}
-%=======
 \section{Quantized latents}
 %=======
 \subsection{Vector Quantized VAE-2}
@@ -3556,7 +3547,7 @@ where $i$ is treated as random variable:
 	\myfootnotewithlink{https://arxiv.org/abs/2004.02088}{Zhao Y. et al. Feature Quantization Improves GAN Training, 2020} 
 \end{frame}
 %=======
-\section{Score matching}
+\section{Diffusion related topics}
 %=======
 \subsection{Implicit score matching}
 %=======
@@ -3612,6 +3603,83 @@ where $i$ is treated as random variable:
 	\end{block}
 	\myfootnote{\href{https://yang-song.net/blog/2021/ssm/}{Song Y. Sliced Score Matching: A Scalable Approach to Density and Score Estimation, 2019} \\
 	\href{https://yang-song.net/blog/2021/score/}{Song Y. Generative Modeling by Estimating Gradients of the Data Distribution, blog post, 2021}}
+\end{frame}
+%=======
+\subsection{Classifier guidance}
+%=======
+\begin{frame}{Classifier guidance}
+	\vspace{-0.5cm}
+	\begin{multline*}
+		{\color{teal}q(\by | \bx_{t - 1}, \bx_t)} = \frac{q(\bx_{t - 1}, \bx_t, \by)}{q(\bx_{t - 1}, \bx_t)} = \\
+		= \frac{{\color{olive}q(\bx_t | \bx_{t - 1}, \by)} q(\by | \bx_{t - 1}) \color{violet}{q(\bx_{t - 1})}} {{\color{olive}q(\bx_t | \bx_{t - 1})}e \color{violet}{q(\bx_{t - 1})}} = q(\by | \bx_{t - 1}).
+	\end{multline*}
+	\vspace{-0.4cm}
+	\begin{block}{Conditional distribution}
+		\vspace{-0.7cm}
+		\begin{multline*}
+			q(\bx_{t - 1} | \bx_t, \by) = \frac{q(\bx_{t - 1}, \bx_t, \by)}{q(\bx_t, \by)}  = \\ 
+			=  \frac{{\color{teal}q(\by | \bx_{t - 1}, \bx_t)} q(\bx_{t - 1} | \bx_t) {\color{violet}q(\bx_t)}}{q(\by | \bx_t) {\color{violet}q(\bx_t)}} = \\
+			= q(\by | \bx_{t - 1}) q(\bx_{t - 1} | \bx_t) \cdot \text{const}(\bx_{t - 1}).
+		\end{multline*}
+		\[
+			p(\bx_{t - 1} | \bx_t, \by, \btheta , \bphi) = p(\by | \bx_{t-1}, \bphi) p(\bx_{t-1} | \bx_t, \btheta) \cdot \text{const}(\bx_{t - 1}).
+		\]
+		\vspace{-0.4cm}
+		\begin{itemize}
+			\item $p(\bx_{t-1} | \bx_t, \btheta)$ - our unsupervised diffusion model.
+			\item $p(\by | \bx_{t-1}, \bphi)$ - classifier for noised samples $\bx_{t-1}$
+		\end{itemize}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2105.05233}{Dhariwal P., Nichol A. Diffusion Models Beat GANs on Image Synthesis, 2021}
+\end{frame}
+%=======
+\begin{frame}{Classifier guidance}
+	\begin{block}{Conditional distribution}
+		\vspace{-0.5cm}
+		\begin{align*}
+			p(\bx_{t - 1} | \bx_t, \by, \btheta , \bphi) &= p(\by | \bx_{t-1}, \bphi) \cdot p(\bx_{t-1} | \bx_t, \btheta) \cdot \text{const}(\bx_{t - 1}) \\
+			\log p(\bx_{t - 1} | \bx_t, \by, \btheta , \bphi) &= {\color{teal}\log p(\by | \bx_{t-1}, \bphi)} + {\color{violet}\log p(\bx_{t-1} | \bx_t, \btheta)} + \text{const}
+		\end{align*}
+	\end{block}
+	\vspace{-0.7cm}
+	\begin{align*}
+		p(\bx_{t-1} | \bx_t, \btheta) &= \cN(\bmu_{\btheta}(\bx_t, t), \bsigma^2_{\btheta}(\bx_t, t)) \\
+		{\color{violet}\log p(\bx_{t-1} | \bx_t, \btheta)} &= - \frac{\|\bx_{t - 1} - \bmu\|^2}{2 \bsigma^2} + \text{const}(\bx_{t-1})
+	\end{align*}
+	\vspace{-0.5cm}
+	\begin{block}{Taylor expansion}
+		\vspace{-0.7cm}
+		\begin{multline*}
+			{\color{teal}\log p(\by | \bx_{t-1}, \bphi)} \approx \log p(\by | \bx_{t-1}, \bphi) |_{\bx_{t-1} = \bmu} + \\
+			+ (\bx_{t-1} - \bmu) \cdot \nabla_{\bx_{t-1}} \log p(\by | \bx_{t-1}, \bphi) |_{\bx_{t-1} = \bmu} = \\
+			= (\bx_{t-1} - \bmu) \cdot \mathbf{g} +  \text{const}(\bx_{t-1}),
+		\end{multline*}
+		where $\mathbf{g} =  \nabla_{\bx_{t-1}} \log p(\by | \bx_{t-1}, \bphi) |_{\bx_{t-1} = \bmu}$.
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2105.05233}{Dhariwal P., Nichol A. Diffusion Models Beat GANs on Image Synthesis, 2021}
+\end{frame}
+%=======
+\begin{frame}{Classifier guidance}
+	\vspace{-0.5cm}
+	\begin{align*}
+		\log p(\bx_{t - 1} | \bx_t, \by, \btheta , \bphi) &= {\color{teal}(\bx_{t-1} - \bmu) \cdot \mathbf{g}} - {\color{violet}\frac{\|\bx_{t - 1} - \bmu\|^2}{2 \bsigma^2}} + \text{const}(\bx_{t-1}) \\
+		& = - \frac{\|\bx_{t - 1} - \bmu - \bsigma \odot \mathbf{g}\|^2}{2 \bsigma^2} + \text{const}(\bx_{t-1}) \\
+		& = \log \cN( \bmu + {\color{olive}\bsigma \odot \mathbf{g}}, \bsigma^2) + \text{const}(\bx_{t-1})
+	\end{align*}
+	\vspace{-0.5cm}
+	\begin{block}{Guided sampling}
+		\begin{enumerate}
+			\item Sample $\bx_T \sim \cN(0, \bI)$.
+			\item Compute mean of $p(\bx_{t-1} | \bx_t, \btheta) = \cN(\bmu_{\btheta}(\bx_t, t), \tilde{\beta}_t \bI)$:
+			\[
+				\bmu_{\btheta}(\bx_t, t) = \frac{1}{\sqrt{\alpha_t}} \bx_t - \frac{1 - \alpha_t}{\sqrt{\alpha_t (1 - \bar{\alpha}_t)}} \cdot \bepsilon_{\btheta}(\bx_t, t).
+			\]
+			\vspace{-0.3cm}
+			\item Compute $\mathbf{g} =  \nabla_{\bx_{t-1}} \log p(\by | \bx_{t-1}, \bphi) |_{\bx_{t-1} = \bmu}$.
+			\item Get denoised image $\bx_{t - 1} = (\bmu_{\btheta}(\bx_t, t) +  {\color{olive} \sqrt{\tilde{\beta}_t} \cdot \mathbf{g}})+ \sqrt{\tilde{\beta}_t} \cdot \bepsilon$, where $\bepsilon \sim \cN(0, \bI)$.
+		\end{enumerate}
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2105.05233}{Dhariwal P., Nichol A. Diffusion Models Beat GANs on Image Synthesis, 2021}
 \end{frame}
 %=======
 \end{document} 
