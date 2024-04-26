@@ -45,12 +45,12 @@ The course is accompanied by practical tasks that allow you to understand the pr
 |  |  | <b>Seminar 9:</b> WGAN and WGAN-GP on 1D data. | [slides](seminars/seminar9/seminar9.ipynb) |
 | 10 | April, 17 | <b>Lecture 10:</b> Denoising score matching. Noise Conditioned Score Network (NCSN). Gaussian diffusion process: forward + reverse. | [slides](lectures/lecture10/Lecture10.pdf) |
 |  |  | <b>Seminar 10:</b> StyleGAN. | [slides](seminars/seminar10/StyleGAN.ipynb) |
-<!---
-| 11 | April, 24 | <b>Lecture 11:</b> Gaussian diffusion model as VAE, derivation of ELBO. Denoising diffusion probabilistic model (DDPM): reparametrization and overview. |  |
+| 11 | April, 24 | <b>Lecture 11:</b> Gaussian diffusion model as VAE, derivation of ELBO. Reparametrization of gaussian diffusion model. | [slides](lectures/lecture11/Lecture11.pdf) |
 |  |  | <b>Seminar 11:</b> Gaussian diffusion process basics. |
-| 12 | May, 8 | <b>Lecture 12:</b> DDPM vs NCSN. Model guidance: classifier guidance, classfier-free guidance. Kolmogorov-Fokker-Planck equation. SDE basics. |  |
+| 12 | May, 8 | <b>Lecture 12:</b> Denoising diffusion probabilistic model (DDPM): overview. Denoising diffusion as score-based generative model. Model guidance: classifier guidance, classfier-free guidance. | [slides](lectures/lecture12/Lecture12.pdf) |
 |  |  | <b>Seminar 12:</b> Fast samplers: iDDPM and DDIM |  |
-| 13 | May, 15 | <b>Lecture 13:</b> Variance Preserving and Variance Exploding SDEs. |  |
+<!---
+| 13 | May, 15 | <b>Lecture 13:</b> Kolmogorov-Fokker-Planck equation. SDE basics. Variance Preserving and Variance Exploding SDEs. |  |
 |  |  | <b>Seminar 13:</b> Noise Conditioned Score Network |  |
 | 14 | May, 22 | <b>Lecture 14:</b>  |  |
 |  |  | <b>Seminar 14:</b> TBA |  |
