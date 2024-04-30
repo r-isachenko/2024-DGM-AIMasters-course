@@ -272,19 +272,16 @@
 \end{frame}
 %=======
 \begin{frame}{Stochastic differential equation (SDE)}
-	\vspace{-0.4cm}
-	\[
-		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw, \quad d \bw = \bepsilon \cdot \sqrt{dt}, \quad \bepsilon \sim \cN(0, \bI).
-	\]
-	\vspace{-0.4cm}
  	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
- 		Evolution of the distribution $p(\bx, t)$ is given by the following ODE:
  		\vspace{-0.2cm}
  		\[
  			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
  		\]
- 		\textbf{Note:} This is the generalization of KFP theorem that we used in continuous-in-time NF.
  	\end{block}
+ 	 \textbf{Note:} This is the generalization of KFP theorem that we used in continuous-in-time NF:
+	\[
+		\frac{d \log p(\bx(t), t)}{d t} = - \text{tr} \left( \frac{\partial \bff(\bx, t)}{\partial \bx} \right).
+	\]
  	\begin{block}{Langevin SDE (special case)}
  		\vspace{-0.6cm}
  		\begin{align*}
@@ -292,18 +289,18 @@
  			d \bx &= {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
  		\end{align*}
  	\end{block}
+ 	Let apply KFP theorem.
 \end{frame}
 %=======
 \begin{frame}{Langevin SDE (special case)}
 	\[
-		d \bx = {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
+		d \bx = \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t) d t + 1 \cdot d \bw
 	\]
-	Let apply KFP theorem.
 	\begin{multline*}
 		\frac{\partial p(\bx, t)}{\partial t} =  \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}p(\bx, t) \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
 		= \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}\frac{1}{2} \frac{\partial}{\partial \bx} p(\bx, t) } \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = 0
 	\end{multline*}
-	The density $p(\bx, t) = \text{const}(t)$! \\
+	The density $p(\bx, t) = \text{const}(t)$! If $\bx(0) \sim p_0(\bx)$, then $\bx(t) \sim p_0(\bx)$.
 	\begin{block}{Discretized Langevin SDE}
 		\vspace{-0.3cm}
 		\[
