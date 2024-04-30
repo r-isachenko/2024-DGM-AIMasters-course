@@ -412,7 +412,7 @@
 	\begin{block}{Conditional distribution}
 		\vspace{-0.7cm}
 		\begin{align*}
-			\nabla_{\bx_t} \log p(\bx_t | \by, \btheta) &= \nabla_{\bx_t} \log \left(\frac{p(\by | \bx_t)p(\bx_t | \btheta)}{p(\by | \bphi)} \right)\\
+			\nabla_{\bx_t} \log p(\bx_t | \by, \btheta) &= \nabla_{\bx_t} \log \left(\frac{p(\by | \bx_t)p(\bx_t | \btheta)}{p(\by)} \right)\\
 			&= \nabla_{\bx_t} \log p(\by | \bx_t) + {\color{violet}\nabla_{\bx_t} \log p(\bx_t | \btheta)}\\
 			&= \nabla_{\bx_t} \log p(\by | \bx_t) {\color{violet}- \frac{\bepsilon_{\btheta, t}(\bx_t)}{\sqrt{1 - \bar{\alpha}_t}}}
 		\end{align*}
