@@ -153,7 +153,7 @@
 %=======
 \section{SDE basics}
 %=======
-\begin{frame}{Ordinary differential equantion (ODE)}
+\begin{frame}{Ordinary differential equation (ODE)}
 	\begin{block}{Continuous-in-time Normalizing Flows}
 		\vspace{-0.3cm}
 		\[
@@ -178,7 +178,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/1810.01367}{Grathwohl W. et al. FFJORD: Free-form Continuous Dynamics for Scalable Reversible Generative Models, 2018}  
 \end{frame}
 %=======
-\begin{frame}{Continuous-in-time Normalizing Flows}
+\begin{frame}{Ordinary differential equation (ODE)}
 	\[
  			d \bz = \bff_{\btheta}(\bz, t) \cdot dt
 	\]
@@ -229,7 +229,7 @@
 		\item In contrast to ODE, initial condition $\bx(0)$ does not uniquely determine the process trajectory.
 		\item We have two sources of randomness: initial distribution $p_0(\bx)$ and Wiener process $w(t)$.
 	\end{itemize}
-	\begin{block}{Discretization of ODE (Euler method)}
+	\begin{block}{Discretization of SDE (Euler method)}
 		\vspace{-0.3cm}
 		\[
 			\bx(t + dt) = \bx(t) + \bff(\bx(t), t) \cdot dt + g(t) \cdot \bepsilon \cdot \sqrt{dt}
@@ -278,10 +278,14 @@
  			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
  		\]
  	\end{block}
- 	 \textbf{Note:} This is the generalization of KFP theorem that we used in continuous-in-time NF:
-	\[
-		\frac{d \log p(\bx(t), t)}{d t} = - \text{tr} \left( \frac{\partial \bff(\bx, t)}{\partial \bx} \right).
-	\]
+ 	 \begin{itemize}
+ 	 	\item KFP theorem uniquely defines the dynamic $\bx(t)$.
+ 		 \item This is the generalization of KFP theorem that we used in continuous-in-time NF:
+ 	 	\[
+ 	 		\frac{d \log p(\bx(t), t)}{d t} = - \text{tr} \left( \frac{\partial \bff(\bx, t)}{\partial \bx} \right).
+ 	 	\]
+ 	 \end{itemize}
+	\vspace{-0.3cm}
  	\begin{block}{Langevin SDE (special case)}
  		\vspace{-0.6cm}
  		\begin{align*}
@@ -300,7 +304,7 @@
 		\frac{\partial p(\bx, t)}{\partial t} =  \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}p(\bx, t) \frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
 		= \text{tr} \left(- \frac{\partial}{\partial \bx}\left[ {\color{olive}\frac{1}{2} \frac{\partial}{\partial \bx} p(\bx, t) } \right]  + \frac{1}{2} \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = 0
 	\end{multline*}
-	The density $p(\bx, t) = \text{const}(t)$! If $\bx(0) \sim p_0(\bx)$, then $\bx(t) \sim p_0(\bx)$.
+	The density $p(\bx, t) = \text{const}(t)$! \\ If $\bx(0) \sim p_0(\bx)$, then $\bx(t) \sim p_0(\bx)$.
 	\begin{block}{Discretized Langevin SDE}
 		\vspace{-0.3cm}
 		\[
@@ -392,34 +396,64 @@
 %=======
 \section{Probability flow ODE}
 %=======
+%=======
 \begin{frame}{Probability flow ODE}
-	\begin{block}{Stochastic differential equation}
+	\begin{block}{Theorem}
+		Assume SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ induces the distribution $p(\bx, t)$.
+		Then there exists ODE with identical probabilities distribution $p(\bx, t)$ of the form
+		\vspace{-0.3cm}
 		\[
-			d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
-		\] 	
+			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+		\]
+		\vspace{-0.7cm}
 	\end{block}
+	\begin{block}{Proof}
+ 		\vspace{-0.7cm}
+ 		{\small
+ 		\begin{multline*}
+ 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
+ 			=  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}\frac{\partial p(\bx, t)}{\partial \bx}} \right]  \right) = \\
+			 =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}p(\bx, t) \frac{\partial \log p(\bx, t)}{\partial \bx}} \right]  \right)= \\
+		  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( {\color{teal}\mathbf{f}(\bx, t) + \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) p(\bx, t) \right]  \right)
+ 		\end{multline*}
+ 		}
+ 	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+\begin{frame}{Probability flow ODE}
+	\begin{block}{Theorem}
+		Assume SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ induces the distribution $p(\bx, t)$.
+		Then there exists ODE with identical probabilities distribution $p(\bx, t)$ of the form
+		\vspace{-0.3cm}
+		\[
+			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Proof (continued)}
+ 		\vspace{-0.5cm}
+ 		\begin{multline*}
+ 			\frac{\partial p(\bx, t)}{\partial t} =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( {\color{teal}\mathbf{f}(\bx, t) + \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) p(\bx, t) \right]  \right) =\\
+ 			  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ {\color{teal}\tilde{\mathbf{f}}(\bx, t)} p(\bx, t) \right]  \right)
+ 		\end{multline*}
+ 	\end{block}
+ 	\vspace{-1.0cm}
+ 	\[
+ 		d \bx = \tilde{\bff}(\bx, t) dt + 0 \cdot d \bw = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+ 	\]
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Probability flow ODE}
+	\begin{align*}
+		d\bx &= \mathbf{f}(\bx, t) dt + g(t) d \bw - \text{SDE} \\
+		d\bx &= \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt  - \text{Probability flow ODE}
+	\end{align*}
 	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
  		\vspace{-0.2cm}
  		\[
  			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
  		\]
- 	\end{block}
-		\[
-			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt = \tilde{\mathbf{f}}(\bx, t) dt
-		\] 	
-	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
-\end{frame}
-%=======
-\begin{frame}{Probability flow ODE}
-	\begin{block}{Kolmogorov-Fokker-Planck equation}
- 		\vspace{-0.2cm}
- 		\begin{multline*}
- 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
- 			=  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}\frac{\partial p(\bx, t)}{\partial \bx}} \right]  \right) = \\
- 			 =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}p(\bx, t) \frac{\partial \log p(\bx, t)}{\partial \bx}} \right]  \right)= \\
- 			  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( \mathbf{f}(\bx, t) + \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}\right) p(\bx, t) \right]  \right)\\
- 			  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \tilde{\mathbf{f}}(\bx, t) p(\bx, t) \right]  \right)
- 		\end{multline*}
  	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
