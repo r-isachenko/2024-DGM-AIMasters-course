@@ -207,7 +207,7 @@
 	\]
 	\vspace{-0.5cm}
 	\begin{itemize}
-		 \item $\mathbf{f}(\bx, t): \bbR^m \times \bbR \rightarrow \bbR^m$ is the \textbf{drift} function of $\bx(t)$.
+		 \item $\mathbf{f}(\bx, t): \bbR^m \times [0, 1] \rightarrow \bbR^m$ is the \textbf{drift} function of $\bx(t)$.
 		 \item $g(t): \bbR \rightarrow \bbR$ is the \textbf{diffusion} function of $\bx(t)$.
 		 \item $\bw(t)$ is the standard Wiener process (Brownian motion):
 		 \begin{enumerate}
@@ -235,14 +235,16 @@
 			\bx(t + dt) = \bx(t) + \bff(\bx(t), t) \cdot dt + g(t) \cdot \bepsilon \cdot \sqrt{dt}
 		\]
 		If $dt = 1$, then
+		\vspace{-0.3cm}
 		\[
 			\bx_{t + 1} = \bx_t + \bff(\bx_t, t) + g(t) \cdot \bepsilon
 		\]
-		\vspace{-0.5cm}
+		\vspace{-0.7cm}
 	\end{block}
 	\begin{itemize}
 		\item At each moment $t$ we have the density $p(\bx(t), t)$.
-		\item How to get \textbf{the distribution path} $p(\bx, t)$ for $\bx(t)$?
+		\item $p: \bbR^m \times [0, 1] \rightarrow \bbR_+$ is a \textbf{probability path} between $p_0(\bx)$ and $p_1(\bx)$.
+		\item How to get the distribution path $p(\bx, t)$ for $\bx(t)$?
 	\end{itemize}
 \end{frame}
 %=======
@@ -390,17 +392,38 @@
 %=======
 \section{Reverse SDE}
 %=======
-\begin{frame}{Reverse ODE}
-	\vspace{-0.5cm}
+\begin{frame}{Reverse SDE}
+	\vspace{-0.3cm}
 	\[
 		d\bx = \mathbf{f}(\bx, t) dt, \quad \bx(t + dt) = \bx(t) + \mathbf{f}(\bx, t) dt
 	\]
+	Here $dt$ could be $>0$ or $<0$. 
+	\begin{block}{Reverse ODE}
+		Let $\tau = 1 - t$ ($d\tau = -dt$).
+		\vspace{-0.3cm}
+		\[
+			d\bx = - \bff(\bx, 1 - \tau) d \tau
+		\]
+	\end{block}
 	\vspace{-0.5cm}
 	\begin{itemize}
-		\item Here $dt$ could be $>0$ or $<0$. It is straightforward to revert ODE.
 		\item How to revert SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$? 
 		\item Wiener process gives the randomness that we have to revert.
 	\end{itemize}
+	\vspace{-0.3cm}
+	\begin{block}{Theorem}
+		There exists the reverse SDE for the SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ that has the following form
+		\vspace{-0.3cm}
+		\[
+			d\bx = \left(\mathbf{f}(\bx, t) {\color{violet}- g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) dt + g(t) d \bw
+		\]
+		\vspace{-0.5cm} \\
+		with $dt < 0$.
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Reverse ODE}
 	\begin{block}{Theorem}
 		There exists the reverse SDE for the SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ that has the following form
 		\vspace{-0.3cm}
@@ -411,25 +434,44 @@
 		with $dt < 0$.
 	\end{block}
 	\textbf{Note:} Here we also see the score function $\bs(\bx, t) = \frac{\partial}{\partial \bx} \log p(\bx, t)$.
+	\begin{block}{Sketch of the proof}
+		\begin{itemize}
+			\item Convert initial SDE to probability flow ODE.
+			\item Revert probability flow ODE.
+			\item Convert reverse probability flow ODE to reverse SDE.
+		\end{itemize}
+	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======
 \begin{frame}{Reverse ODE}
 	\begin{block}{Proof}
-	
-		Define the probability path for the reverse process $q(\bx, \tau) = p(\bx, 1 - \tau) = p(\bx, t)$ (here $\tau = 1 - t$).
-		{\footnotesize
-		\begin{multline*}
-			\frac{\partial q(\bx, \tau)}{\partial \tau} = \frac{\partial p(\bx, 1 - \tau)}{\partial \tau} = - \frac{\partial p(\bx,  t)}{\partial t} = \\
-			= - \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
-			= \text{tr}\left(\frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, 1 - \tau) q(\bx, \tau)\bigr] - \frac{1}{2} g^2(1 - \tau) \frac{\partial^2 q(\bx, \tau)}{\partial \bx^2} \right) = \\
-			= \text{tr}\left(\frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, 1 - \tau) q(\bx, \tau)\bigr] - g^2(1 - \tau) \frac{\partial^2 q(\bx, \tau)}{\partial \bx^2} + \frac{1}{2} g^2(1 - \tau) \frac{\partial^2 q(\bx, \tau)}{\partial \bx^2} \right) = \\
-			= \text{tr}\left(\frac{\partial}{\partial \bx} \left[ \left( {\color{teal}\mathbf{f}(\bx, 1 - \tau) - g^2(1 - \tau) \frac{\partial \log q(\bx, \tau)}{\partial \bx}}\right) q(\bx, \tau)\right] + \frac{1}{2} {\color{olive}g^2(1 - \tau)} \frac{\partial^2 q(\bx, \tau)}{\partial \bx^2} \right)
-		\end{multline*}
-		}
-		\[
-			d\bx = \left( {\color{teal}\mathbf{f}(\bx, 1 - \tau) - g^2(1 - \tau) \frac{\partial \log q(\bx, \tau)}{\partial \bx}} \right) d\tau + {\color{olive}g(1 - \tau)} d \bw
-		\]
+		\begin{itemize}
+			\item Convert initial SDE to probability flow ODE
+			\vspace{-0.1cm}
+			{\footnotesize
+			\begin{align*}
+				d\bx &= \mathbf{f}(\bx, t) dt + g(t) d \bw \\
+				d\bx &= \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+			\end{align*}
+			}
+			\item Revert probability flow ODE
+			\vspace{-0.1cm}
+			{\footnotesize
+			\begin{align*}
+				d\bx &= \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt \\
+				d\bx &= \left[- \mathbf{f}(\bx, 1 - \tau) + \frac{1}{2} g^2(1 - \tau) \frac{\partial}{\partial \bx} \log p(\bx, 1 - \tau) \right] d \tau
+			\end{align*}
+			}
+			\item Convert reverse probability flow ODE to reverse SDE
+			\vspace{-0.1cm}
+			{\footnotesize
+			\begin{align*}
+				d\bx &= \left[- \mathbf{f}(\bx, 1 - \tau) + \frac{1}{2} g^2(1 - \tau) \frac{\partial}{\partial \bx} \log p(\bx, 1 - \tau) \right] \tau \\
+				d\bx &= \left[- \mathbf{f}(\bx, 1 - \tau) + g^2(1 - \tau) \frac{\partial}{\partial \bx} \log p(\bx, 1 - \tau) \right] d\tau + g(1 - \tau) d \bw
+			\end{align*}
+			}
+		\end{itemize}
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
@@ -447,7 +489,7 @@
 	\begin{block}{Proof (continued)}
 		\vspace{-0.7cm}
 		\[
-			d\bx = \left(\mathbf{f}(\bx, 1 - \tau) - g^2(1 - \tau) \frac{\partial \log q(\bx, \tau)}{\partial \bx}\right) d\tau + g(1 - \tau) d \bw
+			d\bx = \left[- \mathbf{f}(\bx, 1 - \tau) + g^2(1 - \tau) \frac{\partial}{\partial \bx} \log p(\bx, 1 - \tau) \right] d \tau + g(1 - \tau) d \bw
 		\]
 		\[
 			d\bx = \left(\mathbf{f}(\bx, t) - g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}\right) dt + g(t) d \bw
@@ -486,7 +528,7 @@
 			\bx_{t-1} &= \bx + \sigma_{t-1} \cdot \bepsilon_{t-1}, \quad p(\bx, \sigma_{t-1}) = \cN(\bx, \sigma_{t-1}^2 \cdot \bI)
 		\end{align*}
 	\end{block}
-	\vspace{-0.7cm}
+	\vspace{-1.0cm}
 	\[
 		\bx_t = \bx_{t - 1} + \sqrt{\sigma^2_t - \sigma^2_{t-1}} \cdot \bepsilon, \quad q(\bx_{t} | \bx_{t-1}) = \cN(\bx_{t-1}, (\sigma_t^2 - \sigma_{t-1}^2) \cdot \bI)
 	\]
@@ -529,19 +571,17 @@
 \end{frame}
 %=======
 \begin{frame}{Diffusion SDE}
+	\vspace{-0.3cm}
 	\[
 		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
 	\]
 	\vspace{-0.3cm}
 	\begin{block}{Variance Exploding SDE (NCSN)}
-		\vspace{-0.3cm}
+		\vspace{-0.5cm}
 		\[
-			d \bx = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot d \bw
+			d \bx = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot d \bw, \quad \bff(\bx, t) = 0, \quad g(t) = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} 
 		\]
-		\[
-			\bff(\bx, t) = 0, \quad g(t) = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} 
-		\]
-		\vspace{-0.3cm}
+		Variance grows since $\sigma(t)$ is a monotonically increasing function.
 	\end{block}
 	\begin{block}{Variance Preserving SDE (DDPM)}
 		\vspace{-0.3cm}
@@ -551,6 +591,7 @@
 		\[
 			\bff(\bx, t) = - \frac{1}{2} \beta(t) \bx(t) , \quad g(t) = \sqrt{\beta(t)} 
 		\]
+		Variance is preserved if $\bx(0)$ has a unit variance.
 	\end{block}
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
