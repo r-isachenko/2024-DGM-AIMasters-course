@@ -207,9 +207,8 @@
 	\]
 	\vspace{-0.5cm}
 	\begin{itemize}
-		 \item $\mathbf{f}(\bx, t): \bbR^m \rightarrow \bbR^m$ is the \textbf{drift} function of $\bx(t)$.
+		 \item $\mathbf{f}(\bx, t): \bbR^m \times \bbR \rightarrow \bbR^m$ is the \textbf{drift} function of $\bx(t)$.
 		 \item $g(t): \bbR \rightarrow \bbR$ is the \textbf{diffusion} function of $\bx(t)$.
-		 \item If $g(t) = 0$ we get standard ODE.
 		 \item $\bw(t)$ is the standard Wiener process (Brownian motion):
 		 \begin{enumerate}
 		 	\item $\bw(0) = 0$ (almost surely);
@@ -217,6 +216,7 @@
 			 \item $\bw(t) - \bw(s) \sim \cN(0, (t - s) \bI)$, for $t > s$.
 		 \end{enumerate}
 		 \item $d \bw = \bw(t + dt) - \bw(t) = \cN(0, \bI \cdot dt ) = \bepsilon \cdot \sqrt{dt}$, where $\bepsilon \sim \cN(0, \bI)$.
+		 \item If $g(t) = 0$ we get standard ODE.
 	\end{itemize}
 \end{frame}
 %=======
@@ -242,7 +242,7 @@
 	\end{block}
 	\begin{itemize}
 		\item At each moment $t$ we have the density $p(\bx(t), t)$.
-		\item How to get the distribution $p(\bx, t)$ for $\bx(t)$?
+		\item How to get \textbf{the distribution path} $p(\bx, t)$ for $\bx(t)$?
 	\end{itemize}
 \end{frame}
 %=======
@@ -253,7 +253,7 @@
 	\]
 	\vspace{-0.4cm}
  	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
- 		Evolution of the distribution $p(\bx, t)$ is given by the following ODE:
+ 		Evolution of the distribution $p(\bx, t)$ is given by the following equation:
  		\vspace{-0.2cm}
  		\[
  			\frac{\partial p(\bx, t)}{\partial t} = - \text{div}\left(\bff(\bx, t) p(\bx, t)\right) + \frac{1}{2}g^2(t) \Delta_{\bx}p(\bx, t)
@@ -279,7 +279,7 @@
  		\]
  	\end{block}
  	 \begin{itemize}
- 	 	\item KFP theorem uniquely defines the dynamic $\bx(t)$.
+ 	 	\item KFP theorem uniquely defines the SDE.
  		 \item This is the generalization of KFP theorem that we used in continuous-in-time NF:
  	 	\[
  	 		\frac{d \log p(\bx(t), t)}{d t} = - \text{tr} \left( \frac{\partial \bff(\bx, t)}{\partial \bx} \right).
@@ -292,8 +292,9 @@
  			d\bx &= {\color{violet}\mathbf{f}(\bx, t)} dt + {\color{teal}g(t)} d \bw \\
  			d \bx &= {\color{violet}\frac{1}{2} \frac{\partial}{\partial \bx} \log p(\bx, t)} d t + {\color{teal} 1 } \cdot d \bw
  		\end{align*}
+ 		\vspace{-0.3cm}
  	\end{block}
- 	Let apply KFP theorem.
+ 	Let apply KFP theorem to this SDE.
 \end{frame}
 %=======
 \begin{frame}{Langevin SDE (special case)}
@@ -321,21 +322,175 @@
 	\end{block}
 \end{frame}
 %=======
+\section{Probability flow ODE}
+%=======
+\begin{frame}{Probability flow ODE}
+	\begin{block}{Theorem}
+		Assume SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ induces the probability path $p(\bx, t)$.
+		Then there exists ODE with identical probability path $p(\bx, t)$ of the form
+		\vspace{-0.3cm}
+		\[
+			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Proof}
+ 		\vspace{-0.7cm}
+ 		{\small
+ 		\begin{multline*}
+ 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
+ 			=  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) - \frac{1}{2} g^2(t) {\color{violet}\frac{\partial p(\bx, t)}{\partial \bx}} \right]  \right) = \\
+			 =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) - \frac{1}{2} g^2(t) {\color{violet}p(\bx, t) \frac{\partial \log p(\bx, t)}{\partial \bx}} \right]  \right)= \\
+		  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( {\color{teal}\mathbf{f}(\bx, t) - \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) p(\bx, t) \right]  \right)
+ 		\end{multline*}
+ 		}
+ 	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+\begin{frame}{Probability flow ODE}
+	\begin{block}{Theorem}
+		Assume SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ induces the distribution $p(\bx, t)$.
+		Then there exists ODE with identical probabilities distribution $p(\bx, t)$ of the form
+		\vspace{-0.3cm}
+		\[
+			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+		\]
+		\vspace{-0.7cm}
+	\end{block}
+	\begin{block}{Proof (continued)}
+ 		\vspace{-0.7cm}
+ 		\begin{multline*}
+ 			\frac{\partial p(\bx, t)}{\partial t} =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( {\color{teal}\mathbf{f}(\bx, t) - \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) p(\bx, t) \right]  \right) =\\
+ 			  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ {\color{teal}\tilde{\mathbf{f}}(\bx, t)} p(\bx, t) \right]  \right)
+ 		\end{multline*}
+ 	\end{block}
+ 	\vspace{-1.0cm}
+ 	\[
+ 		d \bx = \tilde{\bff}(\bx, t) dt + 0 \cdot d \bw = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+ 	\]
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Probability flow ODE}
+	\vspace{-0.5cm}
+	\begin{align*}
+		d\bx &= \mathbf{f}(\bx, t) dt + g(t) d \bw - \text{SDE} \\
+		d\bx &= \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt  - \text{probability flow ODE}
+	\end{align*}
+	\vspace{-0.3cm}
+	\begin{itemize}
+		\item The term $\bs(\bx, t) = \frac{\partial}{\partial \bx} \log p(\bx, t)$ is a score function for continuous time.
+		\item ODE has more stable trajectories.
+	\end{itemize}
+	\begin{figure}
+		\includegraphics[width=0.75\linewidth]{figs/probability_flow}
+	\end{figure}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\section{Reverse SDE}
+%=======
+\begin{frame}{Reverse ODE}
+	\vspace{-0.5cm}
+	\[
+		d\bx = \mathbf{f}(\bx, t) dt, \quad \bx(t + dt) = \bx(t) + \mathbf{f}(\bx, t) dt
+	\]
+	\vspace{-0.5cm}
+	\begin{itemize}
+		\item Here $dt$ could be $>0$ or $<0$. It is straightforward to revert ODE.
+		\item How to revert SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$? 
+		\item Wiener process gives the randomness that we have to revert.
+	\end{itemize}
+	\begin{block}{Theorem}
+		There exists the reverse SDE for the SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ that has the following form
+		\vspace{-0.3cm}
+		\[
+			d\bx = \left(\mathbf{f}(\bx, t) {\color{violet}- g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) dt + g(t) d \bw
+		\]
+		\vspace{-0.5cm} \\
+		with $dt < 0$.
+	\end{block}
+	\textbf{Note:} Here we also see the score function $\bs(\bx, t) = \frac{\partial}{\partial \bx} \log p(\bx, t)$.
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Reverse ODE}
+	\begin{block}{Proof}
+	
+		Define the probability path for the reverse process $q(\bx, \tau) = p(\bx, 1 - \tau) = p(\bx, t)$ (here $\tau = 1 - t$).
+		{\footnotesize
+		\begin{multline*}
+			\frac{\partial q(\bx, \tau)}{\partial \tau} = \frac{\partial p(\bx, 1 - \tau)}{\partial \tau} = - \frac{\partial p(\bx,  t)}{\partial t} = \\
+			= - \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
+			= \text{tr}\left(\frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, 1 - \tau) q(\bx, \tau)\bigr] - \frac{1}{2} g^2(1 - \tau) \frac{\partial^2 q(\bx, \tau)}{\partial \bx^2} \right) = \\
+			= \text{tr}\left(\frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, 1 - \tau) q(\bx, \tau)\bigr] - g^2(1 - \tau) \frac{\partial^2 q(\bx, \tau)}{\partial \bx^2} + \frac{1}{2} g^2(1 - \tau) \frac{\partial^2 q(\bx, \tau)}{\partial \bx^2} \right) = \\
+			= \text{tr}\left(\frac{\partial}{\partial \bx} \left[ \left( {\color{teal}\mathbf{f}(\bx, 1 - \tau) - g^2(1 - \tau) \frac{\partial \log q(\bx, \tau)}{\partial \bx}}\right) q(\bx, \tau)\right] + \frac{1}{2} {\color{olive}g^2(1 - \tau)} \frac{\partial^2 q(\bx, \tau)}{\partial \bx^2} \right)
+		\end{multline*}
+		}
+		\[
+			d\bx = \left( {\color{teal}\mathbf{f}(\bx, 1 - \tau) - g^2(1 - \tau) \frac{\partial \log q(\bx, \tau)}{\partial \bx}} \right) d\tau + {\color{olive}g(1 - \tau)} d \bw
+		\]
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Reverse ODE}
+	\begin{block}{Theorem}
+		There exists the reverse SDE for the SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ that has the following form
+		\vspace{-0.3cm}
+		\[
+			d\bx = \left(\mathbf{f}(\bx, t) {\color{violet}- g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) dt + g(t) d \bw
+		\]
+		\vspace{-0.5cm} \\
+		with $dt < 0$.
+	\end{block}
+	\begin{block}{Proof (continued)}
+		\vspace{-0.7cm}
+		\[
+			d\bx = \left(\mathbf{f}(\bx, 1 - \tau) - g^2(1 - \tau) \frac{\partial \log q(\bx, \tau)}{\partial \bx}\right) d\tau + g(1 - \tau) d \bw
+		\]
+		\[
+			d\bx = \left(\mathbf{f}(\bx, t) - g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}\right) dt + g(t) d \bw
+		\]
+		Here $d\tau > 0$ and $dt < 0$.
+	\end{block}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
+\begin{frame}{Reverse ODE}
+	\vspace{-0.5cm}
+	\begin{align*}
+		d\bx &= \mathbf{f}(\bx, t) dt + g(t) d \bw - \text{SDE} \\
+		d\bx &= \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt - \text{probability flow ODE} \\
+		d\bx &= \left(\mathbf{f}(\bx, t) - g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}\right) dt + g(t) d \bw - \text{reverse SDE}
+	\end{align*}
+	\vspace{-0.5cm}
+	\begin{itemize}
+		\item We got the way to transform one distribution to another via SDE with some probability path $p(\bx, t)$.
+		\item We are able to revert this process with the score function.
+	\end{itemize}
+	\vspace{-0.3cm}
+	\begin{figure}
+		\includegraphics[width=0.9\linewidth]{figs/sde}
+	\end{figure}
+	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
+\end{frame}
+%=======
 \section{Diffusion and Score matching SDEs}
 %=======
 \begin{frame}{Score matching SDE}
 	\begin{block}{Denoising score matching}
 		\vspace{-0.7cm}
 		\begin{align*}
-			\bx_l &= \bx + \sigma_l \cdot \bepsilon_l, \quad p(\bx_l | \bx, \sigma_l) = \cN(\bx, \sigma_l^2 \bI) \\
-			\bx_{l-1} &= \bx + \sigma_{l-1} \cdot \bepsilon_{l-1}, \quad p(\bx_{l-1} | \bx, \sigma_{l-1}) = \cN(\bx, \sigma_{l-1}^2 \bI)
+			\bx_t &= \bx + \sigma_t \cdot \bepsilon_t, \quad p(\bx, \sigma_t) = \cN(\bx, \sigma_t^2 \cdot \bI) \\
+			\bx_{t-1} &= \bx + \sigma_{t-1} \cdot \bepsilon_{t-1}, \quad p(\bx, \sigma_{t-1}) = \cN(\bx, \sigma_{t-1}^2 \cdot \bI)
 		\end{align*}
 	\end{block}
 	\vspace{-0.7cm}
 	\[
-		\bx_l = \bx_{l - 1} + \sqrt{\sigma^2_l - \sigma^2_{l-1}} \cdot \bepsilon, \quad p(\bx_l | \bx_{l-1}, \sigma_l) = \cN(\bx_{l-1}, (\sigma_l^2 - \sigma_{l-1}^2) \cdot \bI)
+		\bx_t = \bx_{t - 1} + \sqrt{\sigma^2_t - \sigma^2_{t-1}} \cdot \bepsilon, \quad q(\bx_{t} | \bx_{t-1}) = \cN(\bx_{t-1}, (\sigma_t^2 - \sigma_{t-1}^2) \cdot \bI)
 	\]
-	Let turn this Markov chain to the continuous stochastic process~$\bx(t)$ taking $L \rightarrow \infty$:
+	Let turn this Markov chain to the continuous stochastic process~$\bx(t)$ taking $T \rightarrow \infty$:
 	\[
 		{\color{teal}\bx(t + dt)} = {\color{teal}\bx(t)} + \sqrt{\frac{\sigma^2(t + dt) - \sigma^2(t)}{dt} {\color{violet}dt}} \cdot {\color{violet}\bepsilon} = \bx(t) + \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot {\color{violet}d \bw}
 	\]
@@ -374,14 +529,17 @@
 \end{frame}
 %=======
 \begin{frame}{Diffusion SDE}
-	\begin{figure}
-		\includegraphics[width=\linewidth]{figs/sde}
-	\end{figure}
+	\[
+		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
+	\]
 	\vspace{-0.3cm}
 	\begin{block}{Variance Exploding SDE (NCSN)}
 		\vspace{-0.3cm}
 		\[
 			d \bx = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} \cdot d \bw
+		\]
+		\[
+			\bff(\bx, t) = 0, \quad g(t) = \sqrt{\frac{ d [\sigma^2(t)]}{dt}} 
 		\]
 		\vspace{-0.3cm}
 	\end{block}
@@ -390,86 +548,25 @@
 		\[
 			d \bx = - \frac{1}{2} \beta(t) \bx(t) dt + \sqrt{\beta(t)} \cdot d \bw
 		\]
-	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
-\end{frame}
-%=======
-\section{Probability flow ODE}
-%=======
-%=======
-\begin{frame}{Probability flow ODE}
-	\begin{block}{Theorem}
-		Assume SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ induces the distribution $p(\bx, t)$.
-		Then there exists ODE with identical probabilities distribution $p(\bx, t)$ of the form
-		\vspace{-0.3cm}
 		\[
-			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
+			\bff(\bx, t) = - \frac{1}{2} \beta(t) \bx(t) , \quad g(t) = \sqrt{\beta(t)} 
 		\]
-		\vspace{-0.7cm}
 	\end{block}
-	\begin{block}{Proof}
- 		\vspace{-0.7cm}
- 		{\small
- 		\begin{multline*}
- 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right) = \\
- 			=  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}\frac{\partial p(\bx, t)}{\partial \bx}} \right]  \right) = \\
-			 =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \mathbf{f}(\bx, t) p(\bx, t) + \frac{1}{2} g^2(t) {\color{violet}p(\bx, t) \frac{\partial \log p(\bx, t)}{\partial \bx}} \right]  \right)= \\
-		  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( {\color{teal}\mathbf{f}(\bx, t) + \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) p(\bx, t) \right]  \right)
- 		\end{multline*}
- 		}
- 	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
-\end{frame}
-\begin{frame}{Probability flow ODE}
-	\begin{block}{Theorem}
-		Assume SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ induces the distribution $p(\bx, t)$.
-		Then there exists ODE with identical probabilities distribution $p(\bx, t)$ of the form
-		\vspace{-0.3cm}
-		\[
-			d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
-		\]
-		\vspace{-0.7cm}
-	\end{block}
-	\begin{block}{Proof (continued)}
- 		\vspace{-0.5cm}
- 		\begin{multline*}
- 			\frac{\partial p(\bx, t)}{\partial t} =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ \left( {\color{teal}\mathbf{f}(\bx, t) + \frac{1}{2} g^2(t) \frac{\partial \log p(\bx, t)}{\partial \bx}}\right) p(\bx, t) \right]  \right) =\\
- 			  =  \text{tr}\left(- \frac{\partial}{\partial \bx} \left[ {\color{teal}\tilde{\mathbf{f}}(\bx, t)} p(\bx, t) \right]  \right)
- 		\end{multline*}
- 	\end{block}
- 	\vspace{-1.0cm}
- 	\[
- 		d \bx = \tilde{\bff}(\bx, t) dt + 0 \cdot d \bw = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
- 	\]
-	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
-\end{frame}
-%=======
-\begin{frame}{Probability flow ODE}
-	\begin{align*}
-		d\bx &= \mathbf{f}(\bx, t) dt + g(t) d \bw - \text{SDE} \\
-		d\bx &= \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt  - \text{Probability flow ODE}
-	\end{align*}
-	\begin{block}{Theorem (Kolmogorov-Fokker-Planck)}
- 		\vspace{-0.2cm}
- 		\[
- 			\frac{\partial p(\bx, t)}{\partial t} = \text{tr}\left(- \frac{\partial}{\partial \bx} \bigl[ \mathbf{f}(\bx, t) p(\bx, t)\bigr] + \frac{1}{2} g^2(t) \frac{\partial^2 p(\bx, t)}{\partial \bx^2} \right)
- 		\]
- 	\end{block}
-	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
-\end{frame}
-%=======
-\begin{frame}{Probability flow ODE}
-	\[
-		d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw
-	\] 	
-	\[
-		d\bx = \left[\mathbf{f}(\bx, t) -\frac{1}{2} g^2(t) \frac{\partial}{\partial \bx} \log p(\bx, t) \right] dt
-	\]
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======
 \begin{frame}{Summary}
 	\begin{itemize}
+		\item SDE defines stochastic process with drift and diffusion terms. ODEs are the special case of SDEs.
+		\vfill
+		\item KFP equation defines the dynamic of the probability function for the SDE. 
+		\vfill
+		\item Langevin SDE has constant probability path.
+		\vfill
+		\item There exists special probability flow ODE for each SDE that gives the same probability path.
+		\vfill
+		\item It is possible to revert SDE using score function.
+		\vfill
 		\item Score matching (NCSN) and diffusion models (DDPM) are the discretizations of the SDEs (variance exploding and variance preserving).
 	\end{itemize}
 \end{frame}
