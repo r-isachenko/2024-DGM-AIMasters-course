@@ -227,7 +227,7 @@
 	\vspace{-0.3cm}
 	\begin{itemize}
 		\item In contrast to ODE, initial condition $\bx(0)$ does not uniquely determine the process trajectory.
-		\item We have two sources of randomness: initial distribution $p_0(\bx)$ and Wiener process $w(t)$.
+		\item We have two sources of randomness: initial distribution $p_0(\bx)$ and Wiener process $\bw(t)$.
 	\end{itemize}
 	\begin{block}{Discretization of SDE (Euler method)}
 		\vspace{-0.3cm}
@@ -423,7 +423,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======
-\begin{frame}{Reverse ODE}
+\begin{frame}{Reverse SDE}
 	\begin{block}{Theorem}
 		There exists the reverse SDE for the SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ that has the following form
 		\vspace{-0.3cm}
@@ -444,7 +444,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======
-\begin{frame}{Reverse ODE}
+\begin{frame}{Reverse SDE}
 	\begin{block}{Proof}
 		\begin{itemize}
 			\item Convert initial SDE to probability flow ODE
@@ -467,7 +467,7 @@
 			\vspace{-0.1cm}
 			{\footnotesize
 			\begin{align*}
-				d\bx &= \left[- \mathbf{f}(\bx, 1 - \tau) + \frac{1}{2} g^2(1 - \tau) \frac{\partial}{\partial \bx} \log p(\bx, 1 - \tau) \right] \tau \\
+				d\bx &= \left[- \mathbf{f}(\bx, 1 - \tau) + \frac{1}{2} g^2(1 - \tau) \frac{\partial}{\partial \bx} \log p(\bx, 1 - \tau) \right] d \tau \\
 				d\bx &= \left[- \mathbf{f}(\bx, 1 - \tau) + g^2(1 - \tau) \frac{\partial}{\partial \bx} \log p(\bx, 1 - \tau) \right] d\tau + g(1 - \tau) d \bw
 			\end{align*}
 			}
@@ -476,7 +476,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======
-\begin{frame}{Reverse ODE}
+\begin{frame}{Reverse SDE}
 	\begin{block}{Theorem}
 		There exists the reverse SDE for the SDE $d\bx = \mathbf{f}(\bx, t) dt + g(t) d \bw$ that has the following form
 		\vspace{-0.3cm}
@@ -499,7 +499,7 @@
 	\myfootnotewithlink{https://arxiv.org/abs/2011.13456}{Song Y., et al. Score-Based Generative Modeling through Stochastic Differential Equations, 2020}
 \end{frame}
 %=======
-\begin{frame}{Reverse ODE}
+\begin{frame}{Reverse SDE}
 	\vspace{-0.5cm}
 	\begin{align*}
 		d\bx &= \mathbf{f}(\bx, t) dt + g(t) d \bw - \text{SDE} \\
